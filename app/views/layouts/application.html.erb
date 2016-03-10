@@ -1,15 +1,19 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Blog5</title>
+    <title>Todo List</title>
     <%= csrf_meta_tags %>
     <%= action_cable_meta_tag %>
 
     <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => 'reload' %>
     <%= javascript_include_tag 'application', 'data-turbolinks-track' => 'reload' %>
+	<%= yield :head %>
   </head>
 
   <body>
-    <%= yield %>
+	 <div id='container'>
+		 <h1>Todo List</h1>
+	 	    <%= yield %>
+	 </div>
   </body>
 </html>

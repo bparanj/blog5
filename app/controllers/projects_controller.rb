@@ -60,20 +60,6 @@ class ProjectsController < ApplicationController
       format.json { head :no_content }
     end
   end
-
-  protected
-  
-    def user_layout
-      if admin?
-        'admin'
-      else
-        'application'
-      end
-    end
-  
-    def admin?
-      false
-    end
     
   private
     # Use callbacks to share common setup or constraints between actions.
