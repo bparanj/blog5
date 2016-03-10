@@ -1,0 +1,21 @@
+['a', 'b'].map(&:upcase)
+
+ => ["A", "B"] 
+
+['a', 'b'].map{|x| x.upcase}
+
+['a', 'b'].map{|x| x.send(:upcase)}
+
+
+
+
+['a', 'b'].map{|x| x.send(:upcase)}
+
+vs
+
+['a', 'b'].map(&:upcase)
+
+
+(&:upcase) --> {|x| x.send(:upcase)}
+
+& calls 

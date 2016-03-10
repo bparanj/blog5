@@ -1,5 +1,16 @@
-1.
+Chaining ActiveRelation Methods in Rails 5
 
+## Objective
+
+To learn the alternative to with_scope that is no longer available in Rails 5.
+
+## Steps
+
+### Step 1
+
+The task model has a find_incomplete class method that finds all the incomplete tasks.
+
+```ruby
 class Task < ApplicationRecord
   belongs_to :project
   
@@ -7,80 +18,129 @@ class Task < ApplicationRecord
     where(complete: false).order('created_at DESC')
   end
 end
+```
 
+### Step 2
 
-2.
+In the rails console, we can call call it.
 
+```ruby
 Task.find_incomplete
   Task Load (0.2ms)  SELECT "tasks".* FROM "tasks" WHERE "tasks"."complete" = ? ORDER BY created_at DESC  [["complete", false]]
  => #<ActiveRecord::Relation [#<Task id: 3, name: "Buy a puppy", complete: false, created_at: "2016-03-10 00:48:39", updated_at: "2016-03-10 00:48:39">, #<Task id: 1, name: "Get rich quick", complete: false, created_at: "2016-03-10 00:48:39", updated_at: "2016-03-10 00:48:39">]> 
+```
+
+### Step 3
  
- 3. 
+Can we use with_scope to limit the number of results in the query?
+
+```ruby 
+def self.find_incomplete(options = {})
+  with_scope find: options do
+    where(complete: false).order('created_at DESC')
+  end
+end
+```
+
+This gives the error:
+
+``` 
+NoMethodError: undefined method `with_scope' for Task (call 'Task.connection' to establish a connection):Class
+Did you mean?  with_options
+```
+
+The with_scope was removed from Rails 4. Last version that had this method was Rails 3.1.
  
- with_scope was removed from Rails 4. Last version that had this method was 3.1.
- 
- def self.find_incomplete(options = {})
-   with_scope find: options do
-     where(complete: false).order('created_at DESC')
-   end
- end
- 
- NoMethodError: undefined method `with_scope' for Task (call 'Task.connection' to establish a connection):Class
- Did you mean?  with_options
- 
- 4.
- 
- class Task < ApplicationRecord
-   belongs_to :project
+### Step 4
+
+We can chain the ActiveRelation methods to limit the result set.
+
+```ruby 
+class Task < ApplicationRecord
+  belongs_to :project
   
-   def self.find_incomplete(limit)
-     where(complete: false).order('created_at DESC').limit(limit)
-   end
- end
+  def self.find_incomplete(limit)
+    where(complete: false).order('created_at DESC').limit(limit)
+  end
+end
+```
  
- 5.
+### Step 5
+
+We can now limit the result set.
  
+```ruby
  > Task.find_incomplete 1
    Task Load (0.2ms)  SELECT  "tasks".* FROM "tasks" WHERE "tasks"."complete" = ? ORDER BY created_at DESC LIMIT ?  [["complete", false], ["LIMIT", 1]]
   => #<ActiveRecord::Relation [#<Task id: 3, name: "Buy a puppy", complete: false, created_at: "2016-03-10 00:48:39", updated_at: "2016-03-10 00:48:39">]> 
+```
+ 
+### Step 6
 
- 
- 6.
- 
- rails g scaffold project name:string
- 
- seeds.rb
- 
- wealthy = Project.create(name: 'Wealth Building')
- wealthy.tasks.create(name: 'Get rich quick', complete: false)
- wealthy.tasks.create(name: 'Write a book', complete: true)
+Let's create a project resource.
 
- happy = Project.create(name: 'Be Happy')
- happy.tasks.create(name: 'Buy a puppy', complete: false)
- happy.tasks.create(name: 'Dance in the rain', complete: true)
+```ruby 
+rails g scaffold project name:string
+```
+
+### Step 7
+
+Create sample data in seeds.rb
  
- rake db:migrate
- rake db:seed
+```ruby 
+wealthy = Project.create(name: 'Wealth Building')
+wealthy.tasks.create(name: 'Get rich quick', complete: false)
+wealthy.tasks.create(name: 'Write a book', complete: true)
+
+happy = Project.create(name: 'Be Happy')
+happy.tasks.create(name: 'Buy a puppy', complete: false)
+happy.tasks.create(name: 'Dance in the rain', complete: true)
+```
+
+### Step 8
+
+Define the `has_many` declaration in the project model.
  
- 
- class Project < ApplicationRecord
-   has_many :tasks
- end
- 
-  rails g migration add_project_id_to_tasks project_id:integer
+```ruby 
+class Project < ApplicationRecord
+  has_many :tasks
+end
+```
+
+### Step 9
+
+Create the migration to add the `project_id` foreign key to the tasks table.
+
+```
+rails g migration add_project_id_to_tasks project_id:integer
+```
   
-  rails db:migrate
-  rails db:seed
+### Step 10
+ 
+Create the table and populate the database.
   
-  
-  > p = Project.find 1
+```  
+rails db:migrate
+rails db:seed
+```  
+
+### Step 11
+
+We can now use the find_incomplete that limits the result set through the `has_many` association.
+
+```ruby  
+> p = Project.find 1
     Project Load (0.2ms)  SELECT  "projects".* FROM "projects" WHERE "projects"."id" = ? LIMIT ?  [["id", 1], ["LIMIT", 1]]
    => #<Project id: 1, name: "Wealth Building", created_at: "2016-03-10 01:26:12", updated_at: "2016-03-10 01:26:12"> 
    > tasks = p.tasks.find_incomplete(1)
     Task Load (0.1ms)  SELECT  "tasks".* FROM "tasks" WHERE "tasks"."project_id" = ? AND "tasks"."complete" = ? ORDER BY created_at DESC LIMIT ?  [["project_id", 1], ["complete", false], ["LIMIT", 1]]
    => #<ActiveRecord::AssociationRelation []>
-  
-  
- 
- 
- http://railscasts.com/episodes/5-using-with-scope?view=asciicast
+```  
+
+## Summary
+
+In this article, you learned how to chain methods to limit result set.
+
+
+
+http://railscasts.com/episodes/5-using-with-scope?view=asciicast

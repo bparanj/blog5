@@ -1,31 +1,67 @@
-$ rails c
-Running via Spring preloader in process 67898
-Loading development environment (Rails 5.0.0.beta3)
+
+## Objective
+
+To learn how to use Symbol#to_proc shortcut with ActiveRecord
+
+## Steps
+
+### Step 1
+
+Let's load all the projects.
+
+```ruby
  > projects = Project.all
   Project Load (1.3ms)  SELECT "projects".* FROM "projects"
  => #<ActiveRecord::Relation [#<Project id: 1, name: "Wealth Building", created_at: "2016-03-10 01:26:12", updated_at: "2016-03-10 01:26:12">, #<Project id: 2, name: "Wealth Building", created_at: "2016-03-10 01:26:36", updated_at: "2016-03-10 01:26:36">, #<Project id: 3, name: "Wealth Building", created_at: "2016-03-10 01:28:27", updated_at: "2016-03-10 01:28:27">, #<Project id: 4, name: "Be Happy", created_at: "2016-03-10 01:28:27", updated_at: "2016-03-10 01:28:27">]> 
  > names = projects.collect {|p| p.name}
  => ["Wealth Building", "Wealth Building", "Wealth Building", "Be Happy"] 
+```
+
+### Step 2
+
+We have 4 projects and 8 tasks.
+
+```ruby
  > Project.count
    (0.1ms)  SELECT COUNT(*) FROM "projects"
  => 4 
  > Task.count
    (0.1ms)  SELECT COUNT(*) FROM "tasks"
  => 8 
- > projects.collect {&:name}
-SyntaxError: (irb):5: syntax error, unexpected &
-projects.collect {&:name}
-                   ^
+```
+
+### Step 3
+
+We can use Symbol#to_proc method to get the names of all projects.
+
+```ruby 
+ > projects.collect(&:name)
  => ["Wealth Building", "Wealth Building", "Wealth Building", "Be Happy"] 
- > projects.collect{&:name}
-SyntaxError: (irb):7: syntax error, unexpected &
-projects.collect{&:name}
-                  ^
- => ["WEALTH BUILDING", "WEALTH BUILDING", "WEALTH BUILDING", "BE HAPPY"] 
+```
+
+### Step 4
+
+We can check if all projects are valid.
+
+```ruby
  > projects.all?(&:valid?)
  => true 
+```
+
+### Step 5
+
+We can check if any of the project is valid.
+ 
+```ruby 
  > projects.any?(&:valid?)
  => true 
+```
+
+We can save all the projects using the Symbol#to_proc shortcut.
+
+### Step 6
+ 
+```ruby 
  > projects.each(&:save!)
    (0.1ms)  begin transaction
    (0.1ms)  commit transaction
@@ -36,13 +72,23 @@ projects.collect{&:name}
    (0.0ms)  begin transaction
    (0.0ms)  commit transaction
  => [#<Project id: 1, name: "Wealth Building", created_at: "2016-03-10 01:26:12", updated_at: "2016-03-10 01:26:12">, #<Project id: 2, name: "Wealth Building", created_at: "2016-03-10 01:26:36", updated_at: "2016-03-10 01:26:36">, #<Project id: 3, name: "Wealth Building", created_at: "2016-03-10 01:28:27", updated_at: "2016-03-10 01:28:27">, #<Project id: 4, name: "Be Happy", created_at: "2016-03-10 01:28:27", updated_at: "2016-03-10 01:28:27">] 
+```
 
+### Step 7
 
+We can list all the names of the projects using the ampersand shortcut:
+
+```ruby
 > all_names = Project.all.collect(&:name)
   Project Load (0.2ms)  SELECT "projects".* FROM "projects"
  => ["Wealth Building", "Wealth Building", "Wealth Building", "Be Happy"] 
+```
 
+### Step 8
 
+We can use the ampersand shortcut in the project model.
+
+```ruby
 class Project < ApplicationRecord
   has_many :tasks
   
@@ -50,8 +96,11 @@ class Project < ApplicationRecord
     all.collect(&:name)
   end
 end
+```
 
+## Summary
 
+In this article, you learned how to use the Symbol#to_proc shortcut operator ampersand.
 
 
 
