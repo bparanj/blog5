@@ -121,10 +121,6 @@ GEM
       sprockets (>= 2.8, < 4.0)
       sprockets-rails (>= 2.0, < 4.0)
       tilt (>= 1.1, < 3)
-    spring (1.6.4)
-    spring-watcher-listen (2.0.0)
-      listen (>= 2.7, < 4.0)
-      spring (~> 1.2)
     sprockets (3.5.2)
       concurrent-ruby (~> 1.0)
       rack (> 1, < 3)
@@ -164,8 +160,6 @@ DEPENDENCIES
   puma
   rails (>= 5.0.0.beta3, < 5.1)
   sass-rails (~> 5.0)
-  spring
-  spring-watcher-listen (~> 2.0.0)
   sqlite3
   turbolinks (~> 5.x)
   tzinfo-data

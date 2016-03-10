@@ -1,0 +1,58 @@
+$ rails c
+Running via Spring preloader in process 67898
+Loading development environment (Rails 5.0.0.beta3)
+ > projects = Project.all
+  Project Load (1.3ms)  SELECT "projects".* FROM "projects"
+ => #<ActiveRecord::Relation [#<Project id: 1, name: "Wealth Building", created_at: "2016-03-10 01:26:12", updated_at: "2016-03-10 01:26:12">, #<Project id: 2, name: "Wealth Building", created_at: "2016-03-10 01:26:36", updated_at: "2016-03-10 01:26:36">, #<Project id: 3, name: "Wealth Building", created_at: "2016-03-10 01:28:27", updated_at: "2016-03-10 01:28:27">, #<Project id: 4, name: "Be Happy", created_at: "2016-03-10 01:28:27", updated_at: "2016-03-10 01:28:27">]> 
+ > names = projects.collect {|p| p.name}
+ => ["Wealth Building", "Wealth Building", "Wealth Building", "Be Happy"] 
+ > Project.count
+   (0.1ms)  SELECT COUNT(*) FROM "projects"
+ => 4 
+ > Task.count
+   (0.1ms)  SELECT COUNT(*) FROM "tasks"
+ => 8 
+ > projects.collect {&:name}
+SyntaxError: (irb):5: syntax error, unexpected &
+projects.collect {&:name}
+                   ^
+ => ["Wealth Building", "Wealth Building", "Wealth Building", "Be Happy"] 
+ > projects.collect{&:name}
+SyntaxError: (irb):7: syntax error, unexpected &
+projects.collect{&:name}
+                  ^
+ => ["WEALTH BUILDING", "WEALTH BUILDING", "WEALTH BUILDING", "BE HAPPY"] 
+ > projects.all?(&:valid?)
+ => true 
+ > projects.any?(&:valid?)
+ => true 
+ > projects.each(&:save!)
+   (0.1ms)  begin transaction
+   (0.1ms)  commit transaction
+   (0.0ms)  begin transaction
+   (0.0ms)  commit transaction
+   (0.0ms)  begin transaction
+   (0.0ms)  commit transaction
+   (0.0ms)  begin transaction
+   (0.0ms)  commit transaction
+ => [#<Project id: 1, name: "Wealth Building", created_at: "2016-03-10 01:26:12", updated_at: "2016-03-10 01:26:12">, #<Project id: 2, name: "Wealth Building", created_at: "2016-03-10 01:26:36", updated_at: "2016-03-10 01:26:36">, #<Project id: 3, name: "Wealth Building", created_at: "2016-03-10 01:28:27", updated_at: "2016-03-10 01:28:27">, #<Project id: 4, name: "Be Happy", created_at: "2016-03-10 01:28:27", updated_at: "2016-03-10 01:28:27">] 
+
+
+> all_names = Project.all.collect(&:name)
+  Project Load (0.2ms)  SELECT "projects".* FROM "projects"
+ => ["Wealth Building", "Wealth Building", "Wealth Building", "Be Happy"] 
+
+
+class Project < ApplicationRecord
+  has_many :tasks
+  
+  def self.all_names
+    all.collect(&:name)
+  end
+end
+
+
+
+
+
+
