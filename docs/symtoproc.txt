@@ -18,4 +18,12 @@ vs
 
 (&:upcase) --> {|x| x.send(:upcase)}
 
-& calls 
+& calls to_proc defined in Symbol class which returns Proc.new {|obj| obj.send(self)}
+
+class Symbol
+  def to_proc
+    Proc.new {|obj| obj.send(self)}
+  end
+end
+
+Closures preserve the running state of a program.
