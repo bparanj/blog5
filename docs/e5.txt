@@ -38,11 +38,49 @@ Task.find_incomplete
    end
  end
  
- 
+ 5.
  
  > Task.find_incomplete 1
    Task Load (0.2ms)  SELECT  "tasks".* FROM "tasks" WHERE "tasks"."complete" = ? ORDER BY created_at DESC LIMIT ?  [["complete", false], ["LIMIT", 1]]
   => #<ActiveRecord::Relation [#<Task id: 3, name: "Buy a puppy", complete: false, created_at: "2016-03-10 00:48:39", updated_at: "2016-03-10 00:48:39">]> 
- 2.3.0 :002 >
+
+ 
+ 6.
+ 
+ rails g scaffold project name:string
+ 
+ seeds.rb
+ 
+ wealthy = Project.create(name: 'Wealth Building')
+ wealthy.tasks.create(name: 'Get rich quick', complete: false)
+ wealthy.tasks.create(name: 'Write a book', complete: true)
+
+ happy = Project.create(name: 'Be Happy')
+ happy.tasks.create(name: 'Buy a puppy', complete: false)
+ happy.tasks.create(name: 'Dance in the rain', complete: true)
+ 
+ rake db:migrate
+ rake db:seed
  
  
+ class Project < ApplicationRecord
+   has_many :tasks
+ end
+ 
+  rails g migration add_project_id_to_tasks project_id:integer
+  
+  rails db:migrate
+  rails db:seed
+  
+  
+  > p = Project.find 1
+    Project Load (0.2ms)  SELECT  "projects".* FROM "projects" WHERE "projects"."id" = ? LIMIT ?  [["id", 1], ["LIMIT", 1]]
+   => #<Project id: 1, name: "Wealth Building", created_at: "2016-03-10 01:26:12", updated_at: "2016-03-10 01:26:12"> 
+   > tasks = p.tasks.find_incomplete(1)
+    Task Load (0.1ms)  SELECT  "tasks".* FROM "tasks" WHERE "tasks"."project_id" = ? AND "tasks"."complete" = ? ORDER BY created_at DESC LIMIT ?  [["project_id", 1], ["complete", false], ["LIMIT", 1]]
+   => #<ActiveRecord::AssociationRelation []>
+  
+  
+ 
+ 
+ http://railscasts.com/episodes/5-using-with-scope?view=asciicast

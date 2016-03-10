@@ -2,7 +2,10 @@
 # The data can then be loaded with the rails db:seed command (or created alongside the database with db:setup).
 #
 
-Task.create(name: 'Get rich quick', complete: false)
-Task.create(name: 'Write a book', complete: true)
-Task.create(name: 'Buy a puppy', complete: false)
-Task.create(name: 'Dance in the rain', complete: true)
+wealthy = Project.create(name: 'Wealth Building')
+wealthy.tasks.create(name: 'Get rich quick', complete: false)
+wealthy.tasks.create(name: 'Write a book', complete: true)
+
+happy = Project.create(name: 'Be Happy')
+happy.tasks.create(name: 'Buy a puppy', complete: false)
+happy.tasks.create(name: 'Dance in the rain', complete: true)
