@@ -1,0 +1,48 @@
+1.
+
+class Task < ApplicationRecord
+  belongs_to :project
+  
+  def self.find_incomplete
+    where(complete: false).order('created_at DESC')
+  end
+end
+
+
+2.
+
+Task.find_incomplete
+  Task Load (0.2ms)  SELECT "tasks".* FROM "tasks" WHERE "tasks"."complete" = ? ORDER BY created_at DESC  [["complete", false]]
+ => #<ActiveRecord::Relation [#<Task id: 3, name: "Buy a puppy", complete: false, created_at: "2016-03-10 00:48:39", updated_at: "2016-03-10 00:48:39">, #<Task id: 1, name: "Get rich quick", complete: false, created_at: "2016-03-10 00:48:39", updated_at: "2016-03-10 00:48:39">]> 
+ 
+ 3. 
+ 
+ with_scope was removed from Rails 4. Last version that had this method was 3.1.
+ 
+ def self.find_incomplete(options = {})
+   with_scope find: options do
+     where(complete: false).order('created_at DESC')
+   end
+ end
+ 
+ NoMethodError: undefined method `with_scope' for Task (call 'Task.connection' to establish a connection):Class
+ Did you mean?  with_options
+ 
+ 4.
+ 
+ class Task < ApplicationRecord
+   belongs_to :project
+  
+   def self.find_incomplete(limit)
+     where(complete: false).order('created_at DESC').limit(limit)
+   end
+ end
+ 
+ 
+ 
+ > Task.find_incomplete 1
+   Task Load (0.2ms)  SELECT  "tasks".* FROM "tasks" WHERE "tasks"."complete" = ? ORDER BY created_at DESC LIMIT ?  [["complete", false], ["LIMIT", 1]]
+  => #<ActiveRecord::Relation [#<Task id: 3, name: "Buy a puppy", complete: false, created_at: "2016-03-10 00:48:39", updated_at: "2016-03-10 00:48:39">]> 
+ 2.3.0 :002 >
+ 
+ 
