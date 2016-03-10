@@ -71,10 +71,40 @@ In application.html.erb:
 
 Reload the projects index page. You will see the content for the head.
 
+6
 
-Tip:
+In layout:
 
-Call content_for before yield.
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Todo List</title>
+    <%= csrf_meta_tags %>
+    <%= action_cable_meta_tag %>
+
+    <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => 'reload' %>
+    <%= javascript_include_tag 'application', 'data-turbolinks-track' => 'reload' %>
+	<%= yield :head %>
+  </head>
+
+  <body>
+	 <div id='container'>
+		 <h1>Todo List</h1>
+	 	    <%= yield %>
+	 </div>
+  </body>
+  
+<%= yield :footer %>
+  
+</html>
+
+7
+
+In projects/index.html.erb:
+
+<% content_for :footer do %>
+  This is the footer
+<% end %>
 
 
 http://railscasts.com/episodes/8-layouts-and-content-for?view=comments
