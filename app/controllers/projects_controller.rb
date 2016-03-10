@@ -1,6 +1,6 @@
 class ProjectsController < ApplicationController
   before_action :set_project, only: [:show, :edit, :update, :destroy]
-
+  
   # GET /projects
   # GET /projects.json
   def index
@@ -61,6 +61,20 @@ class ProjectsController < ApplicationController
     end
   end
 
+  protected
+  
+    def user_layout
+      if admin?
+        'admin'
+      else
+        'application'
+      end
+    end
+  
+    def admin?
+      false
+    end
+    
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_project

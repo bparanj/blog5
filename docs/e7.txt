@@ -1,0 +1,167 @@
+1. 
+
+The application wide layout is in `app/views/layouts/application.html.erb`:
+
+```html
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Blog5</title>
+    <%= csrf_meta_tags %>
+    <%= action_cable_meta_tag %>
+
+    <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => 'reload' %>
+    <%= javascript_include_tag 'application', 'data-turbolinks-track' => 'reload' %>
+  </head>
+
+  <body>
+    <%= yield %>
+  </body>
+</html>
+```
+
+2. 
+The projects index page lists all the projects. In app/views/projects/index.html.erb
+
+```ruby
+<h1>Projects</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @projects.each do |project| %>
+      <tr>
+        <td><%= project.name %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+```
+
+3.
+
+You can view page source to see the application layout provided title and other html tags.
+
+```html
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Blog5</title>
+  ...
+  </head>
+
+  <body>
+    <p id="notice"></p>
+
+<h1>Projects</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+      <tr>
+        <td>Wealth Building</td>
+        <td><a href="/projects/3">Show</a></td>
+        <td><a href="/projects/3/edit">Edit</a></td>
+        <td><a data-confirm="Are you sure?" rel="nofollow" data-method="delete" href="/projects/3">Destroy</a></td>
+      </tr>
+      <tr>
+        <td>Be Happy</td>
+        <td><a href="/projects/4">Show</a></td>
+        <td><a href="/projects/4/edit">Edit</a></td>
+        <td><a data-confirm="Are you sure?" rel="nofollow" data-method="delete" href="/projects/4">Destroy</a></td>
+      </tr>
+  </tbody>
+</table>
+
+  </body>
+</html>
+```
+
+4.
+
+We can create a admin layout in app/views/layouts/admin.html.erb:
+
+```html
+<h1>Admin layout</h1>
+
+<%= yield %>
+```
+
+This can be used in the projects controller with the `layout` method.
+
+```ruby
+class ProjectsController < ApplicationController
+  layout 'admin'
+  ...
+end
+```
+
+Reload the projects index page to see admin layout displayed in the view.
+
+5
+
+Create a controller specific layout in app/views/layouts/projects.html.erb:
+
+```
+<h1>Projects layout</h1>
+
+<%= yield %>
+```
+
+Projects controller will use projects layout by default.
+
+6
+
+Dynamic layouts:
+
+We can use :
+
+layout :user_layout 
+
+and define this method to dynamically change the layout based on some condition.
+
+```ruby
+protected
+
+  def user_layout
+    if admin?
+      'admin'
+    else
+      'application'
+    end
+  end
+
+  def admin?
+    false
+  end
+```
+
+7
+
+We can restrict the layout to a single action in a controller by using the render method.
+
+```ruby
+def index
+  @projects = Project.all
+    
+  render layout: 'admin'
+end
+```
+
+
+
+Application layout will be used by default if no other layout is specified.
+
+http://railscasts.com/episodes/7-all-about-layouts?view=comments
