@@ -1,0 +1,157 @@
+1.
+
+require 'test_helper'
+
+class UserTest < ActiveSupport::TestCase
+  test "test full name without middle initial" do
+    assert true
+  end
+end
+
+2
+
+rails test:models
+Run options: --seed 61892
+
+# Running:
+
+.
+
+Finished in 0.024655s, 40.5594 runs/s, 40.5594 assertions/s.
+
+1 runs, 1 assertions, 0 failures, 0 errors, 0 skips
+
+3
+
+require 'test_helper'
+
+class UserTest < ActiveSupport::TestCase
+  test "test full name without middle initial" do
+    user = User.new(first_name: 'Bugs', last_name: 'Bunny')
+    assert_equal 'Bugs Bunny', user.full_name
+  end
+end
+
+
+rake test test/models/user_test.rb 
+
+Run options: --seed 40163
+
+# Running:
+
+...........
+
+Finished in 0.428411s, 25.6763 runs/s, 37.3473 assertions/s.
+
+11 runs, 16 assertions, 0 failures, 0 errors, 0 skips
+
+4
+
+test "full name with middle initial" do
+  user = User.new(first_name: 'Bugs', middle_initial: 'C', last_name: 'Bunny')
+  assert_equal 'Bugs C. Bunny', user.full_name    
+end
+
+
+rake test test/models/user_test.rb 
+Run options: --seed 33381
+
+# Running:
+
+............
+
+Finished in 0.482059s, 24.8932 runs/s, 35.2654 assertions/s.
+
+12 runs, 17 assertions, 0 failures, 0 errors, 0 skips
+
+5
++, join, << performance
+
+Don't use join method to concatenate strings. For better performance use <<.
+
+6
+
+test "full name with blank middle initial" do
+  user = User.new(first_name: 'Bugs', middle_initial: '', last_name: 'Bunny')
+  assert_equal 'Bugs Bunny', user.full_name        
+end
+
+rake test test/models/user_test.rb 
+Run options: --seed 30166
+
+# Running:
+
+..........F
+
+Failure:
+UserTest#test_full_name_with_blank_middle_initial [/Users/bparanj/projects/blog5/test/models/user_test.rb:16]:
+Expected: "Bugs Bunny"
+  Actual: "Bugs . Bunny"
+
+
+bin/rails test test/models/user_test.rb:14
+
+..
+
+Finished in 0.347134s, 37.4495 runs/s, 51.8531 assertions/s.
+
+13 runs, 18 assertions, 1 failures, 0 errors, 0 skips
+
+
+7
+
+Use present? method to simplify the logic.
+ 
+ class User < ApplicationRecord
+   def full_name
+     name = first_name + ' '
+     name << "#{middle_initial}. " if middle_initial.present?
+     name << last_name
+   end
+ end
+ 
+ 
+ 
+  rake test test/models/user_test.rb 
+ Run options: --seed 27913
+
+ # Running:
+
+ .............
+
+ Finished in 0.342862s, 37.9161 runs/s, 52.4992 assertions/s.
+
+ 13 runs, 18 assertions, 0 failures, 0 errors, 0 skips
+ 
+  
+8
+  
+Refactor the tests.
+
+require 'test_helper'
+
+class UserTest < ActiveSupport::TestCase
+  test "full name without middle initial" do
+    user = sample_user(middle: nil)
+    assert_equal 'Bugs Bunny', user.full_name
+  end
+  
+  test "full name with middle initial" do
+    user = sample_user
+    assert_equal 'Bugs C. Bunny', user.full_name
+  end
+
+  test "full name with blank middle initial" do
+    user = sample_user(middle: '')
+    assert_equal 'Bugs Bunny', user.full_name
+  end
+  
+  def sample_user(first: 'Bugs', middle: 'C', last: 'Bunny')
+    User.new(first_name: first, middle_initial: middle, last_name: last)
+  end
+end
+
+The reason for not defining full_name like railscast is because the method has only one purpose. To create user objects. It is clear from the data we pass to the helper method the attribute we are over-riding by using key arguments.  
+  
+http://railscasts.com/episodes/11-refactoring-user-name-part-2?view=comments
+http://railscasts.com/episodes/12-refactoring-user-name-part-3?view=comments  
