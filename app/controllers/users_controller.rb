@@ -1,17 +1,19 @@
 class UsersController < ApplicationController
   def index
-    @users = User.all
+    session[:user_id] = User.first.id
+    
+    redirect_to user_path(session[:user_id])
   end
 
   def show
-    @user = User.find(params[:id])
+    @user = User.find(session[:user_id])
   end
   
-  def new
-    @user = User.new
-  end
-  
-  def create
-    User.create(params.require(:user).permit(:first_name, :password))
+  def update
+    @user = User.find(session[:user_id])
+    @user.first_name = ''
+    logger.info @user.valid?.to_s
+          
+    redirect_to @user
   end
 end

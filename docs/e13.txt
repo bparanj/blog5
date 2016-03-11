@@ -1,0 +1,170 @@
+1
+
+class UsersController < ApplicationController
+  def index
+    session[:user] = User.first
+    
+    redirect_to session[:user]
+  end
+
+  def show
+    @user = session[:user]
+  end
+  
+  def update
+    @user = session[:user]
+    @user.first_name = 'Junk'
+    
+    redirect_to session[:user]
+  end
+end
+
+
+2
+
+routes.rb
+
+Rails.application.routes.draw do
+  resources :users, only: [:index, :show, :update]  
+end
+
+3
+
+app/views/users/show.html.erb
+
+<%= debug(@user) %>
+
+<%= link_to 'Update', user_path(@user), method: :patch %>
+
+
+4
+
+http://localhost:3000/users/1
+
+--- !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+id: 1
+first_name: Bugs
+middle_initial: 
+last_name: Bunny
+created_at: '2016-03-10T23:52:10.256Z'
+updated_at: '2016-03-10T23:52:10.256Z'
+password: 
+
+undefined method `first_name=' for #<ActiveSupport::HashWithIndifferentAccess:0x007fdf392377b8>
+
+It is not !ruby/object:User anymore. So, it's not possible anymore to change it.
+
+
+After
+
+http://localhost:3000/users
+
+--- !ruby/object:User
+raw_attributes:
+  id: 1
+  first_name: Bugs
+  middle_initial: 
+  last_name: Bunny
+  created_at: '2016-03-10 23:52:10.256312'
+  updated_at: '2016-03-10 23:52:10.256312'
+  password: 
+attributes: !ruby/object:ActiveRecord::AttributeSet
+  attributes: !ruby/object:ActiveRecord::LazyAttributeHash
+    types:
+      id: &3 !ruby/object:ActiveModel::Type::Integer
+        precision: 
+        scale: 
+        limit: 
+        range: !ruby/range
+          begin: -2147483648
+          end: 2147483648
+          excl: true
+      first_name: &1 !ruby/object:ActiveModel::Type::String
+        precision: 
+        scale: 
+        limit: 
+      middle_initial: *1
+      last_name: *1
+      created_at: &4 !ruby/marshalable:ActiveRecord::AttributeMethods::TimeZoneConversion::TimeZoneConverter
+        :__v2__: []
+        []: &2 !ruby/object:ActiveRecord::Type::DateTime
+          precision: 
+          scale: 
+          limit: 
+      updated_at: &5 !ruby/marshalable:ActiveRecord::AttributeMethods::TimeZoneConversion::TimeZoneConverter
+        :__v2__: []
+        []: *2
+      password: *1
+    values:
+      id: 1
+      first_name: Bugs
+      middle_initial: 
+      last_name: Bunny
+      created_at: '2016-03-10 23:52:10.256312'
+      updated_at: '2016-03-10 23:52:10.256312'
+      password: 
+    additional_types: {}
+    materialized: true
+    delegate_hash:
+      id: !ruby/object:ActiveRecord::Attribute::FromDatabase
+        name: id
+        value_before_type_cast: 1
+        type: *3
+        original_attribute: 
+      first_name: !ruby/object:ActiveRecord::Attribute::FromDatabase
+        name: first_name
+        value_before_type_cast: Bugs
+        type: *1
+        original_attribute: 
+      middle_initial: !ruby/object:ActiveRecord::Attribute::FromDatabase
+        name: middle_initial
+        value_before_type_cast: 
+        type: *1
+        original_attribute: 
+      last_name: !ruby/object:ActiveRecord::Attribute::FromDatabase
+        name: last_name
+        value_before_type_cast: Bunny
+        type: *1
+        original_attribute: 
+      created_at: !ruby/object:ActiveRecord::Attribute::FromDatabase
+        name: created_at
+        value_before_type_cast: '2016-03-10 23:52:10.256312'
+        type: *4
+        original_attribute: 
+      updated_at: !ruby/object:ActiveRecord::Attribute::FromDatabase
+        name: updated_at
+        value_before_type_cast: '2016-03-10 23:52:10.256312'
+        type: *5
+        original_attribute: 
+      password: !ruby/object:ActiveRecord::Attribute::FromDatabase
+        name: password
+        value_before_type_cast: 
+        type: *1
+        original_attribute: 
+new_record: false
+active_record_yaml_version: 1
+
+
+Click 'Update'
+
+class UsersController < ApplicationController
+  def index
+    session[:user_id] = User.first.id
+    
+    redirect_to user_path(session[:user_id])
+  end
+
+  def show
+    @user = User.find(session[:user_id])
+  end
+  
+  def update
+    @user = User.find(session[:user_id])
+    @user.first_name = ''
+    logger.info @user.valid?.to_s
+          
+    redirect_to @user
+  end
+end
+
+
