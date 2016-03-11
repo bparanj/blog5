@@ -1,8 +1,78 @@
 1
 
-Create filter_parameter_logging.rb in config/initializers folder:
+rails g migration add_password_to_users password:string
 
-Rails.application.config.filter_parameters += [:password, :password_confirmation]
+This creates:
+
+
+class AddPasswordToUsers < ActiveRecord::Migration[5.0]
+  def change
+    add_column :users, :password, :string
+  end
+end
+
+ rails db:migrate
+ 
+2
+
+<%= form_for(@user) do |f| %>
+
+  <div class="field">
+    <%= f.label :name %>
+    <%= f.text_field :first_name %>
+  </div>
+
+  <div class="field">
+    <%= f.label :password %>
+    <%= f.password_field :password %>
+  </div>
+
+  <div class="field">
+    <%= f.label :password_confirmation %>
+    <%= f.password_field :password_confirmation %>
+  </div>
+
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>
+
+
+3
+
+resources :users, only: [:index, :show, :new, :create]
+  
+4
+ 
+http://localhost:3000/users/new
+
+Fill out the form and submit.
+
+5
+
+Started POST "/users" for ::1 at 2016-03-11 11:25:56 -0800
+Processing by UsersController#create as HTML
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"mxQJeccoEACaEUpJ/6O5JRN2CWbZ6vEOx+2b105w+ggijku9S+LloCGIey1TtyCFy1eV6yDky10KBW71+LxyrQ==", "user"=>{"first_name"=>"Juggy Head", "password"=>"[FILTERED]", "password_confirmation"=>"[FILTERED]"}, "commit"=>"Create user"}
+Unpermitted parameter: password_confirmation
+   (0.1ms)  begin transaction
+  SQL (0.8ms)  INSERT INTO "users" ("first_name", "created_at", "updated_at", "password") VALUES (?, ?, ?, ?)  [["first_name", "Juggy Head"], ["created_at", 2016-03-11 19:25:56 UTC], ["updated_at", 2016-03-11 19:25:56 UTC], ["password", "123456"]]
+   (0.5ms)  commit transaction
+No template found for UsersController#create, rendering head :no_content
+Completed 204 No Content in 15ms (ActiveRecord: 2.2ms)
+
+6
+ 
+Rails automatically creates filter_parameter_logging.rb in config/initializers folder:
+ 
+# Be sure to restart your server when you modify this file.
+
+# Configure sensitive parameters which will be filtered from the log file.
+Rails.application.config.filter_parameters += [:password]
+
+No need to add :password_confirmation to this list. You can add other sensitive fields to this:
+
+Rails.application.config.filter_parameters += [:password, :credit_card]
+
 
 
 http://railscasts.com/episodes/9-filtering-sensitive-logs?view=comments
