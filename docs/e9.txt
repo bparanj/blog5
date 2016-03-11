@@ -1,0 +1,8 @@
+1
+
+Create filter_parameter_logging.rb in config/initializers folder:
+
+Rails.application.config.filter_parameters += [:password, :password_confirmation]
+
+
+http://railscasts.com/episodes/9-filtering-sensitive-logs?view=comments

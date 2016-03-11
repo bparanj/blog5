@@ -1,0 +1,138 @@
+
+1
+
+Create a user model.
+
+rails g model user first_name:string middle_initial:string last_name:string
+
+2
+
+Create a users controller.
+
+rails g controller users index show
+
+3. 
+
+Populate the database with some sample data.
+
+User.create(first_name: 'Bugs', last_name: 'Bunny')
+User.create(first_name: 'Daffy', last_name: 'Duck')
+User.create(first_name: 'Yosemite', middle_initial: 'Funny', last_name: 'Sam')
+User.create(first_name: 'David', middle_initial: 'Avacodo', last_name: 'Wolfe')
+
+rake db:drop to nuke the database.
+rake db:migrate to recreate the tables.
+rake db:seed to populate the users table.
+
+
+In routes.rb:
+
+  resources :users, only: [:index, :show]
+  
+class UsersController < ApplicationController
+  def index
+    @users = User.all
+  end
+
+  def show
+  end
+end
+
+  
+4
+
+Display list of users:
+
+<h1>Users</h1>
+<ul>
+<% for user in @users %>
+<li>
+  <a href="<%= user_path(user) %>">
+    <%= user.first_name %>
+    <%= "#{user.middle_initial}." unless user.middle_initial.nil? %>
+    <%= user.last_name %>
+  </a>
+</li>
+<% end %>
+</ul>
+
+5
+
+Clicking a user showes their profile
+
+Some users have middle initial.
+
+Users controller show action:
+
+  def show
+    @user = User.find(params[:id])
+  end
+
+
+app/views/users/show.html.erb:
+
+<h1>Profile</h1>
+<p>
+  Name:
+  <%= @user.first_name %>
+  <%= "#{@user.middle_initial}." unless @user.middle_initial.nil? %>
+  <%= @user.last_name %>
+</p>
+<%= link_to 'Users List', users_path %>
+
+6
+
+
+class User < ActiveRecord::Base
+  def full_name
+    name = first_name + ' '
+    name += "#{middle_initial}. " unless middle_initial.nil?
+    name += last_name
+    name
+  end
+end
+
+
+<a href="<%= user_path(user) %>">
+  <%= user.full_name %>
+</a>
+
+
+<%= link_to user.full_name, user_path(user) %>
+
+
+<h1>Users</h1>
+<ul>
+<% for user in @users %>
+<li>
+	<%= link_to user.full_name, user %>
+</li>
+<% end %>
+</ul>
+
+
+<h1>Profile</h1>
+<p>
+  Name:
+  <%= @user.full_name %>
+</p>
+<%= link_to 'Users List', users_path %>
+
+
+
+
+Tip : For better performance, avoid using += to concatenate strings in favor of << method.
+
+class User < ApplicationRecord
+  def full_name
+    name = first_name + ' '
+    name << "#{middle_initial}. " unless middle_initial.nil?
+    name << last_name
+  end
+end
+
+
+http://greyblake.com/blog/2012/09/02/ruby-perfomance-tricks/
+
+
+http://railscasts.com/episodes/10-refactoring-user-name-part-1?view=comments
