@@ -1,20 +1,30 @@
 1
 
+You can list all the columns of the users table like this in the rails console:
+
+```ruby
 > User.new.attributes
  => {"id"=>nil, "first_name"=>nil, "middle_initial"=>nil, "last_name"=>nil, "created_at"=>nil, "updated_at"=>nil, "password"=>nil} 
  > User.new.attributes.keys
  => ["id", "first_name", "middle_initial", "last_name", "created_at", "updated_at", "password"] 
+```
  
 2
 
-Rails.application.routes.draw do
-  
-resources :users
+Define the routes for the users resource in `routes.rb` file.
+
+```ruby
+Rails.application.routes.draw do  
+  resources :users
+end
+```
 
 3
 
-<%= form_for(@user) do |f| %>
+Create the form for a new user registration in `app/views/users/new.html.erb`:
 
+```ruby
+<%= form_for(@user) do |f| %>
   <div class="field">
     <%= f.label :first_name %>
     <%= f.text_field :first_name %>
@@ -34,23 +44,33 @@ resources :users
     <%= f.submit %>
   </div>
 <% end %>
+```
+
+This form collects the first_name, last_name and the password of the user.
 
 4
-schema.rb:
 
-  create_table "users", force: :cascade do |t|
-    t.string   "first_name"
-    t.string   "middle_initial"
-    t.string   "last_name"
-    t.datetime "created_at",     null: false
-    t.datetime "updated_at",     null: false
-    t.string   "password"
-  end
+You can see the columns defined in the users table in `schema.rb`:
+
+```ruby
+create_table "users", force: :cascade do |t|
+  t.string   "first_name"
+  t.string   "middle_initial"
+  t.string   "last_name"
+  t.datetime "created_at",     null: false
+  t.datetime "updated_at",     null: false
+  t.string   "password"
+end
+```
  
+The fields in the view is stored in the corresponding column in the users table.
+
 5
 
-<%= form_for(@user) do |f| %>
+Let's change the form to collect the full_name from the user:
 
+```ruby
+<%= form_for(@user) do |f| %>
   <div class="field">
     <%= f.label :full_name %>
     <%= f.text_field :full_name %>
@@ -65,40 +85,62 @@ schema.rb:
     <%= f.submit %>
   </div>
 <% end %>
+```
+
+How can me map the full_name field in the view to the first_name and last_name columns in the database?
 
 6
 
-http://localhost:3000/users/new
+Browse to `http://localhost:3000/users/new`. You will get the error:
 
+```
 undefined method `full_name' for #<User:0x007f8c88ae99a0>
+```
 
-  def full_name=(name)
-    split = name.split(' ', 2)
-    self.first_name = split.first
-    self.last_name = split.last
-  end
+Define the full_name setter in the user model.
 
-http://localhost:3000/users/new
+```ruby
+def full_name=(name)
+  split = name.split(' ', 2)
+  self.first_name = split.first
+  self.last_name = split.last
+end
+```
 
+Browse to `http://localhost:3000/users/new`. You still get the error:
+
+```
 undefined method `full_name' for #<User:0x007f8c8bc70de8>
 Did you mean?  full_name=
+```
 
-  def full_name
-    [first_name, last_name].join(' ')
-  end
+Define the full_name getter in the user model:
 
+```ruby
+def full_name
+  [first_name, last_name].join(' ')
+end
+```
 
 7
 
-Fill out the form and submit.
+Fill out the registration form and submit. In the development.log file, you can see the data submitted to the server.
 
+```
 Started POST "/users" for ::1 at 2016-03-11 17:41:55 -0800
 Processing by UsersController#create as HTML
   Parameters: {"utf8"=>"✓", "authenticity_token"=>"Vf1Zb/3ZtAzXHfn029VQ5bXTj+QhJRvKjDp4nFpRcb5wMkgyNwYUZCihmufMUDKuSlAoqmWzKYoI0XMKbiRCWQ==", "user"=>{"full_name"=>" Pluto Dog", "password"=>"[FILTERED]"}, "commit"=>"Create user"}
 No template found for UsersController#create, rendering head :no_content
 Completed 204 No Content in 2ms (ActiveRecord: 0.0ms)
+```
 
+The user's full_name and password is sent to the server.
 
+8
+
+The users controller that implements index, new and create actions looks like this:
+
+```ruby
 class UsersController < ApplicationController
   def index
     @users = User.all
@@ -113,10 +155,14 @@ class UsersController < ApplicationController
     
     redirect_to users_path
   end
-  
 end
+```
 
+9
 
+When you register, you can see the data sent to the server and the insert sql command in the development.log file.
+
+```
 Started POST "/users" for ::1 at 2016-03-11 17:44:18 -0800
 Processing by UsersController#create as HTML
   Parameters: {"utf8"=>"✓", "authenticity_token"=>"8ymtPpmDpOTjq4Wy9IY+tTopUJ3gzC5/STibGkggBc/W5rxjU1wEjBwX5qHjA1z+xar306RaHD/N05CMfFU2KA==", "user"=>{"full_name"=>" Pluto Dog", "password"=>"[FILTERED]"}, "commit"=>"Create user"}
@@ -125,19 +171,27 @@ Processing by UsersController#create as HTML
    (0.4ms)  commit transaction
 Redirected to http://localhost:3000/users
 Completed 302 Found in 10ms (ActiveRecord: 1.6ms)
+```
 
+After creating the user we are redirected to the users index page.
 
+```
 Started GET "/users" for ::1 at 2016-03-11 17:44:18 -0800
 Processing by UsersController#index as HTML
   User Load (0.1ms)  SELECT "users".* FROM "users"
   Rendered users/index.html.erb within layouts/application (1.4ms)
 Completed 200 OK in 24ms (Views: 21.6ms | ActiveRecord: 0.1ms)
+```
 
+10
 
- > User.last
+We can verify the new user record in the rails console:
+
+```ruby
+> User.last
   User Load (0.2ms)  SELECT  "users".* FROM "users" ORDER BY "users"."id" DESC LIMIT ?  [["LIMIT", 1]]
  => #<User id: 1, first_name: "Pluto", middle_initial: nil, last_name: "Dog", created_at: "2016-03-12 01:44:18", updated_at: "2016-03-12 01:44:18", password: "123456"> 
- 
+ ```
  
  
  http://railscasts.com/episodes/16-virtual-attributes?view=comments
