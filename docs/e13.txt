@@ -168,3 +168,4 @@ class UsersController < ApplicationController
 end
 
 
+http://railscasts.com/episodes/13-dangers-of-model-in-session?view=comments
