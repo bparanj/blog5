@@ -2,8 +2,12 @@ class User < ApplicationRecord
   validates_presence_of :first_name
   
   def full_name
-    name = first_name + ' '
-    name << "#{middle_initial}. " if middle_initial.present?
-    name << last_name
+    [first_name, last_name].join(' ')
+  end
+  
+  def full_name=(name)
+    split = name.split(' ', 2)
+    self.first_name = split.first
+    self.last_name = split.last
   end
 end
