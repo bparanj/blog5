@@ -1,22 +1,36 @@
-1
+D
+Filtering Sensitive Parameters from Log Files in Rails 5
 
+### Step 1
+
+Let's add password to the users table.
+
+```
 rails g migration add_password_to_users password:string
+```
 
-This creates:
+This creates the migration file:
 
-
+```ruby
 class AddPasswordToUsers < ActiveRecord::Migration[5.0]
   def change
     add_column :users, :password, :string
   end
 end
+```
 
- rails db:migrate
+Migrate the database:
+
+```
+rails db:migrate
+```
  
-2
+### Step 2
 
+Create the form to catpure the name, password and password confirmation in `app/views/users/new.html.erb`:
+
+```ruby
 <%= form_for(@user) do |f| %>
-
   <div class="field">
     <%= f.label :name %>
     <%= f.text_field :first_name %>
@@ -36,20 +50,25 @@ end
     <%= f.submit %>
   </div>
 <% end %>
+```
 
+### Step 3
 
-3
+Define the routes for user registration in routes.rb.
 
+```
 resources :users, only: [:index, :show, :new, :create]
+```
   
-4
+### Step 4
  
-http://localhost:3000/users/new
+Browse to `http://localhost:3000/users/new`. Fill out and submit the form.
 
-Fill out the form and submit.
+### Step 5
 
-5
+You will see the parameters sent to the server and the generated SQL query in the `log/development.log` file:
 
+```
 Started POST "/users" for ::1 at 2016-03-11 11:25:56 -0800
 Processing by UsersController#create as HTML
   Parameters: {"utf8"=>"✓", "authenticity_token"=>"mxQJeccoEACaEUpJ/6O5JRN2CWbZ6vEOx+2b105w+ggijku9S+LloCGIey1TtyCFy1eV6yDky10KBW71+LxyrQ==", "user"=>{"first_name"=>"Juggy Head", "password"=>"[FILTERED]", "password_confirmation"=>"[FILTERED]"}, "commit"=>"Create user"}
@@ -59,20 +78,27 @@ Unpermitted parameter: password_confirmation
    (0.5ms)  commit transaction
 No template found for UsersController#create, rendering head :no_content
 Completed 204 No Content in 15ms (ActiveRecord: 2.2ms)
+```
 
-6
+### Step 6
  
-Rails automatically creates filter_parameter_logging.rb in config/initializers folder:
- 
+Rails automatically creates `filter_parameter_logging.rb` in `config/initializers` folder:
+
+```ruby 
 # Be sure to restart your server when you modify this file.
 
 # Configure sensitive parameters which will be filtered from the log file.
 Rails.application.config.filter_parameters += [:password]
+```
 
-No need to add :password_confirmation to this list. You can add other sensitive fields to this:
+No need to add `:password_confirmation` to this list. Rails automatically filters out `password_confirmation`. You can add other sensitive fields to this:
 
+```ruby
 Rails.application.config.filter_parameters += [:password, :credit_card]
+```
 
+## Summary
 
+In this article, you learned how to filter sensitive parameters from getting logged in the log files in Rails 5.
 
 http://railscasts.com/episodes/9-filtering-sensitive-logs?view=comments

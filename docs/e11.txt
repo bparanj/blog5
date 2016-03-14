@@ -1,5 +1,16 @@
-1.
+D
+Model Tests in Rails 5
 
+## Objective
+
+To learn how to write model tests in Rails 5.
+
+## Steps 
+### Step 1
+
+Change the `test/models/user_test.rb` as follows:
+
+```ruby
 require 'test_helper'
 
 class UserTest < ActiveSupport::TestCase
@@ -7,9 +18,13 @@ class UserTest < ActiveSupport::TestCase
     assert true
   end
 end
+```
 
-2
+### Step 2
 
+Run the test:
+
+```
 rails test:models
 Run options: --seed 61892
 
@@ -20,9 +35,13 @@ Run options: --seed 61892
 Finished in 0.024655s, 40.5594 runs/s, 40.5594 assertions/s.
 
 1 runs, 1 assertions, 0 failures, 0 errors, 0 skips
+```
 
-3
+### Step 3
 
+Let's now write a real test.
+
+```ruby
 require 'test_helper'
 
 class UserTest < ActiveSupport::TestCase
@@ -31,8 +50,11 @@ class UserTest < ActiveSupport::TestCase
     assert_equal 'Bugs Bunny', user.full_name
   end
 end
+```
 
+Run the tests:
 
+```
 rake test test/models/user_test.rb 
 
 Run options: --seed 40163
@@ -44,15 +66,22 @@ Run options: --seed 40163
 Finished in 0.428411s, 25.6763 runs/s, 37.3473 assertions/s.
 
 11 runs, 16 assertions, 0 failures, 0 errors, 0 skips
+```
 
-4
+### Step 4
 
+Let's write the second test:
+
+```ruby
 test "full name with middle initial" do
   user = User.new(first_name: 'Bugs', middle_initial: 'C', last_name: 'Bunny')
   assert_equal 'Bugs C. Bunny', user.full_name    
 end
+```
 
+Run the tests:
 
+```
 rake test test/models/user_test.rb 
 Run options: --seed 33381
 
@@ -63,19 +92,26 @@ Run options: --seed 33381
 Finished in 0.482059s, 24.8932 runs/s, 35.2654 assertions/s.
 
 12 runs, 17 assertions, 0 failures, 0 errors, 0 skips
+```
 
-5
-+, join, << performance
+## Performance Tip
 
-Don't use join method to concatenate strings. For better performance use <<.
+Don't use `join` method to concatenate strings. For better performance use `<<`. To learn more use the search term '+, join, << performance ruby'.
 
-6
+### Step 5
 
+Let's write the third test.
+
+```ruby
 test "full name with blank middle initial" do
   user = User.new(first_name: 'Bugs', middle_initial: '', last_name: 'Bunny')
   assert_equal 'Bugs Bunny', user.full_name        
 end
+```
 
+Run the tests:
+
+```
 rake test test/models/user_test.rb 
 Run options: --seed 30166
 
@@ -88,7 +124,6 @@ UserTest#test_full_name_with_blank_middle_initial [/Users/bparanj/projects/blog5
 Expected: "Bugs Bunny"
   Actual: "Bugs . Bunny"
 
-
 bin/rails test test/models/user_test.rb:14
 
 ..
@@ -96,23 +131,26 @@ bin/rails test test/models/user_test.rb:14
 Finished in 0.347134s, 37.4495 runs/s, 51.8531 assertions/s.
 
 13 runs, 18 assertions, 1 failures, 0 errors, 0 skips
+```
 
+### Step 6
 
-7
+Use `present?` method to simplify the logic and pass the test.
 
-Use present? method to simplify the logic.
+```ruby 
+class User < ApplicationRecord
+  def full_name
+    name = first_name + ' '
+    name << "#{middle_initial}. " if middle_initial.present?
+    name << last_name
+  end
+end
+``` 
+
+This implementation is more readable. Run the tests: 
  
- class User < ApplicationRecord
-   def full_name
-     name = first_name + ' '
-     name << "#{middle_initial}. " if middle_initial.present?
-     name << last_name
-   end
- end
- 
- 
- 
-  rake test test/models/user_test.rb 
+``` 
+rake test test/models/user_test.rb 
  Run options: --seed 27913
 
  # Running:
@@ -122,12 +160,13 @@ Use present? method to simplify the logic.
  Finished in 0.342862s, 37.9161 runs/s, 52.4992 assertions/s.
 
  13 runs, 18 assertions, 0 failures, 0 errors, 0 skips
- 
+``` 
   
-8
+### Step 8
   
-Refactor the tests.
+Let's refactor the tests.
 
+```ruby
 require 'test_helper'
 
 class UserTest < ActiveSupport::TestCase
@@ -150,8 +189,14 @@ class UserTest < ActiveSupport::TestCase
     User.new(first_name: first, middle_initial: middle, last_name: last)
   end
 end
+```
 
-The reason for not defining full_name like railscast is because the method has only one purpose. To create user objects. It is clear from the data we pass to the helper method the attribute we are over-riding by using key arguments.  
-  
+The reason for not defining full_name like railscast is because the method has only one purpose, to create user objects. It is clear from the data we pass to the helper method the attribute we are over-riding by using key arguments.  
+ 
+
+## Summary
+
+In this article, you learned how to write model tests in Rails 5.
+ 
 http://railscasts.com/episodes/11-refactoring-user-name-part-2?view=comments
 http://railscasts.com/episodes/12-refactoring-user-name-part-3?view=comments  

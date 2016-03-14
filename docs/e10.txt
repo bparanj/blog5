@@ -1,34 +1,67 @@
+D
+## Objective
 
-1
+To learn how to refactor logic in the view.
+
+## Steps
+### Step 1
 
 Create a user model.
 
+```ruby
 rails g model user first_name:string middle_initial:string last_name:string
+```
 
-2
+### Step 2
 
 Create a users controller.
 
+```ruby
 rails g controller users index show
+```
 
-3. 
+### Step 3
 
-Populate the database with some sample data.
+Create sample data to populate the database. In seeds.rb:
 
+```ruby
 User.create(first_name: 'Bugs', last_name: 'Bunny')
 User.create(first_name: 'Daffy', last_name: 'Duck')
 User.create(first_name: 'Yosemite', middle_initial: 'Funny', last_name: 'Sam')
 User.create(first_name: 'David', middle_initial: 'Avacodo', last_name: 'Wolfe')
+```
 
-rake db:drop to nuke the database.
-rake db:migrate to recreate the tables.
-rake db:seed to populate the users table.
+Nuke the database.
 
+```
+rake db:drop 
+```
 
-In routes.rb:
+Recreate the tables.
 
-  resources :users, only: [:index, :show]
-  
+```
+rake db:migrate
+```
+
+Populate the users table.
+
+```
+rake db:seed 
+```
+
+### Step 4
+
+Define the users resource in routes.rb:
+
+```ruby
+resources :users, only: [:index, :show]
+```
+
+### Step 5
+
+The users controller looks like this:
+
+```ruby
 class UsersController < ApplicationController
   def index
     @users = User.all
@@ -37,12 +70,13 @@ class UsersController < ApplicationController
   def show
   end
 end
-
+```
   
-4
+### Step 6
 
-Display list of users:
+Display list of users in `app/views/users/index.html.erb`:
 
+```ruby
 <h1>Users</h1>
 <ul>
 <% for user in @users %>
@@ -55,22 +89,25 @@ Display list of users:
 </li>
 <% end %>
 </ul>
+```
 
-5
+Clicking a user showes their profile. Some users have middle initial.
 
-Clicking a user showes their profile
+### Step 7
 
-Some users have middle initial.
+Here is the users controller, show action:
 
-Users controller show action:
+```ruby
+def show
+  @user = User.find(params[:id])
+end
+```
 
-  def show
-    @user = User.find(params[:id])
-  end
+### Before Refactor
 
+The profile page in `app/views/users/show.html.erb` looks like this:
 
-app/views/users/show.html.erb:
-
+```ruby
 <h1>Profile</h1>
 <p>
   Name:
@@ -79,10 +116,13 @@ app/views/users/show.html.erb:
   <%= @user.last_name %>
 </p>
 <%= link_to 'Users List', users_path %>
+```
 
-6
+### Step 8
 
+Let's move the logic from the view to the model.
 
+```ruby
 class User < ActiveRecord::Base
   def full_name
     name = first_name + ' '
@@ -91,16 +131,31 @@ class User < ActiveRecord::Base
     name
   end
 end
+```
 
+### Step 9
 
+We can use it in the list view:
+
+```ruby
 <a href="<%= user_path(user) %>">
   <%= user.full_name %>
 </a>
+```
 
+### Step 10
 
+We can simplify the view by using `link_to` helper in index page:
+
+```ruby
 <%= link_to user.full_name, user_path(user) %>
+```
 
+### After Refactor
 
+The list view looks like this:
+
+```ruby
 <h1>Users</h1>
 <ul>
 <% for user in @users %>
@@ -109,20 +164,24 @@ end
 </li>
 <% end %>
 </ul>
+```
 
+The profile page looks like this:
 
+```ruby
 <h1>Profile</h1>
 <p>
   Name:
   <%= @user.full_name %>
 </p>
 <%= link_to 'Users List', users_path %>
+```
 
+### Tip 1
 
+For better performance, avoid using += to concatenate strings in favor of << method.
 
-
-Tip : For better performance, avoid using += to concatenate strings in favor of << method.
-
+```ruby
 class User < ApplicationRecord
   def full_name
     name = first_name + ' '
@@ -130,9 +189,18 @@ class User < ApplicationRecord
     name << last_name
   end
 end
+```
 
+Read [Ruby Performance Tricks](http://greyblake.com/blog/2012/09/02/ruby-perfomance-tricks/ 'Ruby Performance Tricks') for more details.
 
-http://greyblake.com/blog/2012/09/02/ruby-perfomance-tricks/
+### Tip 2
+
+The `full_name` method is focused on massaging the data for display in view. This is better implemented as a view helper. We will cover this topic in an upcoming article.
+
+## Summary
+
+In this article, you learned how to refactor logic in the view and move them into the model.
+
 
 
 http://railscasts.com/episodes/10-refactoring-user-name-part-1?view=comments

@@ -1,7 +1,16 @@
-1
+D
+Layouts and Content For Tag in Rails 5
 
-The application layout file:
+## Objective
 
+To learn how to use `content_for` tag with layouts in Rails 5.
+
+## Steps 
+### Step 1
+
+The application layout `app/views/layouts/application.html.erb` file:
+
+```ruby
 <!DOCTYPE html>
 <html>
   <head>
@@ -20,12 +29,13 @@ The application layout file:
 	 </div>
   </body>
 </html>
+```
 
+### Step 2
 
-2
+In `app/views/projects/index.html.erb`:
 
-In app/views/projects/index.html.erb
-
+```ruby
 <h1>Projects</h1>
 
 <table>
@@ -44,37 +54,41 @@ In app/views/projects/index.html.erb
     <% end %>
   </tbody>
 </table>
+```
 
-<br>
-
-3
+### Step 3
 
 Add :
 
+```ruby
 <% content_for :head do %>
  This is the content for head
 <% end %>
+```
 
-to the top of app/views/projects/index.html.erb:
+to the top of `app/views/projects/index.html.erb`:
 
-4
+### Step 4
 
 In application.html.erb:
 
-  <head>
-    <title>Todo List</title>
+```ruby
+<head>
+  <title>Todo List</title>
 	....
 	<%= yield :head %>
-  </head>
+</head>
+```
 
-5
+### Step 5
 
 Reload the projects index page. You will see the content for the head.
 
-6
+### Step 6
 
 In layout:
 
+```ruby
 <!DOCTYPE html>
 <html>
   <head>
@@ -94,17 +108,54 @@ In layout:
 	 </div>
   </body>
   
-<%= yield :footer %>
+  <%= yield :footer %>
   
 </html>
+```
 
-7
+### Step 7
 
 In projects/index.html.erb:
 
+```ruby
 <% content_for :footer do %>
   This is the footer
 <% end %>
+```
 
+### Step 8
+
+For the page to load faster move the javascript tag just before the body tag closes. This allows the browser to load the DOM elements without getting blocked by loading javascript. 
+
+```ruby
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Todo List</title>
+    <%= csrf_meta_tags %>
+    <%= action_cable_meta_tag %>
+
+    <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => 'reload' %>
+    
+	<%= yield :head %>
+  </head>
+
+  <body>
+	 <div id='container'>
+		 <h1>Todo List</h1>
+	 	    <%= yield %>
+	 </div>
+	 <-----	 THIS IS THE NEW LOCATION OF JAVASCRIPT INCLUDE TAG ----->
+	 <%= javascript_include_tag 'application', 'data-turbolinks-track' => 'reload' %>
+  </body>
+  
+  <%= yield :footer %>
+  
+</html>
+```
+
+## Summary
+
+In this article, you learned how to use content_for tag to customize layouts. It is similar to tiles in Java.
 
 http://railscasts.com/episodes/8-layouts-and-content-for?view=comments

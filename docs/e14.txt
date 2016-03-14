@@ -1,8 +1,21 @@
+Performing Calculations on Models in Rails 5
 
+
+Let's delete the existing database so that we can populate it with new data to play with.
+
+```
 rake db:drop
+```
 
+Add priority field to the tasks table.
+
+```
 rails g migration add_priority_to_tasks priority:integer
+```
 
+Create sample data in seeds.rb:
+
+```
 wealthy = Project.create(name: 'Wealth Building')
 wealthy.tasks.create(name: 'Get rich quick', complete: false, priority: 4)
 wealthy.tasks.create(name: 'Write a book', complete: true, priority: 5)
@@ -10,35 +23,50 @@ wealthy.tasks.create(name: 'Write a book', complete: true, priority: 5)
 happy = Project.create(name: 'Be Happy')
 happy.tasks.create(name: 'Buy a puppy', complete: false, priority: 9)
 happy.tasks.create(name: 'Dance in the rain', complete: true, priority: 7)
+```
 
+Let's create the tables and populate them.
+
+```
 rake db:migrate
- 
 rake db:seed
- 
+```
+
+We can find the priority of the first task like this:
+
+```
 > Task.first.priority
   Task Load (0.2ms)  SELECT  "tasks".* FROM "tasks" ORDER BY "tasks"."id" ASC LIMIT ?  [["LIMIT", 1]]
  => 4 
+```
+
+What if we want the sum of the priority of all of the tasks?
+
+```
 > Task.sum(:priority)
    (0.2ms)  SELECT SUM("tasks"."priority") FROM "tasks"
  => 25 
+```
+
+We cannot pass any conditions in Rails 5. You will get error:
+
+```
 > Task.sum(:priority, conditions: 'complete=0')
 ArgumentError: wrong number of arguments (given 2, expected 0..1)
 	from /Users/bparanj/.rvm/gems/ruby-2.3.0@rails5/gems/activerecord-5.0.0.beta3/lib/active_record/relation/calculations.rb:74:in `sum'
-> Task.sum(:priority, :conditions => 'complete=0')
-ArgumentError: wrong number of arguments (given 2, expected 0..1)
-	from /Users/bparanj/.rvm/gems/ruby-2.3.0@rails5/gems/activerecord-5.0.0.beta3/lib/active_record/relation/calculations.rb:74:in `sum'
-> Task.sum(:priority, :complete => 0)
-ArgumentError: wrong number of arguments (given 2, expected 0..1)
-	from /Users/bparanj/.rvm/gems/ruby-2.3.0@rails5/gems/activerecord-5.0.0.beta3/lib/active_record/relation/calculations.rb:74:in `sum'
-> Task.sum(:priority, complete: 0)
-ArgumentError: wrong number of arguments (given 2, expected 0..1)
+```
 
-> Task.where(complete: 0).sum(:priority)
-   (0.1ms)  SELECT SUM("tasks"."priority") FROM "tasks" WHERE "tasks"."complete" = ?  [["complete", 0]]
- => 0 
+The alternative is to chain the where with sum like this:
+
+```
 > Task.where(complete: false).sum(:priority)
    (0.1ms)  SELECT SUM("tasks"."priority") FROM "tasks" WHERE "tasks"."complete" = ?  [["complete", false]]
  => 13 
+```
+
+There are other methods such as maximum, minimum and average.
+
+``` 
 > Task.maximum(:priority)
    (0.1ms)  SELECT MAX("tasks"."priority") FROM "tasks"
  => 9 
@@ -51,6 +79,13 @@ ArgumentError: wrong number of arguments (given 2, expected 0..1)
 > Task.average(:priority).to_s
    (0.1ms)  SELECT AVG("tasks"."priority") FROM "tasks"
  => "6.25" 
+```
+
+Using the methods through associations.
+
+We have a project model which has many tasks. We can access these methods for the tasks in a specific project. 
+
+```
 > p = Project.first
   Project Load (0.1ms)  SELECT  "projects".* FROM "projects" ORDER BY "projects"."id" ASC LIMIT ?  [["LIMIT", 1]]
  => #<Project id: 1, name: "Wealth Building", created_at: "2016-03-11 23:40:42", updated_at: "2016-03-11 23:40:42"> 
@@ -60,6 +95,12 @@ ArgumentError: wrong number of arguments (given 2, expected 0..1)
 > p.tasks.where(complete: false).sum(:priority)
     (0.2ms)  SELECT SUM("tasks"."priority") FROM "tasks" WHERE "tasks"."project_id" = ? AND "tasks"."complete" = ?  [["project_id", 1], ["complete", false]]
   => 4 
- 
+``` 
+
+## Summary 
+
+In this article, you learned how to perform caculations on models by using sum, maximum, minimum and average.
+
+
 
 http://railscasts.com/episodes/14-performing-calculations-on-models?view=comments

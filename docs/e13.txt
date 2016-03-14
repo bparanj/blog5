@@ -1,5 +1,7 @@
-1
+D
+### Step 1
 
+```ruby
 class UsersController < ApplicationController
   def index
     session[:user] = User.first
@@ -18,29 +20,33 @@ class UsersController < ApplicationController
     redirect_to session[:user]
   end
 end
+```
 
+### Step 2
 
-2
+Define the routes for the users resource in routes.rb.
 
-routes.rb
-
+```ruby
 Rails.application.routes.draw do
   resources :users, only: [:index, :show, :update]  
 end
+```
 
-3
+### Step 3
 
-app/views/users/show.html.erb
+Let's inspect the user object in `app/views/users/show.html.erb`.
 
+```ruby
 <%= debug(@user) %>
 
 <%= link_to 'Update', user_path(@user), method: :patch %>
+```
 
+### Step 4
 
-4
+Browse to `http://localhost:3000/users/1`, you will see:
 
-http://localhost:3000/users/1
-
+```ruby
 --- !ruby/hash:ActiveSupport::HashWithIndifferentAccess
 id: 1
 first_name: Bugs
@@ -49,16 +55,48 @@ last_name: Bunny
 created_at: '2016-03-10T23:52:10.256Z'
 updated_at: '2016-03-10T23:52:10.256Z'
 password: 
+```
 
+and get the error:
+
+```
 undefined method `first_name=' for #<ActiveSupport::HashWithIndifferentAccess:0x007fdf392377b8>
+```
 
-It is not !ruby/object:User anymore. So, it's not possible anymore to change it.
+In Rails 5, it is not `!ruby/object:User` anymore. So, it's not possible anymore to change it.
+
+### Step 
+
+Change the users controller as follows:
+
+```ruby
+class UsersController < ApplicationController
+  def index
+    session[:user_id] = User.first.id
+    
+    redirect_to user_path(session[:user_id])
+  end
+
+  def show
+    @user = User.find(session[:user_id])
+  end
+  
+  def update
+    @user = User.find(session[:user_id])
+    @user.first_name = ''
+    logger.info @user.valid?.to_s
+          
+    redirect_to @user
+  end
+end
+```
 
 
-After
+### Step 
 
-http://localhost:3000/users
+Browse to `http://localhost:3000/users`. You will now see:
 
+```ruby
 --- !ruby/object:User
 raw_attributes:
   id: 1
@@ -143,29 +181,15 @@ attributes: !ruby/object:ActiveRecord::AttributeSet
         original_attribute: 
 new_record: false
 active_record_yaml_version: 1
+```
 
+### Step 
 
-Click 'Update'
+Click Update button. The displayed will always be in sync with the database values.
 
-class UsersController < ApplicationController
-  def index
-    session[:user_id] = User.first.id
-    
-    redirect_to user_path(session[:user_id])
-  end
+## Summary
 
-  def show
-    @user = User.find(session[:user_id])
-  end
-  
-  def update
-    @user = User.find(session[:user_id])
-    @user.first_name = ''
-    logger.info @user.valid?.to_s
-          
-    redirect_to @user
-  end
-end
+In this article, you learned that you cannot store objects in the session. We can store the id of the objects in the session.
 
 
 http://railscasts.com/episodes/13-dangers-of-model-in-session?view=comments
