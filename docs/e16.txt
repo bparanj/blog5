@@ -1,3 +1,5 @@
+Virtual Attributes in Rails 5
+
 1
 
 You can list all the columns of the users table like this in the rails console:
@@ -5,6 +7,11 @@ You can list all the columns of the users table like this in the rails console:
 ```ruby
 > User.new.attributes
  => {"id"=>nil, "first_name"=>nil, "middle_initial"=>nil, "last_name"=>nil, "created_at"=>nil, "updated_at"=>nil, "password"=>nil} 
+```
+
+We can get the columns of the users table by listing the keys of this hash.
+
+```
  > User.new.attributes.keys
  => ["id", "first_name", "middle_initial", "last_name", "created_at", "updated_at", "password"] 
 ```
@@ -63,7 +70,7 @@ create_table "users", force: :cascade do |t|
 end
 ```
  
-The fields in the view is stored in the corresponding column in the users table.
+The fields in the view is stored in the corresponding column in the users table. There is a one-to-one mapping between the fields in the view and the fields in the table.
 
 5
 
@@ -94,7 +101,7 @@ How can me map the full_name field in the view to the first_name and last_name c
 Browse to `http://localhost:3000/users/new`. You will get the error:
 
 ```
-undefined method `full_name' for #<User:0x007f8c88ae99a0>
+undefined method `full_name' for #<User:0x007f89a0>
 ```
 
 Define the full_name setter in the user model.
@@ -110,7 +117,7 @@ end
 Browse to `http://localhost:3000/users/new`. You still get the error:
 
 ```
-undefined method `full_name' for #<User:0x007f8c8bc70de8>
+undefined method `full_name' for #<User:0x007bc0de8>
 Did you mean?  full_name=
 ```
 
@@ -134,7 +141,7 @@ No template found for UsersController#create, rendering head :no_content
 Completed 204 No Content in 2ms (ActiveRecord: 0.0ms)
 ```
 
-The user's full_name and password is sent to the server.
+The user's `full_name` and password is sent to the server.
 
 8
 
