@@ -1,0 +1,12 @@
+1
+
+Link to edit and destroy on articles page.
+
+2
+
+
+
+http://railscasts.com/episodes/20-restricting-access?view=comments
+
+
+Episode 19,20 and 21 are crap. Don't update them.
