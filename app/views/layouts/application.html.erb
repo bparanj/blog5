@@ -10,6 +10,10 @@
 	<%= yield :head %>
   </head>
 
+  <% flash.each do |key, msg| %>
+  	<%= content_tag :div, msg, id: key %>
+  <% end %>
+
   <body>
 	 <div id='container'>
 		 <h1></h1>

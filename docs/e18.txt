@@ -1,0 +1,21 @@
+1
+
+application.html.erb:
+
+<% flash.each do |key, msg| %>
+	<%= content_tag :div, msg, id: key %>
+<% end %>
+
+2
+
+Remove from product/show.html.erb:
+
+<p id="notice"><%= notice %></p>
+
+3
+
+Edit the product. You will the flash notice rendered on the product show page.
+
+
+http://railscasts.com/episodes/18-looping-through-flash?view=comments
+
