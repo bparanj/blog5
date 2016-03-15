@@ -309,6 +309,92 @@ end
 Now it will delete when we unselect the check boxes.
 
 
+Note: The join table categories_products does not have id column.
+
+
+<%= check_box_tag "product[category_ids][]", category.id, @product.categories.include?(category), {:id => dom_id(category, dom_id(@product)) } %>
+
+generates:
+
+<input type="checkbox" name="product[category_ids][]" id="product_2_category_1" value="1" />
+
+otherwise it is:
+
+<input type="checkbox" name="product[category_ids][]" id="product_category_ids_" value="1" />
+
+id is product_category_ids_ for all check boxes.
+
+You can make the check boxes to multiple selection:
+
+<div>
+	<%= select_tag "product[category_ids][]", options_from_collection_for_select(Category.all, "id", "name"), :multiple => true %>
+</div>
+
+
+class Product < ApplicationRecord
+  has_and_belongs_to_many :categories
+  
+  validates_presence_of :name
+end
+
+Make the product name blank and update product. Fail saves and the transaction is rolled back. This is correct behavior.
+
+```
+Started PATCH "/products/4" for ::1 at 2016-03-14 16:48:20 -0700
+Processing by ProductsController#update as HTML
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"zZkOscnXAalDBKU6jprRh+UOEpvMlO0otMFq8dj2Q0773subQUxlGtvXUQWPSz0mtrUdoL+AY0Th6U3ogPajkQ==", "product"=>{"name"=>"", "price"=>"100.0", "category_ids"=>["1", "2", "3", "4"]}, "commit"=>"Update product", "id"=>"4"}
+  Product Load (0.2ms)  SELECT  "products".* FROM "products" WHERE "products"."id" = ? LIMIT ?  [["id", 4], ["LIMIT", 1]]
+   (0.1ms)  begin transaction
+  Category Load (0.2ms)  SELECT "categories".* FROM "categories" WHERE "categories"."id" IN (1, 2, 3, 4)
+  Category Load (0.1ms)  SELECT "categories".* FROM "categories" INNER JOIN "categories_products" ON "categories"."id" = "categories_products"."category_id" WHERE "categories_products"."product_id" = ?  [["product_id", 4]]
+  SQL (1.1ms)  INSERT INTO "categories_products" ("category_id", "product_id") VALUES (?, ?)  [["category_id", 1], ["product_id", 4]]
+  SQL (0.0ms)  INSERT INTO "categories_products" ("category_id", "product_id") VALUES (?, ?)  [["category_id", 2], ["product_id", 4]]
+   (0.5ms)  rollback transaction
+  Category Load (0.1ms)  SELECT "categories".* FROM "categories"
+  Rendered products/_form.html.erb (3.4ms)
+  Rendered products/edit.html.erb within layouts/application (4.8ms)
+Completed 200 OK in 49ms (Views: 35.3ms | ActiveRecord: 2.2ms)
+```
+
+Allow category_ids:
+
+def product_params
+  params.require(:product).permit(:name, :price, {category_ids: []})
+end
+
+
+
+
+Cleaned Up 
+
+```
+<div class="field">
+  <%= f.collection_check_boxes(:category_ids, Category.all, :id, :name, checked: product.categories.map(&:id)) do |b| %>	
+  	<%= b.check_box %> <%= b.label %>
+  <% end %>
+</div>
+```
+
+```
+def update
+  respond_to do |format|
+    if @product.update_attributes(product_params)
+      format.html { redirect_to @product, notice: 'Product was successfully updated.' }
+      format.json { render :show, status: :ok, location: @product }
+    else
+      format.html { render :edit }
+      format.json { render json: @product.errors, status: :unprocessable_entity }
+    end
+  end
+end
+```
+
+```
+def product_params
+  params.require(:product).permit(:name, :price, {category_ids: []})
+end
+```
+
 http://railscasts.com/episodes/17-habtm-checkboxes?view=comments
 
 

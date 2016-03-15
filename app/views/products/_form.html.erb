@@ -21,12 +21,12 @@
     <%= f.text_field :price %>
   </div>
 
-<% for category in Category.all %>
-<div>
-  <%= check_box_tag "product[category_ids][]", category.id, @product.categories.include?(category) %>
-  <%= category.name %>
+
+<div class="field">
+  <%= f.collection_check_boxes(:category_ids, Category.all, :id, :name, checked: product.categories.map(&:id)) do |b| %>	
+  	<%= b.check_box %> <%= b.label %>
+  <% end %>
 </div>
-<% end %>
 
   <div class="actions">
     <%= f.submit %>
