@@ -1,0 +1,125 @@
+-
+
+List of Tasks displayed on the index page.
+
+-
+
+Task
+belongs_to project
+
+has_many comments
+
+-
+Tasks controller.
+
+@task = Task.all 
+
+-
+
+tasks/index.html.erb
+ 
+<td><%= task.name %> in <%= task.project.name %></td> 
+-
+
+seeds.rb
+
+wealthy = Project.create(name: 'Wealth Building')
+wealthy.tasks.create(name: 'Get rich quick', complete: false, priority: 4)
+wealthy.tasks.create(name: 'Write a book', complete: true, priority: 5)
+
+happy = Project.create(name: 'Be Happy')
+happy.tasks.create(name: 'Buy a puppy', complete: false, priority: 9)
+happy.tasks.create(name: 'Dance in the rain', complete: true, priority: 7)
+
+rake db:drop
+rake db:migrate
+rake db:seed
+
+rails c
+ > Project.count
+   (0.1ms)  SELECT COUNT(*) FROM "projects"
+ => 2 
+ > Task.count
+   (0.1ms)  SELECT COUNT(*) FROM "tasks"
+ => 4 
+
+
+-
+
+Development log. N+1 query problem.
+
+Started GET "/tasks" for ::1 at 2016-03-15 15:41:12 -0700
+Processing by TasksController#index as HTML
+  Task Load (0.2ms)  SELECT "tasks".* FROM "tasks"
+  Project Load (0.1ms)  SELECT  "projects".* FROM "projects" WHERE "projects"."id" = ? LIMIT ?  [["id", 1], ["LIMIT", 1]]
+  CACHE (0.0ms)  SELECT  "projects".* FROM "projects" WHERE "projects"."id" = ? LIMIT ?  [["id", 1], ["LIMIT", 1]]
+  Project Load (0.1ms)  SELECT  "projects".* FROM "projects" WHERE "projects"."id" = ? LIMIT ?  [["id", 2], ["LIMIT", 1]]
+  CACHE (0.0ms)  SELECT  "projects".* FROM "projects" WHERE "projects"."id" = ? LIMIT ?  [["id", 2], ["LIMIT", 1]]
+  Rendered tasks/index.html.erb within layouts/application (43.9ms)
+Completed 200 OK in 380ms (Views: 375.9ms | ActiveRecord: 1.3ms)
+
+
+-
+
+Eager loading
+
+@tasks = Task.all.includes(:project)
+
+includes(:association_name)
+
+-
+
+One one SQL query in development log.
+
+Started GET "/tasks" for ::1 at 2016-03-15 15:42:33 -0700
+Processing by TasksController#index as HTML
+  Task Load (0.3ms)  SELECT "tasks".* FROM "tasks"
+  Project Load (0.2ms)  SELECT "projects".* FROM "projects" WHERE "projects"."id" IN (1, 2)
+  Rendered tasks/index.html.erb within layouts/application (29.2ms)
+Completed 200 OK in 73ms (Views: 67.8ms | ActiveRecord: 1.4ms)
+
+
+More 73ms vs 380ms in log file.
+
+-
+
+
+Task has many comments
+
+include: [:project, :comments]
+include: [:project, {comments: :user}]
+
+Comment belongs_to :user
+
+-
+
+
+group :development, :test do
+  gem 'bullet', git: 'https://github.com/flyerhzm/bullet'
+end
+
+bundle
+
+-
+
+development.rb:
+
+config.after_initialize do
+  Bullet.enable = true
+  Bullet.alert = true
+  Bullet.bullet_logger = true
+  Bullet.console = true
+  Bullet.rails_logger = true
+  Bullet.add_footer = true
+end
+
+-
+
+rails s
+
+-
+
+
+
+
+

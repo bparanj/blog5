@@ -4,8 +4,6 @@ Link to edit and destroy on articles page.
 
 2
 
-
-
 http://railscasts.com/episodes/20-restricting-access?view=comments
 
 
