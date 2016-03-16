@@ -1,6 +1,6 @@
 Virtual Attributes in Rails 5
 
-1
+### Step 1
 
 You can list all the columns of the users table like this in the rails console:
 
@@ -16,7 +16,7 @@ We can get the columns of the users table by listing the keys of this hash.
  => ["id", "first_name", "middle_initial", "last_name", "created_at", "updated_at", "password"] 
 ```
  
-2
+### Step 2
 
 Define the routes for the users resource in `routes.rb` file.
 
@@ -26,7 +26,7 @@ Rails.application.routes.draw do
 end
 ```
 
-3
+### Step 3
 
 Create the form for a new user registration in `app/views/users/new.html.erb`:
 
@@ -55,7 +55,7 @@ Create the form for a new user registration in `app/views/users/new.html.erb`:
 
 This form collects the first_name, last_name and the password of the user.
 
-4
+### Step 4
 
 You can see the columns defined in the users table in `schema.rb`:
 
@@ -72,7 +72,7 @@ end
  
 The fields in the view is stored in the corresponding column in the users table. There is a one-to-one mapping between the fields in the view and the fields in the table.
 
-5
+### Step 5
 
 Let's change the form to collect the full_name from the user:
 
@@ -96,13 +96,15 @@ Let's change the form to collect the full_name from the user:
 
 How can me map the full_name field in the view to the first_name and last_name columns in the database?
 
-6
+### Step 6
 
 Browse to `http://localhost:3000/users/new`. You will get the error:
 
 ```
 undefined method `full_name' for #<User:0x007f89a0>
 ```
+
+### Step 7
 
 Define the full_name setter in the user model.
 
@@ -114,12 +116,16 @@ def full_name=(name)
 end
 ```
 
+### Step 8
+
 Browse to `http://localhost:3000/users/new`. You still get the error:
 
 ```
 undefined method `full_name' for #<User:0x007bc0de8>
 Did you mean?  full_name=
 ```
+
+### Step 9
 
 Define the full_name getter in the user model:
 
@@ -129,7 +135,7 @@ def full_name
 end
 ```
 
-7
+### Step 10
 
 Fill out the registration form and submit. In the development.log file, you can see the data submitted to the server.
 
@@ -143,7 +149,7 @@ Completed 204 No Content in 2ms (ActiveRecord: 0.0ms)
 
 The user's `full_name` and password is sent to the server.
 
-8
+### Step 11
 
 The users controller that implements index, new and create actions looks like this:
 
@@ -165,7 +171,7 @@ class UsersController < ApplicationController
 end
 ```
 
-9
+### Step 12
 
 When you register, you can see the data sent to the server and the insert sql command in the development.log file.
 
@@ -190,7 +196,7 @@ Processing by UsersController#index as HTML
 Completed 200 OK in 24ms (Views: 21.6ms | ActiveRecord: 0.1ms)
 ```
 
-10
+### Step 13
 
 We can verify the new user record in the rails console:
 
@@ -199,9 +205,12 @@ We can verify the new user record in the rails console:
   User Load (0.2ms)  SELECT  "users".* FROM "users" ORDER BY "users"."id" DESC LIMIT ?  [["LIMIT", 1]]
  => #<User id: 1, first_name: "Pluto", middle_initial: nil, last_name: "Dog", created_at: "2016-03-12 01:44:18", updated_at: "2016-03-12 01:44:18", password: "123456"> 
  ```
+
+## Summary
+
+In this article, you learned about virtual attributes and how you can use it in Rails 5 app to map fields in the view to the fields in the database. 
  
- 
- http://railscasts.com/episodes/16-virtual-attributes?view=comments
+http://railscasts.com/episodes/16-virtual-attributes?view=comments
  
  
 

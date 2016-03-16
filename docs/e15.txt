@@ -1,115 +1,151 @@
+D
+Rails 5 ActiveRecord where, find_by, or and Eager Loading
+
+## The Where Clause
 
 Find all incomplete tasks with priority 3.
 
+```
  > Task.where(complete: false).where(priority: 3).all
   Task Load (0.3ms)  SELECT "tasks".* FROM "tasks" WHERE "tasks"."complete" = ? AND "tasks"."priority" = ?  [["complete", false], ["priority", 3]]
  => #<ActiveRecord::Relation []> 
+```
  
- No results.
- 
- Find all incomplete tasks with priority 9.
- 
+No results. Find all incomplete tasks with priority 9.
+
+``` 
  > Task.where(complete: false).where(priority: 9)
   Task Load (0.1ms)  SELECT "tasks".* FROM "tasks" WHERE "tasks"."complete" = ? AND "tasks"."priority" = ?  [["complete", false], ["priority", 9]]
  => #<ActiveRecord::Relation [#<Task id: 3, name: "Buy a puppy", complete: false, created_at: "2016-03-11 23:40:43", updated_at: "2016-03-11 23:40:43", project_id: 2, priority: 9>]> 
- 
- Searching for null values generates SQL with 'IS NULL'.
- 
+```
+
+Searching for null values generates SQL with 'IS NULL'.
+
+``` 
  > Task.where(complete: false).where(priority: nil)
   Task Load (0.2ms)  SELECT "tasks".* FROM "tasks" WHERE "tasks"."complete" = ? AND "tasks"."priority" IS NULL  [["complete", false]]
  => #<ActiveRecord::Relation []> 
+```
  
- This syntax is correct. 
+This syntax is correct. 
  
+```
  > Task.where(complete: false).where(priority: [4,9])
   Task Load (0.2ms)  SELECT "tasks".* FROM "tasks" WHERE "tasks"."complete" = ? AND "tasks"."priority" IN (4, 9)  [["complete", false]]
  => #<ActiveRecord::Relation [#<Task id: 1, name: "Get rich quick", complete: false, created_at: "2016-03-11 23:40:43", updated_at: "2016-03-11 23:40:43", project_id: 1, priority: 4>, #<Task id: 3, name: "Buy a puppy", complete: false, created_at: "2016-03-11 23:40:43", updated_at: "2016-03-11 23:40:43", project_id: 2, priority: 9>]> 
+``` 
+
+
  
- 
- 
+``` 
  > Task.where(complete: false).where(priority: 4..9)
   Task Load (0.2ms)  SELECT "tasks".* FROM "tasks" WHERE "tasks"."complete" = ? AND ("tasks"."priority" BETWEEN ? AND ?)  [["complete", false], ["priority", 4], ["priority", 9]]
  => #<ActiveRecord::Relation [#<Task id: 1, name: "Get rich quick", complete: false, created_at: "2016-03-11 23:40:43", updated_at: "2016-03-11 23:40:43", project_id: 1, priority: 4>, #<Task id: 3, name: "Buy a puppy", complete: false, created_at: "2016-03-11 23:40:43", updated_at: "2016-03-11 23:40:43", project_id: 2, priority: 9>]> 
  > Task.where(priority: 4..9)
   Task Load (0.2ms)  SELECT "tasks".* FROM "tasks" WHERE ("tasks"."priority" BETWEEN ? AND ?)  [["priority", 4], ["priority", 9]]
  => #<ActiveRecord::Relation [#<Task id: 1, name: "Get rich quick", complete: false, created_at: "2016-03-11 23:40:43", updated_at: "2016-03-11 23:40:43", project_id: 1, priority: 4>, #<Task id: 2, name: "Write a book", complete: true, created_at: "2016-03-11 23:40:43", updated_at: "2016-03-11 23:40:43", project_id: 1, priority: 5>, #<Task id: 3, name: "Buy a puppy", complete: false, created_at: "2016-03-11 23:40:43", updated_at: "2016-03-11 23:40:43", project_id: 2, priority: 9>, #<Task id: 4, name: "Dance in the rain", complete: true, created_at: "2016-03-11 23:40:43", updated_at: "2016-03-11 23:40:43", project_id: 2, priority: 7>]> 
+```
 
+## The find_by
 
-
- Task.find_by_priority(2..10)
+```
+Task.find_by_priority(2..10)
   Task Load (0.1ms)  SELECT  "tasks".* FROM "tasks" WHERE "tasks"."priority" = ? LIMIT ?  [["priority", nil], ["LIMIT", 1]]
  => nil 
+```
  
- This generates wrong SQL query.
- 
+This generates wrong SQL query.
+
+``` 
  > Task.find_by_priority(9)
   Task Load (0.1ms)  SELECT  "tasks".* FROM "tasks" WHERE "tasks"."priority" = ? LIMIT ?  [["priority", 9], ["LIMIT", 1]]
  => #<Task id: 3, name: "Buy a puppy", complete: false, created_at: "2016-03-11 23:40:43", updated_at: "2016-03-11 23:40:43", project_id: 2, priority: 9>
+```
  
- This works.
- 
+This works.
+
+``` 
  > Task.find_by(priority: 9)
    Task Load (0.1ms)  SELECT  "tasks".* FROM "tasks" WHERE "tasks"."priority" = ? LIMIT ?  [["priority", 9], ["LIMIT", 1]]
   => #<Task id: 3, name: "Buy a puppy", complete: false, created_at: "2016-03-11 23:40:43", updated_at: "2016-03-11 23:40:43", project_id: 2, priority: 9> 
- 2.3.0 :013 > 
+```
  
- This also works.
- 
+This also works.
+
+``` 
  > Task.find_by(priority: [2..10])
   Task Load (0.2ms)  SELECT  "tasks".* FROM "tasks" WHERE ("tasks"."priority" BETWEEN 2 AND 10) LIMIT ?  [["LIMIT", 1]]
  => #<Task id: 1, name: "Get rich quick", complete: false, created_at: "2016-03-11 23:40:43", updated_at: "2016-03-11 23:40:43", project_id: 1, 
  priority: 4> 
+```
  
- Finds only one record.
- 
- > Task.all.to_a
+Finds only one record.
+
+``` 
+> Task.all.to_a
   Task Load (0.1ms)  SELECT "tasks".* FROM "tasks"
  => [#<Task id: 1, name: "Get rich quick", complete: false, created_at: "2016-03-11 23:40:43", updated_at: "2016-03-11 23:40:43", project_id: 1, priority: 4>, #<Task id: 2, name: "Write a book", complete: true, created_at: "2016-03-11 23:40:43", updated_at: "2016-03-11 23:40:43", project_id: 1, priority: 5>, #<Task id: 3, name: "Buy a puppy", complete: false, created_at: "2016-03-11 23:40:43", updated_at: "2016-03-11 23:40:43", project_id: 2, priority: 9>, #<Task id: 4, name: "Dance in the rain", complete: true, created_at: "2016-03-11 23:40:43", updated_at: "2016-03-11 23:40:43", project_id: 2, priority: 7>] 
+```
 
 Find priority NOT in 9.
 
- > Task.where.not(priority: [4,9])
+```
+> Task.where.not(priority: [4,9])
   Task Load (0.2ms)  SELECT "tasks".* FROM "tasks" WHERE ("tasks"."priority" NOT IN (4, 9))
  => #<ActiveRecord::Relation [#<Task id: 2, name: "Write a book", complete: true, created_at: "2016-03-11 23:40:43", updated_at: "2016-03-11 23:40:43", project_id: 1, priority: 5>, #<Task id: 4, name: "Dance in the rain", complete: true, created_at: "2016-03-11 23:40:43", updated_at: "2016-03-11 23:40:43", project_id: 2, priority: 7>]> 
+```
 
 priority NOT in (4,9)
 
-Eager loading
+## Eager loading
 
-9 > Project.all.includes(:tasks)
+```
+ > Project.all.includes(:tasks)
   Project Load (2.0ms)  SELECT "projects".* FROM "projects"
   Task Load (0.2ms)  SELECT "tasks".* FROM "tasks" WHERE "tasks"."project_id" IN (1, 2)
  => #<ActiveRecord::Relation [#<Project id: 1, name: "Wealth Building", created_at: "2016-03-11 23:40:42", updated_at: "2016-03-11 23:40:42">, #<Project id: 2, name: "Be Happy", created_at: "2016-03-11 23:40:43", updated_at: "2016-03-11 23:40:43">]> 
  > Task.all.includes(:projects)
   Task Load (0.1ms)  SELECT "tasks".* FROM "tasks"
 ActiveRecord::AssociationNotFoundError: Association named 'projects' was not found on Task; perhaps you misspelled it?
+```
 
 
 
+```
 > Task.where.not(priority: 9)
   Task Load (0.2ms)  SELECT "tasks".* FROM "tasks" WHERE ("tasks"."priority" != ?)  [["priority", 9]]
  => #<ActiveRecord::Relation [#<Task id: 1, name: "Get rich quick", complete: false, created_at: "2016-03-11 23:40:43", updated_at: "2016-03-11 23:40:43", project_id: 1, priority: 4>, #<Task id: 2, name: "Write a book", complete: true, created_at: "2016-03-11 23:40:43", updated_at: "2016-03-11 23:40:43", project_id: 1, priority: 5>, #<Task id: 4, name: "Dance in the rain", complete: true, created_at: "2016-03-11 23:40:43", updated_at: "2016-03-11 23:40:43", project_id: 2, priority: 7>]> 
+```
 
+
+
+```
 Task.find_all_by_complete(false)
 NoMethodError: undefined method `find_all_by_complete' for #<Class:0x007ff3eafc2b60>
 Did you mean?  find_or_create_by
+```
 
 This is not available in Rails 4.x and 5 anymore.
 
 
-Using OR
+## Using OR Condition
 
+```
 > Task.where(project_id: 1).or(Task.where(priority: 9))
   Task Load (0.2ms)  SELECT "tasks".* FROM "tasks" WHERE ("tasks"."project_id" = ? OR "tasks"."priority" = ?)  [["project_id", 1], ["priority", 9]]
  => #<ActiveRecord::Relation [#<Task id: 1, name: "Get rich quick", complete: false, created_at: "2016-03-11 23:40:43", updated_at: "2016-03-11 23:40:43", project_id: 1, priority: 4>, #<Task id: 2, name: "Write a book", complete: true, created_at: "2016-03-11 23:40:43", updated_at: "2016-03-11 23:40:43", project_id: 1, priority: 5>, #<Task id: 3, name: "Buy a puppy", complete: false, created_at: "2016-03-11 23:40:43", updated_at: "2016-03-11 23:40:43", project_id: 2, priority: 9>]> 
+``` 
+
  
  
- 
+``` 
  Task.where(id: [1,4])
    Task Load (0.2ms)  SELECT "tasks".* FROM "tasks" WHERE "tasks"."id" IN (1, 4)
   => #<ActiveRecord::Relation [#<Task id: 1, name: "Get rich quick", complete: false, created_at: "2016-03-11 23:40:43", updated_at: "2016-03-11 23:40:43", project_id: 1, priority: 4>, #<Task id: 4, name: "Dance in the rain", complete: true, created_at: "2016-03-11 23:40:43", updated_at: "2016-03-11 23:40:43", project_id: 2, priority: 7>]> 
+``` 
  
- 
- 
+## Summary
+
+In this article, you learned how to use the where clause to chain conditions, or condition, find_by and eager loading. 
  
 http://railscasts.com/episodes/15-fun-with-find-conditions?view=comments

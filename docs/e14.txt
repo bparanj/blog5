@@ -100,7 +100,7 @@ We have a project model which has many tasks. We can access these methods for th
 
 ## Summary 
 
-In this article, you learned how to perform caculations on models by using sum, maximum, minimum and average.
+In this article, you learned how to perform calculations on models by using sum, maximum, minimum and average.
 
 
 

@@ -1,62 +1,44 @@
 Has Many Through Checkboxes
 
-1
+### Step 1
 
-```
+Let's generate the category model with name attribute.
+
+```sh
 rails g model category name:string
 ```
 
-2
-
-Create categories in seeds.rb:
-
-Clothes
-Furniture
-Groceries
-Electronics
-
-3
-
-Category has_and_belongs_to_many :products
-
-4
-
-```
-rake db:migrate
-== 20160314195042 CreateCategories: migrating =================================
--- create_table(:categories)
-   -> 0.0141s
-== 20160314195042 CreateCategories: migrated (0.0142s) ========================
-
- $ rake db:seed
- $ rails c
-Loading development environment (Rails 5.0.0.beta3)
- > Category.count
-   (0.1ms)  SELECT COUNT(*) FROM "categories"
- => 4 
-```
-
-5
+### Step 2
 
 Create product model and controller.
 
-```
+```sh
 $ rails g scaffold product name:string price:decimal
 ```
 
-product has name, price 
+The products table has name, price fields.
 
-```
+### Step 3
+
+Define the habtm association in product and category models.
+
+```ruby
 class Product < ApplicationRecord
-  has_and_belongs_to_many :category
+  has_and_belongs_to_many :categories
 end
 ```
 
-6
+```ruby
+class Category < ApplicationRecord
+  has_and_belongs_to_many :products
+end
+```
+
+### Step 4
 
 Change the migration file:
 
-``` 
+```ruby 
 class CreateProducts < ActiveRecord::Migration[5.0]
   def change
     create_table :products do |t|
@@ -68,14 +50,16 @@ class CreateProducts < ActiveRecord::Migration[5.0]
   end
 end
 ```
- 
+
+### Step 5
+
 Create the join table:
 
-```
+```sh
 rails g migration create_categories_products category_id:integer product_id:integer
 ```
 
-```
+```ruby
 class CreateAtegoriesProductsTable < ActiveRecord::Migration[5.0]
   def change
     create_table :categories_products do |t|
@@ -86,19 +70,35 @@ class CreateAtegoriesProductsTable < ActiveRecord::Migration[5.0]
 end
 ```
 
-7
+### Step 6
+
+
+```sh
+rake db:migrate
+rake db:seed
+```
+
+```ruby
+rails c
+Loading development environment (Rails 5.0.0.beta3)
+ > Category.count
+   (0.1ms)  SELECT COUNT(*) FROM "categories"
+ => 4 
+```
+
+### Step 7
 
 To remove existing data and recreate all tables.
 
-```
+```sh
 $ rake db:drop db:create db:migrate
 ```
 
-8
+### Step 8
 
- seeds.rb:
+Create sample data to play with in seeds.rb:
 
-```
+```ruby
 p = Product.new(name: 'rug', price: 100)
 Product.create(name: 'bowl', price: 20.95)
 Product.create(name: 'pillow', price: 90)
@@ -113,14 +113,15 @@ p.categories << c
 p.save!
 ```
 
-```
+Populate the tables.
+
+```sh
 rake db:seed
 ```
 
+### Step 9
 
-9
-
-```
+```sh
 $ rails c
 Loading development environment (Rails 5.0.0.beta3)
  > Product.count
@@ -137,29 +138,29 @@ Loading development environment (Rails 5.0.0.beta3)
  => [#<Category id: 1, name: "Clothes", created_at: "2016-03-14 20:29:30", updated_at: "2016-03-14 20:29:30">] 
 ```
  
-10
+### Step 10
 
-products/index.html.erb
+In `products/index.html.erb` list all products on index page with edit and destroy links. Go to `http://localhost:3000/products`.
 
-List all products on index page with edit and destroy links. `http://localhost:3000/products`
-
-11
+### Step 11
 
 Clicking on product name takes to product show page. Product show page has Edit and All Products link.
 
-12
+### Step 12
 
-`products/show.html.erb`
+In `products/show.html.erb`
 
+```html
 In Categories:
+```
 
 on the product show page is blank. 
 
-13
+### Step 13
 
 Add to product edit form partial:
 
-```
+```ruby
 <% for category in Category.find(:all) %>
 <div>
   <%= check_box_tag "product[category_ids][]", category.id, @product.categories.include?(category) %>
@@ -168,17 +169,19 @@ Add to product edit form partial:
 <% end %>
 ```
 
-14
+### Step 14
 
 Go to products/edit/1 and check two categories and click update. 
 
-```
+```ruby
 def product_params
   params.require(:product).permit(:name, :price, :category_ids)
 end
 ```
 
-```
+
+
+```sh
 Started PATCH "/products/4" for ::1 at 2016-03-14 13:41:24 -0700
 Processing by ProductsController#update as HTML
   Parameters: {"utf8"=>"✓", "authenticity_token"=>"Nt7GRCRGElzpiVEud0NdADa+3h2k5hAWl7wi7H+Imi0TEdcZ7pmyNBY1Mj1gxj9LyT15U+BwIlYTVyl6S/2pyg==", "product"=>{"name"=>"rug", "price"=>"100.0", "category_ids"=>["1", "2"]}, "commit"=>"Update product", "id"=>"4"}
@@ -194,17 +197,17 @@ Display product in show page with In Categories populated.
 
 To fix the error, change product_params:
 
-```
+```ruby
 def product_params
   params.require(:product).permit!
 end
 ```
 
-15
+### Step 15
 
 View the development log, update action, parameters, category_ids.
 
-```
+```sh
 Started PATCH "/products/4" for ::1 at 2016-03-14 14:59:07 -0700
 Processing by ProductsController#update as HTML
   Parameters: {"utf8"=>"✓", "authenticity_token"=>"UeAoAINcnvDHkntnFRXlu8XDHhMP6O07IdCNnM5xKDexDnXVHPM5B99Rj/msECz+jOBkG9NvAweB/phyRlIe8w==", "product"=>{"name"=>"rug", "price"=>"100.0", "category_ids"=>["1", "3", "4"]}, "commit"=>"Update product", "id"=>"4"}
@@ -219,7 +222,7 @@ Completed 302 Found in 16ms (ActiveRecord: 1.3ms)
 ```
 
 
-```
+```sh
 Started GET "/products/4" for ::1 at 2016-03-14 14:59:07 -0700
 Processing by ProductsController#show as HTML
   Parameters: {"id"=>"4"}
@@ -229,9 +232,9 @@ Processing by ProductsController#show as HTML
 Completed 200 OK in 38ms (Views: 35.5ms | ActiveRecord: 0.2ms)
 ```
 
-16
+### Step 16
 
-Console
+Let play in the rails console:
 
 ```
 $ rails c
@@ -258,15 +261,13 @@ Loading development environment (Rails 5.0.0.beta3)
  => [2, 3] 
 ```
 
-Notice that we don't need to call save explicitly.
+Notice that we don't need to call save explicitly. The category_ids is provided by habm association.
 
-category_ids is provided by habm association.
-
-17
+### Step 17
 
 Uncheck all the boxes and update. Does it remove categories associated with that product? No.
 
-```
+```sh
 Started PATCH "/products/4" for ::1 at 2016-03-14 15:23:24 -0700
 Processing by ProductsController#update as HTML
   Parameters: {"utf8"=>"✓", "authenticity_token"=>"iRTf7sobiLnrSs3HNfW60pSePwkKXY9gCHsFxFp2f2Np+oI7VbQvTvOJOVmM8HOX3b1FAdbaYVyoVRAq0lVJpw==", "product"=>{"name"=>"rug", "price"=>"100.0"}, "commit"=>"Update product", "id"=>"4"}
@@ -277,7 +278,9 @@ Redirected to http://localhost:3000/products/4
 Completed 302 Found in 4ms (ActiveRecord: 0.7ms)
 ```
 
-```
+
+
+```sh
 Started GET "/products/4" for ::1 at 2016-03-14 15:23:24 -0700
 Processing by ProductsController#show as HTML
   Parameters: {"id"=>"4"}
@@ -287,11 +290,15 @@ Processing by ProductsController#show as HTML
 Completed 200 OK in 45ms (Views: 40.5ms | ActiveRecord: 0.5ms)
 ```
 
+Add:
 
-def update
-  params[:product][:category_ids] ||=[]
-
+```ruby
+params[:product][:category_ids] ||=[]
 ```
+
+to the update method in products controller:
+
+```ruby
 def update
   params[:product][:category_ids] ||=[]
   respond_to do |format|
@@ -311,35 +318,44 @@ Now it will delete when we unselect the check boxes.
 
 Note: The join table categories_products does not have id column.
 
-
+```ruby
 <%= check_box_tag "product[category_ids][]", category.id, @product.categories.include?(category), {:id => dom_id(category, dom_id(@product)) } %>
+```
 
 generates:
 
+```html
 <input type="checkbox" name="product[category_ids][]" id="product_2_category_1" value="1" />
+```
 
 otherwise it is:
 
+```html
 <input type="checkbox" name="product[category_ids][]" id="product_category_ids_" value="1" />
+```
 
 id is product_category_ids_ for all check boxes.
 
 You can make the check boxes to multiple selection:
 
+```ruby
 <div>
-	<%= select_tag "product[category_ids][]", options_from_collection_for_select(Category.all, "id", "name"), :multiple => true %>
+<%= select_tag "product[category_ids][]", options_from_collection_for_select(Category.all, "id", "name"), :multiple => true %>
 </div>
+```
 
-
+```ruby
 class Product < ApplicationRecord
   has_and_belongs_to_many :categories
   
   validates_presence_of :name
 end
+```
 
 Make the product name blank and update product. Fail saves and the transaction is rolled back. This is correct behavior.
 
-```
+
+```sh
 Started PATCH "/products/4" for ::1 at 2016-03-14 16:48:20 -0700
 Processing by ProductsController#update as HTML
   Parameters: {"utf8"=>"✓", "authenticity_token"=>"zZkOscnXAalDBKU6jprRh+UOEpvMlO0otMFq8dj2Q0773subQUxlGtvXUQWPSz0mtrUdoL+AY0Th6U3ogPajkQ==", "product"=>{"name"=>"", "price"=>"100.0", "category_ids"=>["1", "2", "3", "4"]}, "commit"=>"Update product", "id"=>"4"}
@@ -358,16 +374,17 @@ Completed 200 OK in 49ms (Views: 35.3ms | ActiveRecord: 2.2ms)
 
 Allow category_ids:
 
+```ruby
 def product_params
   params.require(:product).permit(:name, :price, {category_ids: []})
 end
-
+```
 
 
 
 Cleaned Up 
 
-```
+```ruby
 <div class="field">
   <%= f.collection_check_boxes(:category_ids, Category.all, :id, :name, checked: product.categories.map(&:id)) do |b| %>	
   	<%= b.check_box %> <%= b.label %>
@@ -375,7 +392,9 @@ Cleaned Up
 </div>
 ```
 
-```
+
+
+```ruby
 def update
   respond_to do |format|
     if @product.update_attributes(product_params)
@@ -389,11 +408,14 @@ def update
 end
 ```
 
-```
+```ruby
 def product_params
   params.require(:product).permit(:name, :price, {category_ids: []})
 end
 ```
+
+The check box and the label are on different rows. This requires CSS fix to display the check box and the label on the same row.
+
 
 http://railscasts.com/episodes/17-habtm-checkboxes?view=comments
 
