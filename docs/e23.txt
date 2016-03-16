@@ -5,8 +5,12 @@ Counter Cache Column in Rails 5
 Project has many tasks.
 
 -
+In projects controller:
 
-@tasks = Project.all
+def index
+  @projects = Project.all
+end
+
 
 -
 
@@ -40,54 +44,53 @@ You can see three + 1 SQL queries.
 
 -
 
-Reduce count(*) to one query. Eager loading is one way. It retrieves more columns than just the count. This uses more bandwidth and time.
+We want to eeduce count(*) to one query. Eager loading is one way. It retrieves more columns than just the count. This uses more bandwidth and time.
 
 -
 
+Create the migration to add_tasks_count column to the projects table.
 
+```sh
 rails g migration add_tasks_count
+```
 
-add_column :projects, :tasks_count, :integer, default: 0
+Modify the migration file like this:
 
+```ruby
 class AddTasksCount < ActiveRecord::Migration[5.0]
   def change
     add_column :projects, :tasks_count, :integer, default: 0
   end
 end
+```
 
+Migrate the database.
 
--
-
-Project.reset_column_information
-Project.all.each do	|p|
-  p.update_attribute :tasks_count, p.tasks.length
-end
-
-class AddTasksCount < ActiveRecord::Migration[5.0]
-  def change
-    add_column :projects, :tasks_count, :integer, default: 0    
-  end
-end
-
-
+```sh
 rails db:migrate
+```
+
+Create a rake task `counter_cache.rake` in lib/tasks:
 
 
-Rake task `counter_cache.rake` in lib/tasks:
-
+```ruby
 desc 'Counter cache for project has many tasks'
 
 task task_counter: :environment do
   Project.reset_column_information
-  Project.all.each do	|p|
-    p.update_attribute :tasks_count, p.tasks.length
+  Project.pluck(:id).find_each do |p|
+    Project.reset_counters p.id, :tasks
   end
 end
+```
 
+This will update the old projects to have the right task count.
+
+-
 
 Run rake `task_counter` rake task. We can check whether the tasks_count has been populated or not in rails console.
 
-```
+```sh
 > p = Project.first
   Project Load (0.2ms)  SELECT  "projects".* FROM "projects" ORDER BY "projects"."id" ASC LIMIT ?  [["LIMIT", 1]]
  => #<Project id: 1, name: "Wealth Building", created_at: "2016-03-16 19:07:26", updated_at: "2016-03-16 20:55:29", tasks_count: 2> 
@@ -100,17 +103,20 @@ Run rake `task_counter` rake task. We can check whether the tasks_count has been
 
 In schema.rb, you can see the tasks_count column for projects table.
 
+```ruby
 create_table "projects", force: :cascade do |t|
   t.string   "name"
   t.datetime "created_at",              null: false
   t.datetime "updated_at",              null: false
   t.integer  "tasks_count", default: 0
 end
+```
 
 -
+
 Change the projects/index.html.erb to use the tasks_count field:
 
-```
+```sh
 <td><%= pluralize(project.tasks_count, 'task') %></td>
 ```
 		
@@ -118,7 +124,7 @@ Change the projects/index.html.erb to use the tasks_count field:
 
 Reload project index page and view the log for SQL queries.
 
-```
+```sh
 Started GET "/projects" for ::1 at 2016-03-16 14:04:22 -0700
 Processing by ProjectsController#index as HTML
   Project Load (0.1ms)  SELECT "projects".* FROM "projects"
@@ -132,7 +138,7 @@ You see that there is only one query now instead of 4 queries before using the c
 
 Let's add a new task to the last project in the rails console.
 
-```
+```sh
  > Project.last
   Project Load (0.2ms)  SELECT  "projects".* FROM "projects" ORDER BY "projects"."id" DESC LIMIT ?  [["LIMIT", 1]]
  => #<Project id: 3, name: "Cooking", created_at: "2016-03-16 20:06:26", updated_at: "2016-03-16 20:06:26", tasks_count: 0> 
@@ -143,15 +149,16 @@ Let's add a new task to the last project in the rails console.
  => #<Task id: 11, name: "Add counter cache", complete: nil, created_at: "2016-03-16 21:09:25", updated_at: "2016-03-16 21:09:25", project_id: 1, priority: nil> 
 ```
 
-
 Reload the page. The Cooking project still has 0 tasks. Let's fix this problem.
 
 -
 
 
-Task
+Add counter cache to Task model.
 
+```ruby
 belongs_to :project, counter_cache: true
+```
 
 This will update when the task is deleted or created.
 
@@ -159,7 +166,7 @@ This will update when the task is deleted or created.
 
 In the console, retrieve the first project and delete a task that belongs to that project.
 
-``` 
+```sh
 > f = Project.first
   Project Load (0.1ms)  SELECT  "projects".* FROM "projects" ORDER BY "projects"."id" ASC LIMIT ?  [["LIMIT", 1]]
  => #<Project id: 1, name: "Wealth Building", created_at: "2016-03-16 19:07:26", updated_at: "2016-03-16 20:55:29", tasks_count: 2> 
@@ -178,6 +185,9 @@ In the console, retrieve the first project and delete a task that belongs to tha
 
 Reload the project index page `http://localhost:3000/projects'. You will now see the number of tasks decremented for Wealth Building project.
 
+References
+
+[Select vs Pluck](http://gavinmiller.io/2013/getting-to-know-pluck-and-select/ 'Select vs Pluck')
 
 http://railscasts.com/episodes/23-counter-cache-column?view=comments
 
