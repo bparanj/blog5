@@ -1,15 +1,12 @@
 <p id="notice"><%= notice %></p>
 
-<% content_for :head do %>
- This is the content for head
-<% end %>
-
 <h1>Projects</h1>
 
 <table>
   <thead>
     <tr>
       <th>Name</th>
+	  <th>Count</th>
       <th colspan="3"></th>
     </tr>
   </thead>
@@ -18,15 +15,12 @@
     <% @projects.each do |project| %>
       <tr>
         <td><%= project.name %></td>
+		<td><%= pluralize(project.tasks.length, 'task') %></td>
       </tr>
     <% end %>
   </tbody>
 </table>
 
 <br>
-
-<% content_for :footer do %>
-  This is the footer
-<% end %>
 
 <%= link_to 'New Project', new_project_path %>

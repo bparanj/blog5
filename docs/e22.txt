@@ -113,7 +113,7 @@ include: [:project, {comments: :user}]
 Comment belongs_to :user
 
 
-
+http://railscasts.com/episodes/22-eager-loading?view=comments
 
 
 
