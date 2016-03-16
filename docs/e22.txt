@@ -4,12 +4,10 @@ List of Tasks displayed on the index page.
 
 -
 
-Task
-belongs_to project
-
-has_many comments
+Task belongs to project. Task has many comments.
 
 -
+
 Tasks controller.
 
 @task = Task.all 
@@ -30,33 +28,51 @@ wealthy.tasks.create(name: 'Write a book', complete: true, priority: 5)
 happy = Project.create(name: 'Be Happy')
 happy.tasks.create(name: 'Buy a puppy', complete: false, priority: 9)
 happy.tasks.create(name: 'Dance in the rain', complete: true, priority: 7)
+happy.tasks.create(name: 'Dance in the snow', complete: true, priority: 6)
+happy.tasks.create(name: 'Walk on water', complete: true, priority: 7)
+happy.tasks.create(name: 'Just Blog It', complete: true, priority: 5)
+happy.tasks.create(name: 'Play tennis', complete: true, priority: 4)
+happy.tasks.create(name: 'Make fun of Donald Trump', complete: true, priority: 3)
+happy.tasks.create(name: 'Walk on moon', complete: true, priority: 2)
 
-rake db:drop
-rake db:migrate
-rake db:seed
+rails db:drop db:migrate db:seed
 
 rails c
- > Project.count
+> Task.count
+   (0.1ms)  SELECT COUNT(*) FROM "tasks"
+ => 10 
+2.3.0 :002 > Project.count
    (0.1ms)  SELECT COUNT(*) FROM "projects"
  => 2 
- > Task.count
-   (0.1ms)  SELECT COUNT(*) FROM "tasks"
- => 4 
-
 
 -
 
 Development log. N+1 query problem.
 
-Started GET "/tasks" for ::1 at 2016-03-15 15:41:12 -0700
+Started GET "/tasks" for ::1 at 2016-03-16 12:10:59 -0700
+  ActiveRecord::SchemaMigration Load (0.1ms)  SELECT "schema_migrations".* FROM "schema_migrations"
 Processing by TasksController#index as HTML
   Task Load (0.2ms)  SELECT "tasks".* FROM "tasks"
   Project Load (0.1ms)  SELECT  "projects".* FROM "projects" WHERE "projects"."id" = ? LIMIT ?  [["id", 1], ["LIMIT", 1]]
   CACHE (0.0ms)  SELECT  "projects".* FROM "projects" WHERE "projects"."id" = ? LIMIT ?  [["id", 1], ["LIMIT", 1]]
   Project Load (0.1ms)  SELECT  "projects".* FROM "projects" WHERE "projects"."id" = ? LIMIT ?  [["id", 2], ["LIMIT", 1]]
   CACHE (0.0ms)  SELECT  "projects".* FROM "projects" WHERE "projects"."id" = ? LIMIT ?  [["id", 2], ["LIMIT", 1]]
-  Rendered tasks/index.html.erb within layouts/application (43.9ms)
-Completed 200 OK in 380ms (Views: 375.9ms | ActiveRecord: 1.3ms)
+  CACHE (0.0ms)  SELECT  "projects".* FROM "projects" WHERE "projects"."id" = ? LIMIT ?  [["id", 2], ["LIMIT", 1]]
+  CACHE (0.0ms)  SELECT  "projects".* FROM "projects" WHERE "projects"."id" = ? LIMIT ?  [["id", 2], ["LIMIT", 1]]
+  CACHE (0.0ms)  SELECT  "projects".* FROM "projects" WHERE "projects"."id" = ? LIMIT ?  [["id", 2], ["LIMIT", 1]]
+  CACHE (0.0ms)  SELECT  "projects".* FROM "projects" WHERE "projects"."id" = ? LIMIT ?  [["id", 2], ["LIMIT", 1]]
+  CACHE (0.0ms)  SELECT  "projects".* FROM "projects" WHERE "projects"."id" = ? LIMIT ?  [["id", 2], ["LIMIT", 1]]
+  CACHE (0.0ms)  SELECT  "projects".* FROM "projects" WHERE "projects"."id" = ? LIMIT ?  [["id", 2], ["LIMIT", 1]]
+  Rendered tasks/index.html.erb within layouts/application (34.0ms)
+Completed 200 OK in 354ms (Views: 341.1ms | ActiveRecord: 1.4ms)
+
+
+From the log file, we see three SQL queries:
+
+SELECT "tasks".* FROM "tasks"
+SELECT  "projects".* FROM "projects" WHERE "projects"."id" = ? LIMIT ?  [["id", 1], ["LIMIT", 1]]
+SELECT  "projects".* FROM "projects" WHERE "projects"."id" = ? LIMIT ?  [["id", 2], ["LIMIT", 1]]
+
 
 
 -
@@ -71,15 +87,20 @@ includes(:association_name)
 
 One one SQL query in development log.
 
-Started GET "/tasks" for ::1 at 2016-03-15 15:42:33 -0700
+
+Started GET "/tasks" for ::1 at 2016-03-16 12:14:15 -0700
 Processing by TasksController#index as HTML
   Task Load (0.3ms)  SELECT "tasks".* FROM "tasks"
-  Project Load (0.2ms)  SELECT "projects".* FROM "projects" WHERE "projects"."id" IN (1, 2)
-  Rendered tasks/index.html.erb within layouts/application (29.2ms)
-Completed 200 OK in 73ms (Views: 67.8ms | ActiveRecord: 1.4ms)
+  Project Load (0.1ms)  SELECT "projects".* FROM "projects" WHERE "projects"."id" IN (1, 2)
+  Rendered tasks/index.html.erb within layouts/application (26.3ms)
+Completed 200 OK in 68ms (Views: 62.0ms | ActiveRecord: 1.3ms)
 
+We now only have two queries:
 
-More 73ms vs 380ms in log file.
+SELECT "tasks".* FROM "tasks"
+SELECT "projects".* FROM "projects" WHERE "projects"."id" IN (1, 2)
+
+You can also see the time 58 ms vs 354 ms in log file. The performance has improved almost 7 fold!
 
 -
 
@@ -91,33 +112,7 @@ include: [:project, {comments: :user}]
 
 Comment belongs_to :user
 
--
 
-
-group :development, :test do
-  gem 'bullet', git: 'https://github.com/flyerhzm/bullet'
-end
-
-bundle
-
--
-
-development.rb:
-
-config.after_initialize do
-  Bullet.enable = true
-  Bullet.alert = true
-  Bullet.bullet_logger = true
-  Bullet.console = true
-  Bullet.rails_logger = true
-  Bullet.add_footer = true
-end
-
--
-
-rails s
-
--
 
 
 
