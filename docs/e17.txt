@@ -59,6 +59,14 @@ Create the join table:
 rails g migration create_categories_products category_id:integer product_id:integer
 ```
 
+You can also use:
+
+```sh
+create_join_table :products, :categories
+```
+
+in the migration file inside the change method. This will create the join table `categories_products` with `:null` set to false. The migration file generated using rails generator is shown below.
+
 ```ruby
 class CreateAtegoriesProductsTable < ActiveRecord::Migration[5.0]
   def change
