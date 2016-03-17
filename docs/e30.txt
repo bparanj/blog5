@@ -1,0 +1,27 @@
+Pretty Page Title
+
+The title does not change when you view different pages on the site.
+
+In application layout file.
+
+<title> MyComm Site - <%= content_for?(:title) ? yield(:title) : 'The Biggest Online Store on Earth' %> </title>
+
+
+In `products/new.html.erb`:
+
+<% title "New Product" %>
+
+-
+
+module ApplicationHelper
+  def title(page_title)
+    content_for(:title) { page_title }
+  end
+end
+
+-
+
+The view that does not call the title helper will now have the default title.
+
+
+http://railscasts.com/episodes/30-pretty-page-title?view=comments

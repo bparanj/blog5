@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Todo List</title>
+    <title> MyComm Site - <%= content_for?(:title) ? yield(:title) : 'The Biggest Online Store on Earth' %> </title>
     <%= csrf_meta_tags %>
     <%= action_cable_meta_tag %>
 
