@@ -1,0 +1,109 @@
+In Groups Of in Rails 5
+
+-
+
+List of tasks in tasks index page.
+
+```ruby
+<h1>Tasks</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @tasks.each do |task| %>
+      <tr>
+        <td><%= task.name %> in <%= task.project.name %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+```
+
+We want to list 4 tasks in each row. Let's define rows and columns in view. Add `in_groups_of` method in `tasks/index.html.erb`:
+
+```ruby
+<% @tasks.in_groups_of(4) do |row| %>
+  <tr>
+	<% for task in row %>
+        <td><%= task.name %></td>
+	<% end %>  
+  </tr>
+<% end %>
+```
+
+We get the error:
+
+```
+undefined method `name' for nil:NilClass
+```
+
+We can fix this problem by not filling the array with nil values if they are not evenly divisible. Pass the false flag as the second argument to the `in_groups_of` method.
+
+```
+<h1>Tasks</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @tasks.in_groups_of(4, false) do |row| %>
+	  <tr>
+		<% for task in row %>
+	        <td><%= task.name %></td>
+		<% end %>  
+	  </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+```
+
+
+Reload the page.
+
+	
+	
+	http://railscasts.com/episodes/28-in-groups-of?view=comments
+	
+limit(16)	
+
+limit(14)
+
+
+Exception
+
+
+in_groups_of(5)
+
+nil, nil, ...
+
+in_groups_of(5, false)
+
+
+No erorr message.
+
+
+
+```
+rails c
+```
+
+a = (1..12).to_a
+
+a.in_groups_of(4)
+
+a.in_groups_of(3)
+
+
+
+
