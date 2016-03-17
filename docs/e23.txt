@@ -84,7 +84,9 @@ task task_counter: :environment do
 end
 ```
 
-This will update the old projects to have the right task count.
+The `reset_counters` method avoids the readonly error if you use `update_attribute`. This will update the old projects to have the right task count.
+
+The `reset_column_information` method resets all the cached information about columns, which will cause them to be reloaded on the next request. The most common usage pattern for this method is probably in a migration, when just after creating a table you want to populate it with some default values.
 
 -
 

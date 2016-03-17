@@ -4,6 +4,7 @@ class ProjectsController < ApplicationController
   # GET /projects
   # GET /projects.json
   def index
+    raise 'Boom'
     @projects = Project.all
   end
 

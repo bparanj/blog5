@@ -1,4 +1,10 @@
-<p id="notice"><%= notice %></p>
+
+
+<%= form_tag(tasks_path, method: :get) do %>
+
+	<%= text_field_tag :term %>
+	<%= submit_tag 'Search' %>
+<% end %>
 
 <h1>Tasks</h1>
 
