@@ -5,7 +5,7 @@ Mass Assignment in Rails 5
 ## Steps
 ### Step 1
 
-The new user registration page has full name and password fields. Here is the `app/views/users/new.html.erb`:
+The new user registration page in `app/views/users/new.html.erb` has full name and password fields. 
 
 ```ruby
 <%= form_for(@user) do |f| %>
@@ -54,7 +54,7 @@ def allowed_params
 end  
 ```
 
-Use this method in the users controller.
+This method only allows the `full_name` and `password` fields in the user model. Use this method in the users controller.
 
 ```ruby
 def create
@@ -68,7 +68,7 @@ We will now be able to register a new user. Note: The `attr_protected` was depre
 
 ## Summary
 
-In this article, you learned how to use strong parameters that protects the web app from mass assignment problems.
+In this article, you learned how to use strong parameters that protects the Rails 5 web apps from mass assignment problems.
 
 
 http://railscasts.com/episodes/26-hackers-love-mass-assignment?view=comments

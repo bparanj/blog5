@@ -2,15 +2,13 @@
 
 SQL Injection
 
+Do not trust user input. Don't trust params or cookies.
+
 ## Steps
 
 ### Step 1
 
-Do not trust user input. Don't trust params or cookies.
-
-### Step 2
-
-The tasks index page lists all tasks. Here is the `app/views/tasks/index.html.erb`:
+The tasks index page in the `app/views/tasks/index.html.erb` lists all tasks.
 
 ```ruby
 <%= form_tag(tasks_path, method: :get) do %>
@@ -47,9 +45,9 @@ The tasks index page lists all tasks. Here is the `app/views/tasks/index.html.er
 <%= link_to 'New Task', new_task_path %>
 ```
 
-It has a search field that allows searching for tasks. 
+It has a search field that allows searching for tasks. The `form_tag` uses POST by default, so we over-ride it to GET. Because we need to display the projects index page as the search results page.
 
-### Step 3
+### Step 2
 
 Populate the database with some seed data. In seeds.rb:
 
@@ -75,7 +73,7 @@ Run
 rake db:seed
 ```
 
-### Step 4
+### Step 3
 
 Let's search for "Dance". It displays all the tasks that begin with the search term 'Dance'. The index method is like this:
 
@@ -100,7 +98,7 @@ Completed 200 OK in 46ms (Views: 38.5ms | ActiveRecord: 1.6ms)
 
 The database calls takes user input to form the database query. This is susceptible to SQL injection.
 
-### Step 5
+### Step 4
 
 If you have a quote in the search term: `Dance ' delete table`. The browser throws the `ActiveRecord::StatementInvalid` error.
 
@@ -115,21 +113,14 @@ Completed 500 Internal Server Error in 7ms (ActiveRecord: 0.4ms)
 ActionView::Template::Error (SQLite3::SQLException: near "delete": syntax error: SELECT "tasks".* FROM "tasks" WHERE (name LIKE '%Dance 'delete table%')):
 ```
 
-### Step 6
+### Step 5
 
-Use ? to bind user input in params[:query]. Rails will escape the user input.
+Use question mark character ? to bind user input in params[:term]. Rails will escape the user input for us. Change the tasks index method:
 
-@tasks = Task.where("name LIKE ?", "%#{params[:term]}%")
-
-```sh
-Started GET "/tasks?utf8=%E2%9C%93&term=Dance&commit=Search" for ::1 at 2016-03-16 17:18:29 -0700
-Processing by TasksController#index as HTML
-  Parameters: {"utf8"=>"✓", "term"=>"Dance", "commit"=>"Search"}
-  Task Load (0.3ms)  SELECT "tasks".* FROM "tasks" WHERE (name LIKE '%Dance%')
-  Project Load (0.1ms)  SELECT  "projects".* FROM "projects" WHERE "projects"."id" = ? LIMIT ?  [["id", 2], ["LIMIT", 1]]
-  CACHE (0.0ms)  SELECT  "projects".* FROM "projects" WHERE "projects"."id" = ? LIMIT ?  [["id", 2], ["LIMIT", 1]]
-  Rendered tasks/index.html.erb within layouts/application (14.0ms)
-Completed 200 OK in 48ms (Views: 39.4ms | ActiveRecord: 1.3ms)
+```ruby
+def index
+  @tasks = Task.where("name LIKE ?", "%#{params[:term]}%")  
+end
 ```
 
 In order to allow search and list all tasks on the same page, we need a conditional in the index action.
@@ -145,7 +136,7 @@ def index
 end
 ```
 
-### Step 7
+### Step 6
 
 If you have single quote in the search term: `Dance ' delete table`. The search term does not have the single quote anymore in the generated SQL. It has been replaced with a blank string. You can see that in the log file
 
@@ -162,11 +153,20 @@ We are using SQLite. So the quote is escaped by using two single quotes.
 
 ## Summary
 
-In this article, you learned how to avoid SQL injection to the database. 
+In this article, you learned how to avoid SQL injection in Rails 5 apps. 
 
 
 http://railscasts.com/episodes/25-sql-injection?view=comments
 
 
 
-
+```sh
+Started GET "/tasks?utf8=%E2%9C%93&term=Dance&commit=Search" for ::1 at 2016-03-16 17:18:29 -0700
+Processing by TasksController#index as HTML
+  Parameters: {"utf8"=>"✓", "term"=>"Dance", "commit"=>"Search"}
+  Task Load (0.3ms)  SELECT "tasks".* FROM "tasks" WHERE (name LIKE '%Dance%')
+  Project Load (0.1ms)  SELECT  "projects".* FROM "projects" WHERE "projects"."id" = ? LIMIT ?  [["id", 2], ["LIMIT", 1]]
+  CACHE (0.0ms)  SELECT  "projects".* FROM "projects" WHERE "projects"."id" = ? LIMIT ?  [["id", 2], ["LIMIT", 1]]
+  Rendered tasks/index.html.erb within layouts/application (14.0ms)
+Completed 200 OK in 48ms (Views: 39.4ms | ActiveRecord: 1.3ms)
+```
