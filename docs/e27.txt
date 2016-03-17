@@ -5,6 +5,15 @@ javascript or css
 -
 Add  `has_many :comments` to Task model.
 
+class Task < ApplicationRecord
+  belongs_to :project
+  has_many :comments  
+end
+
+class Comment < ApplicationRecord
+  belongs_to :task
+end
+
 -
 
 Generate the comment model with content field for text area.
@@ -66,7 +75,32 @@ Add the form to comment on a task displayed on the show page.
 The `app/views/tasks/show.html.erb` looks like this:
 
 ```
+<p>
+  <strong>Name:</strong>
+  <%= @task.name %>
+</p>
 
+<p>
+  <strong>Complete:</strong>
+  <%= @task.complete %>
+</p>
+
+<h2>Comments</h2>
+<% for comment in @comments %>
+<p><%= comment.content %></p>
+<% end %>
+
+<%= form_for(Comment.new, url: task_comments_path(@task)) do |f| %>
+<p>
+	<%= f.text_area :content, rows: 7 %>
+</p>
+<p>
+	<%= submit_tag 'Add Comment' %>
+</p>
+<% end %>
+
+<%= link_to 'Edit', edit_task_path(@task) %> |
+<%= link_to 'Back', tasks_path %>
 ```
 
 -
