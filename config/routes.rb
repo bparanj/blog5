@@ -1,11 +1,11 @@
 Rails.application.routes.draw do
+  get 'comments/create'
+
   resources :products
   resources :users
   
   resources :projects
-  resources :tasks
-  # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
-
-  # Serve websocket cable requests in-process
-  # mount ActionCable.server => '/cable'
+  resources :tasks do
+    resources :comments, only: [:create]
+  end
 end

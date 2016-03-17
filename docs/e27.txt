@@ -1,1 +1,150 @@
+Cross Site Scripting
+
+javascript or css
+
+-
+Add  `has_many :comments` to Task model.
+
+-
+
+Generate the comment model with content field for text area.
+
+```sh
+rails g model comment content:text 
+```
+
+-
+
+Add `t.integer :task` to the generated migration file.
+
+```
+class CreateComments < ActiveRecord::Migration[5.0]
+  def change
+    create_table :comments do |t|
+      t.text :content
+      t.integer :task_id
+      
+      t.timestamps
+    end
+  end
+end
+```
+
+```
+rails db:migrate
+```
+
+-
+
+
+Task show page with comments and text area for adding a form.
+
+comment model has content for displaying text area.
+
+Add comments section to the task show page.
+
+```
+<h2>Comments</h2>
+<% for comment in @comments %>
+<p><%= comment.content %></p>
+<% end %>
+```
+
+Add the form to comment on a task displayed on the show page.
+
+```
+<%= form_for(Comment.new, url: task_comments_path(@task)) do |f| %>
+<p>
+	<%= f.text_area :content, rows: 7 %>
+</p>
+<p>
+	<%= submit_tag 'Add Comment' %>
+</p>
+<% end %>
+```
+
+The `app/views/tasks/show.html.erb` looks like this:
+
+```
+
+```
+
+-
+
+
+rails g controller comments create
+
+
+class CommentsController < ApplicationController
+  def create
+    task = Task.find(params[:task_id])
+    task.comments.create(params.require(:comment).permit(:content))
+    
+    redirect_to task
+  end
+end
+
+-
+
+Tasks controller show method:
+
+def show
+  task = Task.find(params[:id])
+  @comments = task.comments
+end
+
+-
+
+
+```
+resources :tasks do
+  resources :comments, only: [:create]
+end
+```
+
+-
+
+You can now add comments.
+
+-
+
+Add :
+
+Testing <script> alert('test') </script>
+
+
+This is now automatically sanitized by Rails 5. There is no need to use the h view helper.
+
+-
+
+ > CGI::escapeHTML("<script> alert(document.cookie) </script>")
+ => "&lt;script&gt; alert(document.cookie) &lt;/script&gt;" 
+-
+
+Steal cookies. <script> alert(document.cookie) </script>
+
+-
+
+
+h(comment.content)
+
+-
+
+Reload the page.
+
+-
+
+sanitize(comment.content)
+
+does not escape everything. It is not secure. Use h view helper method.
+
+-
+
+In controller:
+
+CGI::escapeHTML(content)
+
+-
+
+
 http://railscasts.com/episodes/27-cross-site-scripting?view=comments
