@@ -2,27 +2,92 @@
 
 SQL Injection
 
-1
+## Steps
+
+### Step 1
 
 Do not trust user input. Don't trust params or cookies.
 
-2
+### Step 2
 
-List of tasks page.
+The tasks index page lists all tasks. Here is the `app/views/tasks/index.html.erb`:
 
-Search : [search term] [Search button]
+```ruby
+<%= form_tag(tasks_path, method: :get) do %>
+	<%= text_field_tag :term %>
+	<%= submit_tag 'Search' %>
+<% end %>
 
-Search for Task 1. It displays all the tasks that begin with 1.
+<h1>Tasks</h1>
 
-3
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Complete</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
 
-Controller db calls takes user input to form db query.
+  <tbody>
+    <% @tasks.each do |task| %>
+      <tr>
+        <td><%= task.name %> in <%= task.project.name %></td>
+        <td><%= task.complete %></td>
+        <td><%= link_to 'Show', task %></td>
+        <td><%= link_to 'Edit', edit_task_path(task) %></td>
+        <td><%= link_to 'Destroy', task, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
 
-@tasks = Task.find(:all, :conditions => "name LIKE ? '%#{params[:query]}%'")
+<br>
 
-@tasks = Task.where("name LIKE '%#{params[:term]}%'")
+<%= link_to 'New Task', new_task_path %>
+```
 
+It has a search field that allows searching for tasks. 
 
+### Step 3
+
+Populate the database with some seed data. In seeds.rb:
+
+```ruby
+wealthy = Project.create(name: 'Wealth Building')
+wealthy.tasks.create(name: 'Get rich quick', complete: false, priority: 4)
+wealthy.tasks.create(name: 'Write a book', complete: true, priority: 5)
+
+happy = Project.create(name: 'Be Happy')
+happy.tasks.create(name: 'Buy a puppy', complete: false, priority: 9)
+happy.tasks.create(name: 'Dance in the rain', complete: true, priority: 7)
+happy.tasks.create(name: 'Dance in the snow', complete: true, priority: 6)
+happy.tasks.create(name: 'Walk on water', complete: true, priority: 7)
+happy.tasks.create(name: 'Just Blog It', complete: true, priority: 5)
+happy.tasks.create(name: 'Play tennis', complete: true, priority: 4)
+happy.tasks.create(name: 'Make fun of Donald Trump', complete: true, priority: 3)
+happy.tasks.create(name: 'Walk on moon', complete: true, priority: 2)
+```
+
+Run
+
+```sh
+rake db:seed
+```
+
+### Step 4
+
+Let's search for "Dance". It displays all the tasks that begin with the search term 'Dance'. The index method is like this:
+
+```ruby
+def index
+  @tasks = Task.where("name LIKE '%#{params[:term]}%'")
+end
+```
+
+You can see the generated SQL query in the development.log file:
+
+```sh
 Started GET "/tasks?utf8=%E2%9C%93&term=Dance&commit=Search" for ::1 at 2016-03-16 17:08:40 -0700
 Processing by TasksController#index as HTML
   Parameters: {"utf8"=>"✓", "term"=>"Dance", "commit"=>"Search"}
@@ -31,12 +96,15 @@ Processing by TasksController#index as HTML
   CACHE (0.0ms)  SELECT  "projects".* FROM "projects" WHERE "projects"."id" = ? LIMIT ?  [["id", 2], ["LIMIT", 1]]
   Rendered tasks/index.html.erb within layouts/application (14.6ms)
 Completed 200 OK in 46ms (Views: 38.5ms | ActiveRecord: 1.6ms)
+```
 
-4
+The database calls takes user input to form the database query. This is susceptible to SQL injection.
 
-search term : Dance ' delete table
+### Step 5
 
+If you have a quote in the search term: `Dance ' delete table`. The browser throws the `ActiveRecord::StatementInvalid` error.
 
+```
 Started GET "/tasks?utf8=%E2%9C%93&term=Dance+%27delete+table&commit=Search" for ::1 at 2016-03-16 17:09:46 -0700
 Processing by TasksController#index as HTML
   Parameters: {"utf8"=>"✓", "term"=>"Dance 'delete table", "commit"=>"Search"}
@@ -45,17 +113,15 @@ Processing by TasksController#index as HTML
 Completed 500 Internal Server Error in 7ms (ActiveRecord: 0.4ms)
   
 ActionView::Template::Error (SQLite3::SQLException: near "delete": syntax error: SELECT "tasks".* FROM "tasks" WHERE (name LIKE '%Dance 'delete table%')):
+```
 
-The browser throws the `ActiveRecord::StatementInvalid` error.
-
-
-5
+### Step 6
 
 Use ? to bind user input in params[:query]. Rails will escape the user input.
 
 @tasks = Task.where("name LIKE ?", "%#{params[:term]}%")
 
-
+```sh
 Started GET "/tasks?utf8=%E2%9C%93&term=Dance&commit=Search" for ::1 at 2016-03-16 17:18:29 -0700
 Processing by TasksController#index as HTML
   Parameters: {"utf8"=>"✓", "term"=>"Dance", "commit"=>"Search"}
@@ -64,7 +130,11 @@ Processing by TasksController#index as HTML
   CACHE (0.0ms)  SELECT  "projects".* FROM "projects" WHERE "projects"."id" = ? LIMIT ?  [["id", 2], ["LIMIT", 1]]
   Rendered tasks/index.html.erb within layouts/application (14.0ms)
 Completed 200 OK in 48ms (Views: 39.4ms | ActiveRecord: 1.3ms)
+```
 
+In order to allow search and list all tasks on the same page, we need a conditional in the index action.
+
+```ruby
 def index
   if params[:term]
     q = "%#{params[:term]}%"
@@ -73,23 +143,26 @@ def index
     @tasks = Task.all
   end
 end
+```
 
-6
+### Step 7
 
-search term : Dance ' delete table
+If you have single quote in the search term: `Dance ' delete table`. The search term does not have the single quote anymore in the generated SQL. It has been replaced with a blank string. You can see that in the log file
 
+```sh
 Started GET "/tasks?utf8=%E2%9C%93&term=Dance+%27delete+table&commit=Search" for ::1 at 2016-03-16 17:41:23 -0700
 Processing by TasksController#index as HTML
   Parameters: {"utf8"=>"✓", "term"=>"Dance 'delete table", "commit"=>"Search"}
   Task Load (0.1ms)  SELECT "tasks".* FROM "tasks" WHERE (name LIKE '%Dance ''delete table%')
   Rendered tasks/index.html.erb within layouts/application (1.4ms)
 Completed 200 OK in 32ms (Views: 30.4ms | ActiveRecord: 0.1ms)
+```
 
+We are using SQLite. So the quote is escaped by using two single quotes.
 
-The search term does not have the single quote anymore in the generated SQL. It has been replaced with a blank string.
+## Summary
 
-We are using Sqlite. So the quote is escaped by using two single quotes.
-
+In this article, you learned how to avoid SQL injection to the database. 
 
 
 http://railscasts.com/episodes/25-sql-injection?view=comments

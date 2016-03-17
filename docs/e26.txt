@@ -2,11 +2,33 @@
 
 Mass Assignment in Rails 5
 
--
+## Steps
+### Step 1
 
-Registration Page
+The new user registration page has full name and password fields. Here is the `app/views/users/new.html.erb`:
 
-Name : Text field
+```ruby
+<%= form_for(@user) do |f| %>
+
+  <div class="field">
+    <%= f.label :full_name %>
+    <%= f.text_field :full_name %>
+  </div>
+
+  <div class="field">
+    <%= f.label :password %>
+    <%= f.password_field :password %>
+  </div>
+
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>
+```
+
+### Step 2
+
+If you use `params[:user]` when creating the user record like this:
 
 ```ruby
 def create
@@ -16,10 +38,15 @@ def create
 end
 ```
 
+You will get the error:
 
+```sh
 ActiveModel::ForbiddenAttributesError
+```
 
-Add allowed_params to users controller.
+### Step 3
+
+Add `allowed_params` method to users controller.
 
 ```ruby
 def allowed_params
@@ -27,7 +54,7 @@ def allowed_params
 end  
 ```
 
-
+Use this method in the users controller.
 
 ```ruby
 def create
@@ -35,13 +62,13 @@ def create
   
   redirect_to users_path
 end
- 
-def allowed_params
-  params.require(:user).permit(:full_name, :password)
-end  
 ```
 
-The `attr_protected` was deprecated in Rails 2.3.8. Rails 4.0 has removed `attr_accessible` and `attr_protected` feature in favor of Strong Parameters.
+We will now be able to register a new user. Note: The `attr_protected` was deprecated in Rails 2.3.8. Rails 4.0 has removed `attr_accessible` and `attr_protected` feature in favor of Strong Parameters.
+
+## Summary
+
+In this article, you learned how to use strong parameters that protects the web app from mass assignment problems.
 
 
 http://railscasts.com/episodes/26-hackers-love-mass-assignment?view=comments
