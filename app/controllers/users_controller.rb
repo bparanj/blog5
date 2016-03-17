@@ -1,5 +1,4 @@
 class UsersController < ApplicationController
-  layout :user_layout 
   
   def index
     @users = User.all
@@ -10,23 +9,12 @@ class UsersController < ApplicationController
   end
 
   def create
-    User.create(params.require(:user).permit(:full_name, :password))
+    User.create(allowed_params)
     
     redirect_to users_path
   end
-  
-  private
-
-  def user_layout
-    if admin?
-      'admin'
-    else
-      'application'
-    end
-  end
-
-  def admin?
-    true
-  end
-  
+   
+  def allowed_params
+    params.require(:user).permit(:full_name, :password)
+  end  
 end

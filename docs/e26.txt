@@ -1,0 +1,86 @@
+
+
+Mass Assignment in Rails 5
+
+-
+
+Registration Page
+
+Name : Text field
+
+```ruby
+def create
+  User.create(params[:user])
+  
+  redirect_to users_path
+end
+```
+
+
+ActiveModel::ForbiddenAttributesError
+
+Add allowed_params to users controller.
+
+```ruby
+def allowed_params
+  params.require(:user).permit(:full_name, :password)
+end  
+```
+
+
+
+```ruby
+def create
+  User.create(allowed_params)
+  
+  redirect_to users_path
+end
+ 
+def allowed_params
+  params.require(:user).permit(:full_name, :password)
+end  
+```
+
+The `attr_protected` was deprecated in Rails 2.3.8. Rails 4.0 has removed `attr_accessible` and `attr_protected` feature in favor of Strong Parameters.
+
+
+http://railscasts.com/episodes/26-hackers-love-mass-assignment?view=comments
+
+
+-
+
+schema
+
+users table has admin column
+
+-
+
+create
+
+User.new(params[:user])
+
+-
+
+curl -d "user[name]=hacker&user[admin]=1" localhost:3000/users
+
+dev log
+
+insert statment
+
+Is admin set to true.
+
+View the new user page and check if admin is yes
+
+-
+
+attr_protected :admin
+
+curl -d "user[name]=hacker&user[admin]=1&user[comment_ids][]=1&user[comment_ids][]=2" localhost:3000/users
+
+Changes the comments to comments owned by someone else.
+
+-
+
+attr_accessible :name
+
+

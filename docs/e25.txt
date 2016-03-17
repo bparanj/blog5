@@ -92,7 +92,7 @@ We are using Sqlite. So the quote is escaped by using two single quotes.
 
 
 
-
+http://railscasts.com/episodes/25-sql-injection?view=comments
 
 
 
