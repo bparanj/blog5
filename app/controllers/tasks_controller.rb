@@ -4,7 +4,15 @@ class TasksController < ApplicationController
   # GET /tasks
   # GET /tasks.json
   def index
-    @tasks = Task.where("name LIKE ?", "'%#{params[:term]}%'")
+    if params[:term]
+      @tasks = Task.where("name LIKE ?", "%#{params[:term]}%")
+      #
+      #
+      # q = "%#{params[:term]}%"
+      # @tasks = Task.where("name LIKE ?", q )
+    else
+      @tasks = Task.all
+    end
   end
 
   # GET /tasks/1
