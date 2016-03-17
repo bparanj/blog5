@@ -14,7 +14,7 @@
 	  <% for task in tasks %>
 		<div class='task'>
 			<strong> task.name </strong>
-			due on <%= task.due_date.to_date.to_s(:long) %>
+			<%= task.due_date.to_s(:due_time) %>
 		</div>
 	  <% end %>
 	 </tr>		 

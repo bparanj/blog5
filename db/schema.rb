@@ -52,7 +52,7 @@ ActiveRecord::Schema.define(version: 20160317214026) do
     t.datetime "updated_at", null: false
     t.integer  "project_id"
     t.integer  "priority"
-    t.date     "due_date"
+    t.datetime "due_date"
   end
 
   create_table "users", force: :cascade do |t|

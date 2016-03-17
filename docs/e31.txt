@@ -1,0 +1,92 @@
+
+In `products/index.html.erb`:
+
+task.due_date
+
+Gives ugly output.
+
+```
+task.name due on 2016-01-17
+task.name due on 2016-01-17
+task.name due on 2016-01-17
+```
+
+due_date.to_s(:long)
+
+```
+task.name due on January 17, 2016
+task.name due on January 17, 2016
+task.name due on January 17, 2016
+```
+
+:short
+
+```
+task.name due on 17 Jan
+task.name due on 17 Jan
+task.name due on 17 Jan
+```
+
+:db
+
+```
+task.name due on 2016-01-17
+task.name due on 2016-01-17
+task.name due on 2016-01-17
+```
+
+due_date.strftime("due at %B %d on %I:%M %p")
+
+due_date.to_s(:due_time)
+
+In `config/initializers/custom_time_formats.rb`:
+
+```
+Time::DATE_FORMATS[:due_time] = "due at %B %d on %I:%M %p"
+```
+
+Restart server
+
+Reload tasks index page.
+
+```
+class AddDueDateToTasks < ActiveRecord::Migration[5.0]
+  def change
+    add_column :tasks, :due_date, :datetime
+  end
+end
+```
+
+rails db:drop
+rails db:migrate
+rails db:seed
+
+```
+<tbody>
+  <% @task_months.each do |month, tasks| %>
+    <%= month.strftime('%B') %>
+  <tr>
+    <% for task in tasks %>
+  	<div class='task'>
+  		<strong> task.name </strong>
+  		<%= task.due_date.to_s(:due_time) %>
+  	</div>
+    <% end %>
+   </tr>		 
+  <% end %>	  
+</tbody>
+```
+
+Reload the page:
+
+```
+task.name due at January 17 on 11:23 PM
+task.name due at January 17 on 11:23 PM
+task.name due at January 17 on 11:23 PM
+```
+
+http://railscasts.com/episodes/31-formatting-time?view=comments
+
+References
+
+[For a Good Strf Time](http://www.foragoodstrftime.com/ 'For a Good Strf Time')
