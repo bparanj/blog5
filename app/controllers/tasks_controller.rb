@@ -4,7 +4,8 @@ class TasksController < ApplicationController
   # GET /tasks
   # GET /tasks.json
   def index
-    @tasks = Task.all
+    @tasks = Task.order(:due_date)
+    @task_months = @tasks.group_by {|t| t.due_date.beginning_of_month }
   end
 
   # GET /tasks/1

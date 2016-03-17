@@ -1,0 +1,163 @@
+
+
+Task has due_date
+
+rails g migration add_due_date_to_tasks due_date:date
+
+```
+class AddDueDateToTasks < ActiveRecord::Migration[5.0]
+  def change
+    add_column :tasks, :due_date, :date
+  end
+end
+```
+
+seeds.rb.
+
+```
+wealthy = Project.create(name: 'Wealth Building')
+wealthy.tasks.create(name: 'Get rich quick', complete: false, priority: 4, due_date: 2.months.ago)
+wealthy.tasks.create(name: 'Write a book', complete: true, priority: 5, due_date: 1.month.ago)
+
+happy = Project.create(name: 'Be Happy')
+happy.tasks.create(name: 'Buy a puppy', complete: false, priority: 9, due_date: 1.month.ago)
+happy.tasks.create(name: 'Dance in the rain', complete: true, priority: 7, due_date: 2.months.ago)
+happy.tasks.create(name: 'Dance in the snow', complete: true, priority: 6, due_date: 2.months.ago)
+happy.tasks.create(name: 'Walk on water', complete: true, priority: 7, due_date: 2.months.from_now)
+happy.tasks.create(name: 'Just Blog It', complete: true, priority: 5, due_date: 1.month.from_now)
+happy.tasks.create(name: 'Play tennis', complete: true, priority: 4, due_date: 2.days.ago)
+happy.tasks.create(name: 'Make fun of Donald Trump', complete: true, priority: 3, due_date: 2.days.ago)
+happy.tasks.create(name: 'Walk on moon', complete: true, priority: 2, due_date: 2.days.ago)
+```
+
+```
+rails db:drop
+rails db:migrate
+rails db:seed
+```
+
+
+group by month
+
+group_by
+
+a = (1..20).to_a
+
+a.group_by { |n| n/5 }
+
+Tasks controller:
+
+@task_months = @tasks.group_by {|t| t.due_at.beginning_of_month }
+
+
+def index
+  @tasks = Task.all.to_a
+  @task_months = @tasks.group_by {|t| t.due_at.beginning_of_month }
+end
+
+
+tasks/index.html.erb:
+
+
+```
+<h1>Tasks</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th></th>
+    </tr>
+  </thead>
+
+  <tbody>
+	  <% @task_months.each do |month, tasks| %>
+	    <%= month.strftime('%B') %>
+	  <tr>
+	    <% for task in tasks %>
+	  	<div class='task'>
+	  		<strong> task.name </strong>
+	  		due on <%= task.due_date.to_date.to_s(:long) %>
+	  	</div>
+	    <% end %>
+	   </tr>	
+	   
+	  <% end %>	  
+  </tbody>
+</table>
+```
+
+View the tasks index page.
+
+Hash don't preserve the order, so the months are jumbled up.
+
+```
+Tasks
+
+January
+task.name due on January 17, 2016
+task.name due on January 17, 2016
+task.name due on January 17, 2016
+February
+task.name due on February 17, 2016
+task.name due on February 17, 2016
+May
+task.name due on May 17, 2016
+April
+task.name due on April 17, 2016
+March
+task.name due on March 15, 2016
+task.name due on March 15, 2016
+task.name due on March 15, 2016
+```
+
+Sort:
+
+
+```
+def index
+  @tasks = Task.order(:due_date)
+  @task_months = @tasks.group_by {|t| t.due_date.beginning_of_month }
+end
+```
+
+`tasks/index.html.erb`:
+
+```
+<tbody>
+  <% @task_months.each do |month, tasks| %>
+    <%= month.strftime('%B') %>
+  <tr>
+    <% for task in tasks %>
+  	<div class='task'>
+  		<strong> task.name </strong>
+  		due on <%= task.due_date.to_date.to_s(:long) %>
+  	</div>
+    <% end %>
+   </tr>		 
+  <% end %>	  
+</tbody>
+```
+
+After sorting:
+
+```
+Tasks
+
+January
+task.name due on January 17, 2016
+task.name due on January 17, 2016
+task.name due on January 17, 2016
+February
+task.name due on February 17, 2016
+task.name due on February 17, 2016
+March
+task.name due on March 15, 2016
+task.name due on March 15, 2016
+task.name due on March 15, 2016
+April
+task.name due on April 17, 2016
+May
+task.name due on May 17, 2016
+```
+
+http://railscasts.com/episodes/29-group-by-month?view=comments

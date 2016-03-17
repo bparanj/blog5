@@ -3,18 +3,18 @@
 #
 
 wealthy = Project.create(name: 'Wealth Building')
-wealthy.tasks.create(name: 'Get rich quick', complete: false, priority: 4)
-wealthy.tasks.create(name: 'Write a book', complete: true, priority: 5)
+wealthy.tasks.create(name: 'Get rich quick', complete: false, priority: 4, due_date: 2.months.ago)
+wealthy.tasks.create(name: 'Write a book', complete: true, priority: 5, due_date: 1.month.ago)
 
 happy = Project.create(name: 'Be Happy')
-happy.tasks.create(name: 'Buy a puppy', complete: false, priority: 9)
-happy.tasks.create(name: 'Dance in the rain', complete: true, priority: 7)
-happy.tasks.create(name: 'Dance in the snow', complete: true, priority: 6)
-happy.tasks.create(name: 'Walk on water', complete: true, priority: 7)
-happy.tasks.create(name: 'Just Blog It', complete: true, priority: 5)
-happy.tasks.create(name: 'Play tennis', complete: true, priority: 4)
-happy.tasks.create(name: 'Make fun of Donald Trump', complete: true, priority: 3)
-happy.tasks.create(name: 'Walk on moon', complete: true, priority: 2)
+happy.tasks.create(name: 'Buy a puppy', complete: false, priority: 9, due_date: 1.month.ago)
+happy.tasks.create(name: 'Dance in the rain', complete: true, priority: 7, due_date: 2.months.ago)
+happy.tasks.create(name: 'Dance in the snow', complete: true, priority: 6, due_date: 2.months.ago)
+happy.tasks.create(name: 'Walk on water', complete: true, priority: 7, due_date: 2.months.from_now)
+happy.tasks.create(name: 'Just Blog It', complete: true, priority: 5, due_date: 1.month.from_now)
+happy.tasks.create(name: 'Play tennis', complete: true, priority: 4, due_date: 2.days.ago)
+happy.tasks.create(name: 'Make fun of Donald Trump', complete: true, priority: 3, due_date: 2.days.ago)
+happy.tasks.create(name: 'Walk on moon', complete: true, priority: 2, due_date: 2.days.ago)
 
 # User.create(first_name: 'Bugs', last_name: 'Bunny')
 # User.create(first_name: 'Daffy', last_name: 'Duck')

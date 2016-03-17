@@ -8,16 +8,18 @@
   </thead>
 
   <tbody>
-    <% @tasks.in_groups_of(4, false) do |row| %>
-	  <tr>
-		<% for task in row %>
-	        <td><%= task.name %></td>
-		<% end %>  
-	  </tr>
-    <% end %>
+	<% @task_months.each do |month, tasks| %>
+	  <%= month.strftime('%B') %>
+	<tr>
+	  <% for task in tasks %>
+		<div class='task'>
+			<strong> task.name </strong>
+			due on <%= task.due_date.to_date.to_s(:long) %>
+		</div>
+	  <% end %>
+	 </tr>		 
+	<% end %>	  
   </tbody>
 </table>
 
 <br>
-
-<%= link_to 'New Task', new_task_path %>

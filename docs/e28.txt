@@ -72,8 +72,8 @@ We can fix this problem by not filling the array with nil values if they are not
 Reload the page.
 
 	
-	
-	http://railscasts.com/episodes/28-in-groups-of?view=comments
+http://railscasts.com/episodes/28-in-groups-of?view=comments
+
 	
 limit(16)	
 
