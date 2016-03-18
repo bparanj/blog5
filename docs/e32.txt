@@ -156,7 +156,7 @@ Edit date with junk as the due_date. You will now see validation error. The user
 
 -
 
-
+http://railscasts.com/episodes/32-time-in-text-field?view=comments
 
 [Date and time validation plugin for ActiveModel and Rails.](https://github.com/adzap/validates_timeliness/ 'Date and time validation plugin for ActiveModel and Rails.')
 [Chronic gem](https://github.com/mojombo/chronic 'Chronic gem') for fancy time parsing.
