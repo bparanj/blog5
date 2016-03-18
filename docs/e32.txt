@@ -3,7 +3,26 @@
 
 List of tasks with due date. Edit link.
 
+```
+<tbody>
+  <% @task_months.each do |month, tasks| %>
+    <%= month.strftime('%B') %>
+  <tr>
+    <% for task in tasks %>
+  	<div class='task'>
+  		<strong> task.name </strong>
+  		<%= task.due_date.to_s(:due_time) %>
+  	</div>
+  	<%= link_to 'Edit', edit_task_path(task) %>
+    <% end %>
+   </tr>		 
+  <% end %>	  
+</tbody>
+```
+
+
 -
+
 
 Edit task page
 

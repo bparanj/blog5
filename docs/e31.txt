@@ -1,7 +1,13 @@
 
+Customizing Time Format in Rails 5 Apps
+
+-
+
 In `products/index.html.erb`:
 
-task.due_date
+```ruby
+<%= task.due_date %>
+```
 
 Gives ugly output.
 
@@ -11,7 +17,7 @@ task.name due on 2016-01-17
 task.name due on 2016-01-17
 ```
 
-due_date.to_s(:long)
+The `due_date.to_s(:long)` output.
 
 ```
 task.name due on January 17, 2016
@@ -19,7 +25,7 @@ task.name due on January 17, 2016
 task.name due on January 17, 2016
 ```
 
-:short
+The output for `:short` format.
 
 ```
 task.name due on 17 Jan
@@ -27,7 +33,7 @@ task.name due on 17 Jan
 task.name due on 17 Jan
 ```
 
-:db
+The output for `:db` format.
 
 ```
 task.name due on 2016-01-17
@@ -35,21 +41,27 @@ task.name due on 2016-01-17
 task.name due on 2016-01-17
 ```
 
-due_date.strftime("due at %B %d on %I:%M %p")
+We can customize the time format like this:
 
-due_date.to_s(:due_time)
+due_date.strftime("due on %B %d at %I:%M %p")
 
-In `config/initializers/custom_time_formats.rb`:
+This will lead to duplication if we need to call from different views. Let's see how we can define our own time format that will allow us to do `due_date.to_s(:due_time)`
+
+-
+
+Create `config/initializers/custom_time_formats.rb` file with time format customization:
 
 ```
 Time::DATE_FORMATS[:due_time] = "due at %B %d on %I:%M %p"
 ```
 
-Restart server
+-
 
-Reload tasks index page.
+Restart server and reload tasks index page.
 
-```
+In order to display the date as well as the time, we need to use datetime column not date. Modify the migration for adding the `due_date`.
+
+```ruby
 class AddDueDateToTasks < ActiveRecord::Migration[5.0]
   def change
     add_column :tasks, :due_date, :datetime
@@ -57,18 +69,24 @@ class AddDueDateToTasks < ActiveRecord::Migration[5.0]
 end
 ```
 
+Let's populate the database with new data that has values for `due_date` column in tasks table.
+
+```
 rails db:drop
 rails db:migrate
 rails db:seed
-
 ```
+
+The `tasks/index.html.erb`:
+
+```ruby
 <tbody>
   <% @task_months.each do |month, tasks| %>
     <%= month.strftime('%B') %>
   <tr>
     <% for task in tasks %>
   	<div class='task'>
-  		<strong> task.name </strong>
+  		<strong>  <%= task.name %> </strong>
   		<%= task.due_date.to_s(:due_time) %>
   	</div>
     <% end %>
@@ -77,7 +95,7 @@ rails db:seed
 </tbody>
 ```
 
-Reload the page:
+Reload the tasks index page:
 
 ```
 task.name due on January 17 at 11:23 PM
@@ -85,8 +103,12 @@ task.name due on January 17 at 11:23 PM
 task.name due on January 17 at 11:23 PM
 ```
 
-http://railscasts.com/episodes/31-formatting-time?view=comments
+## Summary
 
-References
+In this article, you learned how to customize time format in Rails 5 web apps.
+
+## References
 
 [For a Good Strf Time](http://www.foragoodstrftime.com/ 'For a Good Strf Time')
+
+http://railscasts.com/episodes/31-formatting-time?view=comments

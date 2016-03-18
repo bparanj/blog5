@@ -13,9 +13,10 @@
 	<tr>
 	  <% for task in tasks %>
 		<div class='task'>
-			<strong> task.name </strong>
+			<strong> <%= task.name %> </strong>
 			<%= task.due_date.to_s(:due_time) %>
 		</div>
+		<%= link_to 'Edit', edit_task_path(task) %>
 	  <% end %>
 	 </tr>		 
 	<% end %>	  
