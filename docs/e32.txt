@@ -1,0 +1,63 @@
+
+-
+
+List of tasks with due date. Edit link.
+
+-
+
+Edit task page
+
+Name of task name, due date has datetime drop down boxes.
+
+f.datetime_select :due_date
+
+-
+
+f.text_field :due_date_string 
+
+-
+
+Task
+
+def	due_date_string
+  due_date.to_s(:db)
+  
+  def due_date_string=(due_date_string)
+  self.due_date = Time.parse(due_date_string)
+  
+ -
+ 
+ Reload page.
+ 
+ Change the date.
+ 
+ Save
+ 
+ - 
+ 
+ chronic gem
+ 
+ for fancy time parsing.
+ 
+ -
+ 
+ Illegal input
+ 
+ throws stacktrace
+ 
+ -
+ 
+ Validation
+ 
+ rescue ArgumentError
+   @date_at_invalid = true
+ end
+ 
+ def validate
+   errors.add(:due_date, "is invalid") if @due_at_invalid
+   
+Reload page:
+
+validation error.
+
+

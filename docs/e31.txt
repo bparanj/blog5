@@ -80,9 +80,9 @@ rails db:seed
 Reload the page:
 
 ```
-task.name due at January 17 on 11:23 PM
-task.name due at January 17 on 11:23 PM
-task.name due at January 17 on 11:23 PM
+task.name due on January 17 at 11:23 PM
+task.name due on January 17 at 11:23 PM
+task.name due on January 17 at 11:23 PM
 ```
 
 http://railscasts.com/episodes/31-formatting-time?view=comments
