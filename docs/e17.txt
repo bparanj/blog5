@@ -1,5 +1,7 @@
-Has Many Through Checkboxes
+D
+Has Many Through Checkboxesin Rails 3.x, 4.x and 5
 
+## Steps
 ### Step 1
 
 Let's generate the category model with name attribute.
@@ -10,7 +12,7 @@ rails g model category name:string
 
 ### Step 2
 
-Create product model and controller.
+Create product model and products controller.
 
 ```sh
 $ rails g scaffold product name:string price:decimal
@@ -51,6 +53,8 @@ class CreateProducts < ActiveRecord::Migration[5.0]
 end
 ```
 
+We specify the precision and scale for the price field.
+
 ### Step 5
 
 Create the join table:
@@ -67,6 +71,9 @@ create_join_table :products, :categories
 
 in the migration file inside the change method. This will create the join table `categories_products` with `:null` set to false. The migration file generated using rails generator is shown below.
 
+The generated migration file looks like this:
+
+
 ```ruby
 class CreateAtegoriesProductsTable < ActiveRecord::Migration[5.0]
   def change
@@ -80,11 +87,14 @@ end
 
 ### Step 6
 
+Create the tables and populate the database.
 
 ```sh
 rake db:migrate
 rake db:seed
 ```
+
+We can check the number of categories in the database in the rails console.
 
 ```ruby
 rails c
@@ -129,6 +139,8 @@ rake db:seed
 
 ### Step 9
 
+There are 4 products and 4 categories in the database.
+
 ```sh
 $ rails c
 Loading development environment (Rails 5.0.0.beta3)
@@ -138,6 +150,11 @@ Loading development environment (Rails 5.0.0.beta3)
  > Category.count
    (0.1ms)  SELECT COUNT(*) FROM "categories"
  => 4 
+```
+
+The last product has one category associated to it.
+
+```ruby 
  > p = Product.last
   Product Load (0.1ms)  SELECT  "products".* FROM "products" ORDER BY "products"."id" DESC LIMIT ?  [["LIMIT", 1]]
  => #<Product id: 4, name: "rug", price: #<BigDecimal:7fb9b23006d8,'0.1E3',9(18)>, created_at: "2016-03-14 20:29:30", updated_at: "2016-03-14 20:29:30"> 
@@ -148,21 +165,40 @@ Loading development environment (Rails 5.0.0.beta3)
  
 ### Step 10
 
-In `products/index.html.erb` list all products on index page with edit and destroy links. Go to `http://localhost:3000/products`.
+In `products/index.html.erb` list all products on index page with edit and destroy links. Browse to `http://localhost:3000/products`.
 
 ### Step 11
 
-Clicking on product name takes to product show page. Product show page has Edit and All Products link.
+Clicking on product name takes to product show page. Product show page has Edit and Back links. The `app/views/products/show.html.erb` looks like this:
+
+```ruby
+<p>
+  <strong>Name:</strong>
+  <%= @product.name %>
+</p>
+
+<p>
+  <strong>Price:</strong>
+  <%= @product.price %>
+</p>
+
+<p>
+	In Categories: <%= @product.categories.map(&:name).join(',') %>
+</p>
+
+<%= link_to 'Edit', edit_product_path(@product) %> |
+<%= link_to 'Back', products_path %>
+```
 
 ### Step 12
 
-In `products/show.html.erb`
+The 
 
 ```html
 In Categories:
 ```
 
-on the product show page is blank. 
+value on the product show page is blank. 
 
 ### Step 13
 
@@ -179,7 +215,7 @@ Add to product edit form partial:
 
 ### Step 14
 
-Go to products/edit/1 and check two categories and click update. 
+You need to allow the form fields by adding this method:
 
 ```ruby
 def product_params
@@ -187,12 +223,18 @@ def product_params
 end
 ```
 
+Browse to `app/views/products/edit/1` and check two categories and click update. You can see the error:
 
+```
+Unpermitted parameter: category_ids 
+```
+
+in the development log file:
 
 ```sh
 Started PATCH "/products/4" for ::1 at 2016-03-14 13:41:24 -0700
 Processing by ProductsController#update as HTML
-  Parameters: {"utf8"=>"✓", "authenticity_token"=>"Nt7GRCRGElzpiVEud0NdADa+3h2k5hAWl7wi7H+Imi0TEdcZ7pmyNBY1Mj1gxj9LyT15U+BwIlYTVyl6S/2pyg==", "product"=>{"name"=>"rug", "price"=>"100.0", "category_ids"=>["1", "2"]}, "commit"=>"Update product", "id"=>"4"}
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"Nt7G/2pyg==", "product"=>{"name"=>"rug", "price"=>"100.0", "category_ids"=>["1", "2"]}, "commit"=>"Update product", "id"=>"4"}
   Product Load (0.1ms)  SELECT  "products".* FROM "products" WHERE "products"."id" = ? LIMIT ?  [["id", 4], ["LIMIT", 1]]
 Unpermitted parameter: category_ids
    (0.1ms)  begin transaction
@@ -200,8 +242,6 @@ Unpermitted parameter: category_ids
 Redirected to http://localhost:3000/products/4
 Completed 302 Found in 4ms (ActiveRecord: 0.3ms)
 ```
-
-Display product in show page with In Categories populated.
 
 To fix the error, change product_params:
 
@@ -211,14 +251,16 @@ def product_params
 end
 ```
 
+This will display product show page with value for `In Categories` label populated.
+
 ### Step 15
 
-View the development log, update action, parameters, category_ids.
+In the development log file you can see the selected checkboxes are saved in the database as category records. The parameters sent to the server shows the array of category_ids with values 1, 3 and 4.
 
 ```sh
 Started PATCH "/products/4" for ::1 at 2016-03-14 14:59:07 -0700
 Processing by ProductsController#update as HTML
-  Parameters: {"utf8"=>"✓", "authenticity_token"=>"UeAoAINcnvDHkntnFRXlu8XDHhMP6O07IdCNnM5xKDexDnXVHPM5B99Rj/msECz+jOBkG9NvAweB/phyRlIe8w==", "product"=>{"name"=>"rug", "price"=>"100.0", "category_ids"=>["1", "3", "4"]}, "commit"=>"Update product", "id"=>"4"}
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"UeAoAI9NvAweB/phyRlIe8w==", "product"=>{"name"=>"rug", "price"=>"100.0", "category_ids"=>["1", "3", "4"]}, "commit"=>"Update product", "id"=>"4"}
   Product Load (0.1ms)  SELECT  "products".* FROM "products" WHERE "products"."id" = ? LIMIT ?  [["id", 4], ["LIMIT", 1]]
    (0.0ms)  begin transaction
   Category Load (0.2ms)  SELECT "categories".* FROM "categories" WHERE "categories"."id" IN (1, 3, 4)
@@ -229,6 +271,7 @@ Redirected to http://localhost:3000/products/4
 Completed 302 Found in 16ms (ActiveRecord: 1.3ms)
 ```
 
+After the update, the user is redirected to the product show page.
 
 ```sh
 Started GET "/products/4" for ::1 at 2016-03-14 14:59:07 -0700
@@ -242,23 +285,43 @@ Completed 200 OK in 38ms (Views: 35.5ms | ActiveRecord: 0.2ms)
 
 ### Step 16
 
-Let play in the rails console:
+Let experiment in the rails console to learn how this works. We can get the first product.
 
-```
+```sh
 $ rails c
 Loading development environment (Rails 5.0.0.beta3)
  > p = Product.first
   Product Load (0.2ms)  SELECT  "products".* FROM "products" ORDER BY "products"."id" ASC LIMIT ?  [["LIMIT", 1]]
  => #<Product id: 1, name: "bowl", price: #<BigDecimal:7ff78af69468,'0.2095E2',18(27)>, created_at: "2016-03-14 20:29:30", updated_at: "2016-03-14 20:29:30"> 
+```
+
+The category_ids is empty for this product.
+
+```sh
  > p.category_ids
    (0.1ms)  SELECT "categories".id FROM "categories" INNER JOIN "categories_products" ON "categories"."id" = "categories_products"."category_id" WHERE "categories_products"."product_id" = ?  [["product_id", 1]]
  => [] 
+```
+
+The last product we saved has three categories associated to it. Here is the last product.
+
+```sh
  > p = Product.last
   Product Load (0.2ms)  SELECT  "products".* FROM "products" ORDER BY "products"."id" DESC LIMIT ?  [["LIMIT", 1]]
  => #<Product id: 4, name: "rug", price: #<BigDecimal:7ff78ac7d790,'0.1E3',9(18)>, created_at: "2016-03-14 20:29:30", updated_at: "2016-03-14 20:29:30"> 
+```
+
+Here is the list of category_ids for this product.
+
+```sh 
  > p.category_ids
    (0.2ms)  SELECT "categories".id FROM "categories" INNER JOIN "categories_products" ON "categories"."id" = "categories_products"."category_id" WHERE "categories_products"."product_id" = ?  [["product_id", 4]]
  => [1, 4, 3] 
+```
+
+Let's change it.
+
+```sh 
  > p.category_ids = [2,3]
   Category Load (0.3ms)  SELECT "categories".* FROM "categories" WHERE "categories"."id" IN (2, 3)
   Category Load (0.2ms)  SELECT "categories".* FROM "categories" INNER JOIN "categories_products" ON "categories"."id" = "categories_products"."category_id" WHERE "categories_products"."product_id" = ?  [["product_id", 4]]
@@ -269,11 +332,11 @@ Loading development environment (Rails 5.0.0.beta3)
  => [2, 3] 
 ```
 
-Notice that we don't need to call save explicitly. The category_ids is provided by habm association.
+Notice that we don't need to call save explicitly. The category_ids method is provided by habm association. It saves the categories for this product.
 
 ### Step 17
 
-Uncheck all the boxes and update. Does it remove categories associated with that product? No.
+Uncheck all the boxes and update. Does it remove categories associated with that product? No. You can see in the development.log file that there is no category records created.
 
 ```sh
 Started PATCH "/products/4" for ::1 at 2016-03-14 15:23:24 -0700
@@ -286,17 +349,7 @@ Redirected to http://localhost:3000/products/4
 Completed 302 Found in 4ms (ActiveRecord: 0.7ms)
 ```
 
-
-
-```sh
-Started GET "/products/4" for ::1 at 2016-03-14 15:23:24 -0700
-Processing by ProductsController#show as HTML
-  Parameters: {"id"=>"4"}
-  Product Load (0.4ms)  SELECT  "products".* FROM "products" WHERE "products"."id" = ? LIMIT ?  [["id", 4], ["LIMIT", 1]]
-  Category Load (0.1ms)  SELECT "categories".* FROM "categories" INNER JOIN "categories_products" ON "categories"."id" = "categories_products"."category_id" WHERE "categories_products"."product_id" = ?  [["product_id", 4]]
-  Rendered products/show.html.erb within layouts/application (2.9ms)
-Completed 200 OK in 45ms (Views: 40.5ms | ActiveRecord: 0.5ms)
-```
+### Step 18
 
 Add:
 
@@ -304,7 +357,7 @@ Add:
 params[:product][:category_ids] ||=[]
 ```
 
-to the update method in products controller:
+to the update method in products controller like this:
 
 ```ruby
 def update
@@ -321,36 +374,35 @@ def update
 end
 ```
 
-Now it will delete when we unselect the check boxes.
-
-
-Note: The join table categories_products does not have id column.
-
-```ruby
-<%= check_box_tag "product[category_ids][]", category.id, @product.categories.include?(category), {:id => dom_id(category, dom_id(@product)) } %>
-```
-
-generates:
-
-```html
-<input type="checkbox" name="product[category_ids][]" id="product_2_category_1" value="1" />
-```
-
-otherwise it is:
+Now it will delete when we unselect the check boxes. Note: The join table categories_products does not have id column. If you view the source, you will see:
 
 ```html
 <input type="checkbox" name="product[category_ids][]" id="product_category_ids_" value="1" />
 ```
 
-id is product_category_ids_ for all check boxes.
+The id of the checkbox is messed up. You can use `dom_id` helper to fix it like this:
 
-You can make the check boxes to multiple selection:
+```ruby
+<%= check_box_tag "product[category_ids][]", category.id, @product.categories.include?(category), {:id => dom_id(category, dom_id(@product)) } %>
+```
+
+This will generate checkbox with id like this:
+
+```html
+<input type="checkbox" name="product[category_ids][]" id="product_2_category_1" value="1" />
+```
+
+### Step 19
+
+You can make the check boxes to multiple selection like this:
 
 ```ruby
 <div>
 <%= select_tag "product[category_ids][]", options_from_collection_for_select(Category.all, "id", "name"), :multiple => true %>
 </div>
 ```
+
+Let's add validation to the product model.
 
 ```ruby
 class Product < ApplicationRecord
@@ -360,8 +412,7 @@ class Product < ApplicationRecord
 end
 ```
 
-Make the product name blank and update product. Fail saves and the transaction is rolled back. This is correct behavior.
-
+Make the product name blank and update product. Fail saves and the transaction is rolled back. This is correct behavior. You can see in the development.log file that records was inserted into the join table.
 
 ```sh
 Started PATCH "/products/4" for ::1 at 2016-03-14 16:48:20 -0700
@@ -380,7 +431,7 @@ Processing by ProductsController#update as HTML
 Completed 200 OK in 49ms (Views: 35.3ms | ActiveRecord: 2.2ms)
 ```
 
-Allow category_ids:
+Instead of using permit!, we can allow category_ids like this:
 
 ```ruby
 def product_params
@@ -388,9 +439,9 @@ def product_params
 end
 ```
 
+## Rails 5 Clean Up 
 
-
-Cleaned Up 
+Rails 4.x and 5 provide you with `collection_check_boxes` which simplifies things a bit.
 
 ```ruby
 <div class="field">
@@ -400,7 +451,7 @@ Cleaned Up
 </div>
 ```
 
-
+In this case, you don't need `params[:product][:category_ids] ||=[]` line to handle the empty check box selection. So the update and product_params method looks like this:
 
 ```ruby
 def update
@@ -414,16 +465,17 @@ def update
     end
   end
 end
-```
 
-```ruby
 def product_params
   params.require(:product).permit(:name, :price, {category_ids: []})
 end
 ```
 
-The check box and the label are on different rows. This requires CSS fix to display the check box and the label on the same row.
+There is a minor UI display issue with `collection_check_boxes`. The check box and the label are on different rows. This requires CSS fix to display the check box and the label on the same row.
 
+## Summary
+
+In Rails 3.x apps you had to write quite a bit of code to get the checkboxes working for habtm association. In Rails 4.x and 5, it's a bit simpler to use checkboxes with habtm association.
 
 http://railscasts.com/episodes/17-habtm-checkboxes?view=comments
 

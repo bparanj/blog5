@@ -7,7 +7,6 @@
 
     <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => 'reload' %>
     <%= javascript_include_tag 'application', 'data-turbolinks-track' => 'reload' %>
-	<%= yield :head %>
   </head>
 
   <% flash.each do |key, msg| %>
@@ -20,7 +19,5 @@
 	 	    <%= yield %>
 	 </div>
   </body>
-  
-<%= yield :footer %>
-  
+    
 </html>

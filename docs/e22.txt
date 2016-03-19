@@ -1,26 +1,43 @@
--
+D
+Eager Loading in Rails 5
 
-List of Tasks displayed on the index page.
+## Steps 
 
--
+### Step 1
 
-Task belongs to project. Task has many comments.
-
--
-
-Tasks controller.
-
-@task = Task.all 
-
--
-
-tasks/index.html.erb
+List of tasks displayed on the index page. In `app/views/tasks/index.html.erb` we display hte task name and the project it belongs to:
  
-<td><%= task.name %> in <%= task.project.name %></td> 
--
+```ruby
+<% @tasks.each do |task| %>
+  <td><%= task.name %> in <%= task.project.name %></td> 
+<% end %>
+```
 
-seeds.rb
+### Step 2
 
+The models have the associations where a task belongs to project.
+
+```ruby
+class Task < ApplicationRecord
+  belongs_to :project  
+end
+```
+
+### Step 3
+
+In the tasks controller index action we retrieve all the tasks.
+
+```ruby
+def index
+  @tasks = Task.all
+end
+```
+
+### Step 4
+
+Create sample data in `seeds.rb`:
+
+```ruby
 wealthy = Project.create(name: 'Wealth Building')
 wealthy.tasks.create(name: 'Get rich quick', complete: false, priority: 4)
 wealthy.tasks.create(name: 'Write a book', complete: true, priority: 5)
@@ -34,21 +51,33 @@ happy.tasks.create(name: 'Just Blog It', complete: true, priority: 5)
 happy.tasks.create(name: 'Play tennis', complete: true, priority: 4)
 happy.tasks.create(name: 'Make fun of Donald Trump', complete: true, priority: 3)
 happy.tasks.create(name: 'Walk on moon', complete: true, priority: 2)
+```
 
+Re-populate the database.
+
+```
 rails db:drop db:migrate db:seed
+```
 
+### Step 5
+
+In the rails console, we can see that we have 10 tasks and 2 projects.
+
+```
 rails c
-> Task.count
+ > Task.count
    (0.1ms)  SELECT COUNT(*) FROM "tasks"
  => 10 
-2.3.0 :002 > Project.count
+ > Project.count
    (0.1ms)  SELECT COUNT(*) FROM "projects"
  => 2 
+```
 
--
+### Step 6
 
-Development log. N+1 query problem.
+In the development log file we can see the N+1 query problem.
 
+```
 Started GET "/tasks" for ::1 at 2016-03-16 12:10:59 -0700
   ActiveRecord::SchemaMigration Load (0.1ms)  SELECT "schema_migrations".* FROM "schema_migrations"
 Processing by TasksController#index as HTML
@@ -65,53 +94,72 @@ Processing by TasksController#index as HTML
   CACHE (0.0ms)  SELECT  "projects".* FROM "projects" WHERE "projects"."id" = ? LIMIT ?  [["id", 2], ["LIMIT", 1]]
   Rendered tasks/index.html.erb within layouts/application (34.0ms)
 Completed 200 OK in 354ms (Views: 341.1ms | ActiveRecord: 1.4ms)
-
+```
 
 From the log file, we see three SQL queries:
 
+```
 SELECT "tasks".* FROM "tasks"
 SELECT  "projects".* FROM "projects" WHERE "projects"."id" = ? LIMIT ?  [["id", 1], ["LIMIT", 1]]
 SELECT  "projects".* FROM "projects" WHERE "projects"."id" = ? LIMIT ?  [["id", 2], ["LIMIT", 1]]
+```
 
+The 2 queries are for the project association and 1 for retrieving all tasks.
 
+### Step 7
 
--
+We can reduce the number of calls to the database by using **Eager Loading** in the index action of the tasks controller.
 
-Eager loading
-
+```ruby
 @tasks = Task.all.includes(:project)
+```
 
+The general form is:
+
+```ruby
 includes(:association_name)
+```
 
--
+In this case, the association is a `belongs_to` project association.
 
-One one SQL query in development log.
+### Step 8
 
+We can see only two SQL queries in the development log.
 
+```sh
 Started GET "/tasks" for ::1 at 2016-03-16 12:14:15 -0700
 Processing by TasksController#index as HTML
   Task Load (0.3ms)  SELECT "tasks".* FROM "tasks"
   Project Load (0.1ms)  SELECT "projects".* FROM "projects" WHERE "projects"."id" IN (1, 2)
   Rendered tasks/index.html.erb within layouts/application (26.3ms)
 Completed 200 OK in 68ms (Views: 62.0ms | ActiveRecord: 1.3ms)
+```
 
 We now only have two queries:
 
+```sh
 SELECT "tasks".* FROM "tasks"
 SELECT "projects".* FROM "projects" WHERE "projects"."id" IN (1, 2)
+```
 
-You can also see the time 58 ms vs 354 ms in log file. The performance has improved almost 7 fold!
-
--
+We can retrieve as many projects as we want and still incur only two database calls. This is because the SQL query IN can take any number of primary keys for the project. You can also see the time 58 ms vs 354 ms in log file. The performance has improved almost 7 fold!
 
 
-Task has many comments
+Note : If you had a has many association, for instance, task has many comments. You can still use eager loading:
 
+```ruby
 include: [:project, :comments]
+```
+
+If the comment belongs to a user, we can use eager loading like this:
+
+```ruby
 include: [:project, {comments: :user}]
+```
 
-Comment belongs_to :user
+## Summary
 
+In this article, you learned how to use eager loading in Rails 5. We can use eager loading even if we have other associations in the model we are retrieving from the database.
 
 http://railscasts.com/episodes/22-eager-loading?view=comments
 

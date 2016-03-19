@@ -1,18 +1,25 @@
-1
+Looping Through Flash in Rails 5
+
+## Steps 
+### Step 1
 
 application.html.erb:
 
+```ruby
 <% flash.each do |key, msg| %>
 	<%= content_tag :div, msg, id: key %>
 <% end %>
+```
 
-2
+### Step 2
 
 Remove from product/show.html.erb:
 
+```ruby
 <p id="notice"><%= notice %></p>
+```
 
-3
+### Step 3
 
 Edit the product. You will the flash notice rendered on the product show page.
 
