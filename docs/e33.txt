@@ -1,0 +1,69 @@
+
+
+1
+
+gem 'validates_timeliness', '~> 4.0'
+
+bundle
+
+2
+
+
+rails generate validates_timeliness:install
+
+
+create  config/initializers/validates_timeliness.rb
+create  config/locales/validates_timeliness.en.yml
+	  
+3
+
+validates_datetime :due_date
+
+
+class Task < ApplicationRecord
+  belongs_to :project, counter_cache: true
+  has_many :comments
+
+  validates_datetime :due_date  
+end
+  
+
+4
+
+def update
+  respond_to do |format|
+    if @task.update(task_params)
+      format.html { redirect_to @task, notice: 'Task was successfully updated.' }
+      format.json { render :show, status: :ok, location: @task }
+    else
+      format.html { render :edit }
+      format.json { render json: @task.errors, status: :unprocessable_entity }
+    end
+  end
+end
+
+
+Works for any value except junk value for the date. Update the ticket with a test case : https://github.com/adzap/validates_timeliness/issues/139.
+
+http://railscasts.com/episodes/33-making-a-plugin?view=comments
+
+
+
+
+
+1
+
+gem 'date_validator'
+
+2
+
+validates :due_date, date: true
+  
+bundle
+
+3
+
+Edit task. Junk text is validated.
+
+
+[date_validator gem] (https://github.com/codegram/date_validator 'date_validator gem')

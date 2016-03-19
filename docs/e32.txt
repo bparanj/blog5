@@ -1,7 +1,7 @@
 
 -
 
-List of tasks with due date. Edit link.
+List of tasks with due date and Edit task link in `tasks/index.html.erb`.
 
 ```
 <tbody>
@@ -20,63 +20,145 @@ List of tasks with due date. Edit link.
 </tbody>
 ```
 
-
 -
 
 
-Edit task page
+Click Edit link to edit task. Name of task name, due date has datetime drop down boxes is displayed in `tasks/_form.html.erb`:
 
-Name of task name, due date has datetime drop down boxes.
+```
+<%= form_for(task) do |f| %>
+  <div class="field">
+    <%= f.label :name %>
+    <%= f.text_field :name %>
+  </div>
 
-f.datetime_select :due_date
+  <div class="field">
+    <%= f.label :due_date %>
+    <%= f.datetime_select :due_date %>
+  </div>
+
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>
+```
 
 -
 
-f.text_field :due_date_string 
+In the form partial, change the `datetime_select` to text field.
+
+```rhtml
+<%= f.text_field :due_date_string %>
+```
 
 -
 
-Task
+Add `due_date_string` method to Task model.
 
-def	due_date_string
-  due_date.to_s(:db)
+```ruby
+class Task < ApplicationRecord
+  belongs_to :project
+  has_many :comments
+
+  def due_date_string
+    due_date.to_s(:db)
+  end
   
-  def due_date_string=(due_date_string)
-  self.due_date = Time.parse(due_date_string)
+  def due_date_string=(due_date_s)
+    self.due_date = Time.parse(due_date_s)
+  end
+end
   
  -
  
- Reload page.
+ In tasks controller:
  
- Change the date.
+ ```ruby
+ def task_params
+   params.require(:task).permit(:name, :complete, :due_date_string)
+ end
+ ```
  
- Save
+ -
+ 
+ Reload page `http://localhost:3000/tasks/3/edit`. Change the date and update. It works.
+ 
+ -
+ 
+ Illegal input throws exception: 
+ 
+ ```
+ argument out of range
+ ```
  
  - 
- 
- chronic gem
- 
- for fancy time parsing.
+
+```
+<%= form_for(task) do |f| %>
+  <div class="field">
+   <%= f.label :name %>
+   <%= f.text_field :name %>
+  </div>
+  
+  <div class="field">
+   <%= f.label :due_date %>
+   <%= f.text_field :due_date %>
+  </div>
+  
+  <div class="actions">
+   <%= f.submit %>
+  </div>
+<% end %>
+```
  
  -
  
- Illegal input
+ ```ruby
+ def task_params
+   params.require(:task).permit(:name, :complete, :due_date)
+ end
+ ```
  
- throws stacktrace
+ Remove setter and getter in the task model:
  
- -
- 
- Validation
- 
- rescue ArgumentError
-   @date_at_invalid = true
+ def due_date_string
+   due_date.to_s(:db)
  end
  
- def validate
-   errors.add(:due_date, "is invalid") if @due_at_invalid
+ def due_date_string=(due_date_s)
+   self.due_date = Time.parse(due_date_s)
+ end
+ 
+ -
+ 
+ 
+class DatetimeValidator < ActiveModel::Validator
+  def validate(record)
+    Time.parse(record.due_date.to_s)
+  rescue ArgumentError
+    record.errors[:due_date] << "Invalid datetime format"
+  end
+end
+ 
+ -
+ 
+class Task < ApplicationRecord
+  belongs_to :project
+  has_many :comments
+
+  validates_with DatetimeValidator  
+end
+ 
+-
+
    
-Reload page:
+Edit date with junk as the due_date. You will now see validation error. The user entered old value is also retained.
 
-validation error.
+-
 
+http://railscasts.com/episodes/32-time-in-text-field?view=comments
 
+[Date and time validation plugin for ActiveModel and Rails.](https://github.com/adzap/validates_timeliness/ 'Date and time validation plugin for ActiveModel and Rails.')
+[Chronic gem](https://github.com/mojombo/chronic 'Chronic gem') for fancy time parsing.
+
+ 
