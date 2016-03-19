@@ -42,6 +42,28 @@ def update
   end
 end
 
+
 Works for any value except junk value for the date. Update the ticket with a test case : https://github.com/adzap/validates_timeliness/issues/139.
 
 http://railscasts.com/episodes/33-making-a-plugin?view=comments
+
+
+
+
+
+1
+
+gem 'date_validator'
+
+2
+
+validates :due_date, date: true
+  
+bundle
+
+3
+
+Edit task. Junk text is validated.
+
+
+[date_validator gem] (https://github.com/codegram/date_validator 'date_validator gem')

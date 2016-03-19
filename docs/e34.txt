@@ -1,3 +1,4 @@
+Named Routes
 
 -
 
@@ -28,10 +29,12 @@ get '/tasks/:year/:month' => "tasks#archive", as: :task_archive
 
 -
 
-View page source:
+Add the following:
 
 task_archive_path(2007, 5)
 task_archive_path(year: 2007, month: 5)
+
+to the tasks index view. View page source:
 
 -
 
