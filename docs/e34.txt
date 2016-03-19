@@ -8,41 +8,125 @@ redirect_to login_url
 
 -
 
+Define the route for home page in routes.rb.
+
+```ruby
+root 'projects#index'
+```
+
+-
+
 List of projects view.
 
+```rhtml
+<h1>Projects</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+	  <th>Count</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @projects.each do |project| %>
+      <tr>
+        <td><%= project.name %></td>
+		<td><%= pluralize(project.tasks.length, 'task') %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+<%= link_to 'New Project', new_project_path %>
+```
+
 -
 
-Home page
+The projects controller, index action:
 
-root 'project#index'
+```ruby
+def index
+  @projects = Project.all
+end
+```
 
 -
 
-_url
-_path
+Browse to `http://localhost:3000` to view all projects.
 
 -
 
-List of tasks. Archive page.
+Add:
 
+```rhtml
+<%= projects_url %> <br>
+<%= projects_path %> <br>
+```
+
+This will generate:
+
+```
+http://localhost:3000/projects 
+/projects
+```
+
+One is the absolute URL and the other is the relative URL.
+
+-
+
+Define routes for listing tasks in the archive page.
+
+```ruby
 get '/tasks/:year/:month' => "tasks#archive", as: :task_archive
+```
+
+-
+
+```
+$rake routes
+task_archive GET    /tasks/:year/:month(.:format)      tasks#archive
+```
 
 -
 
 Add the following:
 
-task_archive_path(2007, 5)
-task_archive_path(year: 2007, month: 5)
+```
+<%= task_archive_path(2007, 5) %>
+<%= task_archive_path(year: 2007, month: 5) %>
+```
 
-to the tasks index view. View page source:
+to the projects index page. To view the generated URL, reload the projects index page. You will see:
+
+```
+/tasks/2007/5
+/tasks/2007/5
+```
 
 -
 
-resources :projects
+Define project resource in routes.rb:
 
-link_to project.name, project
-link_to 'Edit', edit_project_path(project)
-link_to 'Destroy', project, method: :delete
+```ruby
+resources :projects
+```
+
+Add the links to the `projects/index.html.erb`:
+
+```rhtml
+<% @projects.each do |project| %>
+  <tr>
+    <td> <%= link_to project.name, project %> </td>
+	<td> <%= link_to 'Edit', edit_project_path(project) %> </td>
+	<td> <%= link_to 'Destroy', project, method: :delete %> </td>
+	<td><%= pluralize(project.tasks.length, 'task') %></td>
+  </tr>
+<% end %>
+```
+
+Now you can edit and delete projects.
 
 -
 
