@@ -1,10 +1,18 @@
+D
+Group By Month in Rails 5
 
+## Steps
+### Step 1
 
-Task has due_date
+Task has `due_date`. Let's add this field to the task.
 
+```sh
 rails g migration add_due_date_to_tasks due_date:date
-
 ```
+
+The migration file looks like this:
+
+```ruby
 class AddDueDateToTasks < ActiveRecord::Migration[5.0]
   def change
     add_column :tasks, :due_date, :date
@@ -12,9 +20,11 @@ class AddDueDateToTasks < ActiveRecord::Migration[5.0]
 end
 ```
 
-seeds.rb.
+### Step 2
 
-```
+Create sample data in seeds.rb.
+
+```ruby
 wealthy = Project.create(name: 'Wealth Building')
 wealthy.tasks.create(name: 'Get rich quick', complete: false, priority: 4, due_date: 2.months.ago)
 wealthy.tasks.create(name: 'Write a book', complete: true, priority: 5, due_date: 1.month.ago)
@@ -30,45 +40,44 @@ happy.tasks.create(name: 'Make fun of Donald Trump', complete: true, priority: 3
 happy.tasks.create(name: 'Walk on moon', complete: true, priority: 2, due_date: 2.days.ago)
 ```
 
+Let's clear all the old data and recreate the tables and populate the database with new data.
+
 ```
 rails db:drop
 rails db:migrate
 rails db:seed
 ```
 
+### Step 3
 
-group by month
+Initialize `task_months` in tasks controller:
 
-group_by
-
-a = (1..20).to_a
-
-a.group_by { |n| n/5 }
-
-Tasks controller:
-
+```ruby
 @task_months = @tasks.group_by {|t| t.due_at.beginning_of_month }
+```
 
+The index action now looks like this:
 
+```ruby
 def index
   @tasks = Task.all.to_a
   @task_months = @tasks.group_by {|t| t.due_at.beginning_of_month }
 end
-
-
-tasks/index.html.erb:
-
-
 ```
-<h1>Tasks</h1>
 
+### Step 4
+
+The `tasks/index.html.erb` looks like this:
+
+
+```rhtml
+<h1>Tasks</h1>
 <table>
   <thead>
     <tr>
       <th></th>
     </tr>
   </thead>
-
   <tbody>
 	  <% @task_months.each do |month, tasks| %>
 	    <%= month.strftime('%B') %>
@@ -80,17 +89,16 @@ tasks/index.html.erb:
 	  	</div>
 	    <% end %>
 	   </tr>	
-	   
 	  <% end %>	  
   </tbody>
 </table>
 ```
 
-View the tasks index page.
+### Step 5
 
-Hash don't preserve the order, so the months are jumbled up.
+Reload the tasks index page to view the tasks. The hash does not preserve the order, so the months are jumbled up.
 
-```
+```sh
 Tasks
 
 January
@@ -110,19 +118,21 @@ task.name due on March 15, 2016
 task.name due on March 15, 2016
 ```
 
-Sort:
+### Step 6
+
+Let's use the `group_by` method to sort the tasks:
 
 
-```
+```rhtml
 def index
   @tasks = Task.order(:due_date)
   @task_months = @tasks.group_by {|t| t.due_date.beginning_of_month }
 end
 ```
 
-`tasks/index.html.erb`:
+Change the `tasks/index.html.erb` like this:
 
-```
+```rhtml
 <tbody>
   <% @task_months.each do |month, tasks| %>
     <%= month.strftime('%B') %>
@@ -138,9 +148,11 @@ end
 </tbody>
 ```
 
-After sorting:
+### Step 7
 
-```
+After sorting, tasks are displayed like this:
+
+```sh
 Tasks
 
 January
@@ -159,5 +171,18 @@ task.name due on April 17, 2016
 May
 task.name due on May 17, 2016
 ```
+
+## Summary
+
+In this article, you learned how to sort tasks by month by using group_by method.
+
+
+group by month
+
+group_by
+
+a = (1..20).to_a
+
+a.group_by { |n| n/5 }
 
 http://railscasts.com/episodes/29-group-by-month?view=comments

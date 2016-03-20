@@ -1,12 +1,8 @@
-Named Routes
+D
+Named Routes in Rails 5
 
--
-
-get '/login' => 'account#login', as: 'login'
-
-redirect_to login_url
-
--
+## Steps
+### Step 1
 
 Define the route for home page in routes.rb.
 
@@ -14,13 +10,12 @@ Define the route for home page in routes.rb.
 root 'projects#index'
 ```
 
--
+### Step 2
 
-List of projects view.
+The tasks index page displays all the projects.
 
 ```rhtml
 <h1>Projects</h1>
-
 <table>
   <thead>
     <tr>
@@ -29,7 +24,6 @@ List of projects view.
       <th colspan="3"></th>
     </tr>
   </thead>
-
   <tbody>
     <% @projects.each do |project| %>
       <tr>
@@ -42,9 +36,9 @@ List of projects view.
 <%= link_to 'New Project', new_project_path %>
 ```
 
--
+### Step 3
 
-The projects controller, index action:
+The projects controller, index action looks like this:
 
 ```ruby
 def index
@@ -52,11 +46,11 @@ def index
 end
 ```
 
--
+### Step 4
 
 Browse to `http://localhost:3000` to view all projects.
 
--
+### Step 5
 
 Add:
 
@@ -65,35 +59,37 @@ Add:
 <%= projects_path %> <br>
 ```
 
-This will generate:
+to the project index page. This will generate:
 
 ```
 http://localhost:3000/projects 
 /projects
 ```
 
-One is the absolute URL and the other is the relative URL.
+The URL with the domain is the absolute URL and the other is the relative URL.
 
--
+### Step 6
 
-Define routes for listing tasks in the archive page.
+Define a named route for listing tasks in the archive page in routes.rb.
 
 ```ruby
 get '/tasks/:year/:month' => "tasks#archive", as: :task_archive
 ```
 
--
+### Step 7
+
+View the new route.
 
 ```
 $rake routes
 task_archive GET    /tasks/:year/:month(.:format)      tasks#archive
 ```
 
--
+### Step 8
 
-Add the following:
+Use the named route in the projects index page. Add the following:
 
-```
+```rhtml
 <%= task_archive_path(2007, 5) %>
 <%= task_archive_path(year: 2007, month: 5) %>
 ```
@@ -105,13 +101,17 @@ to the projects index page. To view the generated URL, reload the projects index
 /tasks/2007/5
 ```
 
--
+in the browser.
+
+### Step 9
 
 Define project resource in routes.rb:
 
 ```ruby
 resources :projects
 ```
+
+### Step 10
 
 Add the links to the `projects/index.html.erb`:
 
@@ -128,9 +128,11 @@ Add the links to the `projects/index.html.erb`:
 
 Now you can edit and delete projects.
 
--
+## Summary
 
+In this article, you learned how to use named routes in Rails 5.
 
+## Reference
 
 [Named Routes](http://api.rubyonrails.org/classes/ActionDispatch/Routing.html 'Named Routes')
 

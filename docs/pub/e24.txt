@@ -1,0 +1,70 @@
+D
+Using Rails Foonotes in Rails 5 Apps
+
+## Steps
+### Step 1
+
+Add rails-footnotes gem to Gemfile.
+
+```ruby
+group :development do
+  gem 'web-console', '~> 3.0'
+  gem 'listen', '~> 3.0.5'
+  gem 'rails-footnotes', '~> 4.0'
+end
+```
+
+Run bundle install.
+
+### Step 2
+
+```sh
+$rails generate rails_footnotes:install
+create  config/initializers/rails_footnotes.rb
+```
+
+This will generate the rails_footnotes initializer. The gem is enabled only in development environment. 
+
+```ruby
+defined?(Footnotes) && Footnotes.setup do |f|
+  # Whether or not to enable footnotes
+  f.enabled = Rails.env.development?
+  # You can also use a lambda / proc to conditionally toggle footnotes
+  # Example :
+  # f.enabled = -> { User.current.admin? }
+  # Beware of thread-safety though, Footnotes.enabled is NOT thread safe
+  # and should not be modified anywhere else.
+
+  # Only toggle some notes :
+  # f.notes = [:session, :cookies, :params, :filters, :routes, :env, :queries, :log]
+
+  # Change the prefix :
+  # f.prefix = 'mvim://open?url=file://%s&line=%d&column=%d'
+
+  # Disable style :
+  # f.no_style = true
+
+  # Lock notes to top right :
+  # f.lock_top_right = true
+
+  # Change font size :
+  # f.font_size = '11px'
+
+  # Allow to open multiple notes :
+  # f.multiple_notes = true
+end
+```
+
+You can customize this file if you like.
+
+### Step 3
+
+Now you can click on the controller to view the controller in your editor. You can do the same to View, Partials, Stylesheets and Javascripts links. The other links show the assigns, session, cookies, params, filters, routes, env and queries.  You can view the screenshots [here](http://bparanj.blogspot.com/2016/03/rails-footnotes-gem_19.html 'Rails Footnotes Gem')
+
+## Summary
+
+In this article, you learned how to use Rails Footnotes gem to speed up your development workflow.
+
+## References
+
+[Rails Footnotes Gem](https://github.com/josevalim/rails-footnotes 'Rails Footnotes Gem')

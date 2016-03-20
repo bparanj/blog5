@@ -1,27 +1,42 @@
+D
 Pretty Page Title
 
-The title does not change when you view different pages on the site.
+Problem : The title does not change when you view different pages on the site.
 
-In application layout file.
+## Steps
 
+### Step 1
+
+In application layout file add this.
+
+```rhtml
 <title> MyComm Site - <%= content_for?(:title) ? yield(:title) : 'The Biggest Online Store on Earth' %> </title>
+```
 
+### Step 2
 
-In `products/new.html.erb`:
+In `products/new.html.erb` use the title view helper to display the title:
 
+```rhtml
 <% title "New Product" %>
+```
 
--
+### Step 3
 
+```ruby
 module ApplicationHelper
   def title(page_title)
     content_for(:title) { page_title }
   end
 end
-
--
+```
 
 The view that does not call the title helper will now have the default title.
+
+## Summary
+
+In this article, you learned how to use custom view helper to customize the title an any page of your Rails 5 web app.
+
 
 
 http://railscasts.com/episodes/30-pretty-page-title?view=comments

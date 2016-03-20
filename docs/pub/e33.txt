@@ -1,0 +1,105 @@
+D
+Date Validation Gems in Rails 5 
+
+## Steps
+### Step 1
+
+Add the validates_timeliness gem to Gemfile.
+
+```ruby
+gem 'validates_timeliness', '~> 4.0'
+```
+
+Run bundle install.
+
+### Step 2
+
+Generate the validates_timeliness initializer file.
+
+```sh
+rails generate validates_timeliness:install
+```
+
+It creates the following files.
+
+```
+config/initializers/validates_timeliness.rb
+config/locales/validates_timeliness.en.yml
+```	  
+
+### Step 3
+
+Add the validation provided by the `validates_timeliness` gem to the task model.
+
+```ruby
+validates_datetime :due_date
+```
+
+The task model looks like this:
+
+```ruby
+class Task < ApplicationRecord
+  belongs_to :project, counter_cache: true
+  has_many :comments
+
+  validates_datetime :due_date  
+end
+```
+
+### Step 4
+
+Change the update action in the tasks controller:
+
+```ruby
+def update
+  respond_to do |format|
+    if @task.update(task_params)
+      format.html { redirect_to @task, notice: 'Task was successfully updated.' }
+      format.json { render :show, status: :ok, location: @task }
+    else
+      format.html { render :edit }
+      format.json { render json: @task.errors, status: :unprocessable_entity }
+    end
+  end
+end
+```
+
+Works for any value except junk value for the date. Let's fix this problem.
+
+### Step 5
+
+Add the `date_validator` gem to the Gemfile.
+
+```ruby
+gem 'date_validator'
+```
+
+Run bundle install.
+
+### Step 6
+
+Remove the old validation for `due_date` and add the following validation that uses the new gem.
+
+```ruby
+validates :due_date, date: true
+```
+
+### Step 7
+
+Edit task. Junk text is validated.
+
+## Summary
+
+In this article, you learned how to use date_validator gem to validate the date field in Rails 5 apps.
+
+## Reference
+
+[date_validator gem] (https://github.com/codegram/date_validator 'date_validator gem')
+
+
+
+http://railscasts.com/episodes/33-making-a-plugin?view=comments
+
+
+
+Update the ticket with a test case : https://github.com/adzap/validates_timeliness/issues/139.

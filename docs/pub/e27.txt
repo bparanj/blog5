@@ -1,20 +1,28 @@
-Cross Site Scripting
+D
+Cross Site Scripting in Rails 5
 
-javascript or css
 
--
+## Steps
+### Step 1
+
 Add  `has_many :comments` to Task model.
 
+```ruby
 class Task < ApplicationRecord
   belongs_to :project
   has_many :comments  
 end
+```
 
+The comment belongs to a task.
+
+```ruby
 class Comment < ApplicationRecord
   belongs_to :task
 end
+```
 
--
+### Step 2
 
 Generate the comment model with content field for text area.
 
@@ -22,11 +30,11 @@ Generate the comment model with content field for text area.
 rails g model comment content:text 
 ```
 
--
+### Step 3
 
-Add `t.integer :task` to the generated migration file.
+Add the foreign key `t.integer :task_id` to the generated migration file.
 
-```
+```ruby
 class CreateComments < ActiveRecord::Migration[5.0]
   def change
     create_table :comments do |t|
@@ -39,20 +47,19 @@ class CreateComments < ActiveRecord::Migration[5.0]
 end
 ```
 
-```
+Migrate the database.
+
+```sh
 rails db:migrate
 ```
 
--
+Note: You should always define a database index for all foreign keys. I am skipping it here.
 
+### Step 4
 
-Task show page with comments and text area for adding a form.
+The comment model has content column for displaying text area. Add comments section to the task show page.
 
-comment model has content for displaying text area.
-
-Add comments section to the task show page.
-
-```
+```rhtml
 <h2>Comments</h2>
 <% for comment in @comments %>
 <p><%= comment.content %></p>
@@ -61,7 +68,7 @@ Add comments section to the task show page.
 
 Add the form to comment on a task displayed on the show page.
 
-```
+```rhtml
 <%= form_for(Comment.new, url: task_comments_path(@task)) do |f| %>
 <p>
 	<%= f.text_area :content, rows: 7 %>
@@ -74,7 +81,7 @@ Add the form to comment on a task displayed on the show page.
 
 The `app/views/tasks/show.html.erb` looks like this:
 
-```
+```rhtml
 <p>
   <strong>Name:</strong>
   <%= @task.name %>
@@ -103,12 +110,19 @@ The `app/views/tasks/show.html.erb` looks like this:
 <%= link_to 'Back', tasks_path %>
 ```
 
--
+Task show page now displays all comments and has a text area for adding a form.
 
+### Step 5
 
+Generate the commments controller with create action.
+
+```sh
 rails g controller comments create
+```
 
+The comments controller create action looks like this:
 
+```ruby
 class CommentsController < ApplicationController
   def create
     task = Task.find(params[:task_id])
@@ -117,43 +131,61 @@ class CommentsController < ApplicationController
     redirect_to task
   end
 end
+```
 
--
+### Step 6
 
-Tasks controller show method:
+Tasks controller show method looks like this:
 
+```ruby
 def show
   task = Task.find(params[:id])
   @comments = task.comments
 end
-
--
-
-
 ```
+
+### Step 7
+
+
+Define the nested routes for comments in routes.rb.
+
+```ruby
 resources :tasks do
   resources :comments, only: [:create]
 end
 ```
 
--
-
 You can now add comments.
 
--
+### Step 8
 
-Add :
+In the task show page, add:
 
+```html
 Testing <script> alert('test') </script>
+```
 
+to the comments form. This is now automatically sanitized by Rails 5. There is no need to use the h view helper anymore.
 
-This is now automatically sanitized by Rails 5. There is no need to use the h view helper.
+### Step 9
 
--
+We can escape the user input in the rails console.
 
+```sh
  > CGI::escapeHTML("<script> alert(document.cookie) </script>")
  => "&lt;script&gt; alert(document.cookie) &lt;/script&gt;" 
--
+```
+
+We see the escaped output.
+
+## Summary
+
+In this article, you learned how Cross Site Scripting is handled in Rails 5.
+
+
+http://railscasts.com/episodes/27-cross-site-scripting?view=comments
+
+
 
 Steal cookies. <script> alert(document.cookie) </script>
 
@@ -181,4 +213,4 @@ CGI::escapeHTML(content)
 -
 
 
-http://railscasts.com/episodes/27-cross-site-scripting?view=comments
+

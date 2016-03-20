@@ -1,9 +1,12 @@
+D
+Time in Text Field in Rails 5
 
--
+## Steps
+### Step 1
 
-List of tasks with due date and Edit task link in `tasks/index.html.erb`.
+The tasks index page displays a list of tasks with due date and Edit task link in `tasks/index.html.erb`.
 
-```
+```rhtml
 <tbody>
   <% @task_months.each do |month, tasks| %>
     <%= month.strftime('%B') %>
@@ -20,30 +23,27 @@ List of tasks with due date and Edit task link in `tasks/index.html.erb`.
 </tbody>
 ```
 
--
+### Step 2 
 
+Click Edit link to edit task. The due date field has datetime drop down boxes in `tasks/_form.html.erb`:
 
-Click Edit link to edit task. Name of task name, due date has datetime drop down boxes is displayed in `tasks/_form.html.erb`:
-
-```
+```rhtml
 <%= form_for(task) do |f| %>
   <div class="field">
     <%= f.label :name %>
     <%= f.text_field :name %>
   </div>
-
   <div class="field">
     <%= f.label :due_date %>
     <%= f.datetime_select :due_date %>
   </div>
-
   <div class="actions">
     <%= f.submit %>
   </div>
 <% end %>
 ```
 
--
+### Step 3
 
 In the form partial, change the `datetime_select` to text field.
 
@@ -51,7 +51,7 @@ In the form partial, change the `datetime_select` to text field.
 <%= f.text_field :due_date_string %>
 ```
 
--
+### Step 4
 
 Add `due_date_string` method to Task model.
 
@@ -69,29 +69,31 @@ class Task < ApplicationRecord
   end
 end
   
- -
+### Step 5
  
- In tasks controller:
+In tasks controller:
  
- ```ruby
- def task_params
-   params.require(:task).permit(:name, :complete, :due_date_string)
- end
- ```
+```ruby
+def task_params
+  params.require(:task).permit(:name, :complete, :due_date_string)
+end
+```
  
- -
+### Step 6
  
- Reload page `http://localhost:3000/tasks/3/edit`. Change the date and update. It works.
+Reload page `http://localhost:3000/tasks/3/edit`. Change the date and update. It works.
  
- -
+### Step 7
  
- Illegal input throws exception: 
+Illegal input throws the following exception: 
  
- ```
- argument out of range
- ```
+```sh
+argument out of range
+```
  
- - 
+### Step  8
+
+Change the view to use `due_date` defined in the task model.
 
 ```
 <%= form_for(task) do |f| %>
@@ -99,39 +101,47 @@ end
    <%= f.label :name %>
    <%= f.text_field :name %>
   </div>
-  
   <div class="field">
    <%= f.label :due_date %>
    <%= f.text_field :due_date %>
   </div>
-  
   <div class="actions">
    <%= f.submit %>
   </div>
 <% end %>
 ```
  
- -
+### Step 9
  
- ```ruby
- def task_params
-   params.require(:task).permit(:name, :complete, :due_date)
- end
- ```
+Change the `task_params` method as follows:
+
+```ruby
+def task_params
+  params.require(:task).permit(:name, :complete, :due_date)
+end
+```
+
+### Step 10
  
- Remove setter and getter in the task model:
+Remove setter and getter in the task model:
  
- def due_date_string
-   due_date.to_s(:db)
- end
+```ruby 
+def due_date_string
+  due_date.to_s(:db)
+end
  
- def due_date_string=(due_date_s)
-   self.due_date = Time.parse(due_date_s)
- end
+def due_date_string=(due_date_s)
+  self.due_date = Time.parse(due_date_s)
+end
+```
+
+I love solutions with less code. 
+
+### Step 11
  
- -
+Create a custom validator called `datetime_validator.rb` in the models directory.
  
- 
+```ruby
 class DatetimeValidator < ActiveModel::Validator
   def validate(record)
     Time.parse(record.due_date.to_s)
@@ -140,8 +150,11 @@ class DatetimeValidator < ActiveModel::Validator
   end
 end
  
- -
- 
+### Step 12
+
+Use our newly defined custom validator in the task model.
+
+```ruby 
 class Task < ApplicationRecord
   belongs_to :project
   has_many :comments
@@ -149,12 +162,14 @@ class Task < ApplicationRecord
   validates_with DatetimeValidator  
 end
  
--
+### Step 13
 
-   
 Edit date with junk as the due_date. You will now see validation error. The user entered old value is also retained.
 
--
+## Summary
+
+In this article, you learned how to use custom validators using ActiveModel validator and validate dates in text field.
+
 
 http://railscasts.com/episodes/32-time-in-text-field?view=comments
 

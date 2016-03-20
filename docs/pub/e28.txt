@@ -1,19 +1,19 @@
+D
 In Groups Of in Rails 5
 
--
+## Steps
+### Step 1
 
 List of tasks in tasks index page.
 
-```ruby
+```rhtml
 <h1>Tasks</h1>
-
 <table>
   <thead>
     <tr>
       <th></th>
     </tr>
   </thead>
-
   <tbody>
     <% @tasks.each do |task| %>
       <tr>
@@ -24,9 +24,11 @@ List of tasks in tasks index page.
 </table>
 ```
 
+### Step 2
+
 We want to list 4 tasks in each row. Let's define rows and columns in view. Add `in_groups_of` method in `tasks/index.html.erb`:
 
-```ruby
+```rhtml
 <% @tasks.in_groups_of(4) do |row| %>
   <tr>
 	<% for task in row %>
@@ -38,22 +40,22 @@ We want to list 4 tasks in each row. Let's define rows and columns in view. Add 
 
 We get the error:
 
-```
+```sh
 undefined method `name' for nil:NilClass
 ```
 
+### Step 3
+
 We can fix this problem by not filling the array with nil values if they are not evenly divisible. Pass the false flag as the second argument to the `in_groups_of` method.
 
-```
+```rhtml
 <h1>Tasks</h1>
-
 <table>
   <thead>
     <tr>
       <th></th>
     </tr>
   </thead>
-
   <tbody>
     <% @tasks.in_groups_of(4, false) do |row| %>
 	  <tr>
@@ -64,13 +66,13 @@ We can fix this problem by not filling the array with nil values if they are not
     <% end %>
   </tbody>
 </table>
-
-<br>
 ```
 
+Reload the page. You will now see the tasks displayed in groups of 4.
 
-Reload the page.
+## Summary
 
+In this article, you learned how to use in_groups_of to display tasks in a four column per row format.
 	
 http://railscasts.com/episodes/28-in-groups-of?view=comments
 

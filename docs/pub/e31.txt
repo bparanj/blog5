@@ -1,7 +1,8 @@
-
+D
 Customizing Time Format in Rails 5 Apps
 
--
+## Steps
+### Step 1
 
 In `products/index.html.erb`:
 
@@ -11,7 +12,7 @@ In `products/index.html.erb`:
 
 Gives ugly output.
 
-```
+```sh
 task.name due on 2016-01-17
 task.name due on 2016-01-17
 task.name due on 2016-01-17
@@ -19,7 +20,7 @@ task.name due on 2016-01-17
 
 The `due_date.to_s(:long)` output.
 
-```
+```sh
 task.name due on January 17, 2016
 task.name due on January 17, 2016
 task.name due on January 17, 2016
@@ -27,7 +28,7 @@ task.name due on January 17, 2016
 
 The output for `:short` format.
 
-```
+```sh
 task.name due on 17 Jan
 task.name due on 17 Jan
 task.name due on 17 Jan
@@ -35,27 +36,31 @@ task.name due on 17 Jan
 
 The output for `:db` format.
 
-```
+```sh
 task.name due on 2016-01-17
 task.name due on 2016-01-17
 task.name due on 2016-01-17
 ```
+
+### Step 2
 
 We can customize the time format like this:
 
+```ruby
 due_date.strftime("due on %B %d at %I:%M %p")
+```
 
 This will lead to duplication if we need to call from different views. Let's see how we can define our own time format that will allow us to do `due_date.to_s(:due_time)`
 
--
+### Step 3
 
 Create `config/initializers/custom_time_formats.rb` file with time format customization:
 
-```
+```ruby
 Time::DATE_FORMATS[:due_time] = "due at %B %d on %I:%M %p"
 ```
 
--
+### Step 4
 
 Restart server and reload tasks index page.
 
@@ -71,7 +76,7 @@ end
 
 Let's populate the database with new data that has values for `due_date` column in tasks table.
 
-```
+```sh
 rails db:drop
 rails db:migrate
 rails db:seed
