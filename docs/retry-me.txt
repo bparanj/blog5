@@ -1,0 +1,53 @@
+class RetryMe
+
+  def initialize
+    @callbacks   = Hash.new { |h, k| h[k] = [] }
+    @args        = Hash.new { |h, k| h[k] = [] }
+  end
+
+  def attempt
+    # Retry logic goes here. When all the attempt fails call:
+    error  
+  end
+  
+  # Register callback
+  #
+  # @api public
+  def register(name, block, *args)
+    @callbacks[name] << block
+    @args[name] << args
+  end
+
+  # Finish spinning and set state to :success
+  #
+  # @api public
+  def success
+    notify(:success)
+  end
+
+  # Finish spinning and set state to :error
+  #
+  # @api public
+  def error
+    notify(:error)
+  end
+
+  private
+  
+  # notify callback
+  #
+  # @api private
+  def notify(name)
+    @callbacks[name].each do |block|
+      args = @args[name]
+      block.call(*args)
+    end
+  end
+
+end
+
+rm = RetryMe.new
+fc = Proc.new { |x, y, z| p "x : #{x}. y : #{y}. z : #{z}"}
+rm.register(:error, fc, 1,2,3)
+
+rm.attempt
