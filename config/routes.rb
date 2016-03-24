@@ -1,13 +1,11 @@
 Rails.application.routes.draw do
-  get '/tasks/:year/:month' => "tasks#archive", as: :task_archive
-  
   resources :products
   resources :users
-  
   resources :projects
-  resources :tasks do
-    resources :comments, only: [:create]
-  end
   
+  resources :tasks
+  
+  get 'completed', to: 'tasks#completed', as: :completed_tasks
+  put 'complete/:id', to: 'tasks#complete', as: :complete_task  
   root 'projects#index'
 end

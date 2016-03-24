@@ -1,3 +1,166 @@
 Custom REST Actions
 
 
+1
+
+There are 7 standard actions provided by resources declaration in the routes.rb.
+
+```ruby
+resources :tasks
+```
+
+2
+
+The index page displays all the tasks. For completed tasks, define a completed method:
+
+```ruby
+def completed
+  @tasks = Task.where(complete: false)  
+end
+```
+
+This finds all the completed tasks.
+
+3
+
+Go to complete view in the browser `http://localhost:3000/completed`. It will not work
+
+Delete this:
+
+```ruby
+before_action :set_task, only: [:show, :edit, :update, :destroy]
+```
+
+Try again. The error is:
+
+```sh
+ActiveRecord::RecordNotFound in TasksController#show
+Couldn't find Task with 'id'=completed
+```
+
+4
+
+Change the routes.rb to allow complete action for task resource
+
+```ruby
+get 'completed', to: 'tasks#completed', as: :completed_tasks
+```
+
+5
+
+```sh
+$ rake routes | grep tasks
+```
+
+The installed routes are:
+
+```sh
+          tasks GET    /tasks(.:format)             tasks#index
+                POST   /tasks(.:format)             tasks#create
+       new_task GET    /tasks/new(.:format)         tasks#new
+      edit_task GET    /tasks/:id/edit(.:format)    tasks#edit
+           task GET    /tasks/:id(.:format)         tasks#show
+                PATCH  /tasks/:id(.:format)         tasks#update
+                PUT    /tasks/:id(.:format)         tasks#update
+                DELETE /tasks/:id(.:format)         tasks#destroy
+completed_tasks GET    /completed(.:format)         tasks#completed
+```
+
+6
+
+Go to completed view in the browser by browsing to `http://localhost:3000/completed`. In the log file, you can see that nothing was rendered.
+
+```sh
+Started GET "/completed" for ::1 at 2016-03-23 17:47:54 -0700
+Processing by TasksController#completed as HTML
+No template found for TasksController#completed, rendering head :no_content
+  Task Load (0.1ms)  SELECT "tasks".* FROM "tasks" WHERE "tasks"."complete" = ?  [["complete", true]]
+Completed 204 No Content in 20ms (ActiveRecord: 0.1ms)
+```
+
+7
+
+Define `completed.html.erb`:
+
+```rhtml
+<h1>Completed Tasks</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th></th>
+    </tr>
+  </thead>
+
+  <tbody>
+	<tr>
+	  <% for task in @tasks %>
+		<div class='task'>
+			<strong> <%= task.name %> </strong>
+		</div>
+		<%= link_to 'Edit', edit_task_path(task) %>
+	  <% end %>
+	 </tr>		 
+  </tbody>
+</table>
+```
+
+8
+
+Add a link to completed tasks in the index page.
+
+```rhtml
+<%= link_to "Completed Tasks", completed_tasks_path %>
+```
+
+9
+
+Implement the complete action:
+
+```ruby
+def complete
+  @task = Task.find(params[:id])  
+  @task.update_attribute(:complete, true)
+  
+  redirect_to completed_tasks_path
+end
+```
+
+10
+
+Define the routes for marking a task as complete.
+
+```ruby
+put 'complete/:id', to: 'tasks#complete', as: :complete_task
+```
+
+11
+
+Add the link to mark a task as complete in index page:
+
+```rhtml
+<%= link_to 'Mark as Complete', complete_task_path(task), method: :put %>
+```
+
+12
+
+Browse to `http://localhost:3000/tasks`. Click on 'Mark as Complete'.
+
+13
+
+Mark a task as complete.
+
+```ruby
+def complete
+  @task = Task.find(params[:id])  
+  @task.update_attribute(:complete, true)
+  flash[:notice] = 'marked task as complete'
+  
+  redirect_to completed_tasks_path
+end
+```
+
+It shows up in completed tasks page
+
+
+

@@ -1,6 +1,5 @@
 class TasksController < ApplicationController
-  before_action :set_task, only: [:show, :edit, :update, :destroy]
-   
+  
   # GET /tasks
   # GET /tasks.json
   def index
@@ -64,6 +63,18 @@ class TasksController < ApplicationController
     end
   end
 
+  def complete
+    @task = Task.find(params[:id])  
+    @task.update_attribute(:complete, true)
+    flash[:notice] = 'marked task as complete'
+    
+    redirect_to completed_tasks_path
+  end
+  
+  def completed
+    @tasks = Task.where(complete: true)  
+  end
+  
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_task

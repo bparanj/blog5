@@ -17,10 +17,12 @@
 			<%= task.due_date.to_s(:due_time) %>
 		</div>
 		<%= link_to 'Edit', edit_task_path(task) %>
+		<%= link_to 'Mark as Complete', complete_task_path(task), method: :put %>
 	  <% end %>
 	 </tr>		 
 	<% end %>	  
   </tbody>
 </table>
 
+<%= link_to "Completed Tasks", completed_tasks_path %>
 <br>
