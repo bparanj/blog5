@@ -11,12 +11,23 @@
     </div>
   <% end %>
 
+	<% if params[:preview_button] %>
+	  <%= project.description %>
+	<% end %>
+
   <div class="field">
     <%= f.label :name %>
     <%= f.text_field :name %>
   </div>
 
+  <div class="field">
+    <%= f.label :description %>
+    <%= f.text_area :description %>
+  </div>
+
   <div class="actions">
-    <%= f.submit %>
+    <%= f.submit :name %>
+	<%= f.submit 'Preview', name:  'preview_button'  %>
+	
   </div>
 <% end %>

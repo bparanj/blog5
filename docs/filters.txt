@@ -1,0 +1,16 @@
+Approve
+
+DHH
+
+Anyone in the Rails core team.
+
+
+Reject
+
+Sitepoint
+People who use the term PORO, interactor gem contributors, haml, coffeescript, chaining services.
+
+
+
+
+Go through old newsletters and apply the filters to refine it. Rank the Ruby blogs.

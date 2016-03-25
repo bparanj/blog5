@@ -1,8 +1,9 @@
+Simple Search for in Rails 5
 
+## Steps
+### Step 1
 
--
-
-List of tasks `http://localhost:3000/tasks`.
+The `tasks/index.html.erb` displays all the tasks.
 
 ```rhtml
 <h1>Tasks</h1>
@@ -26,9 +27,12 @@ List of tasks `http://localhost:3000/tasks`.
 </table>
 ```
 
--
 
-Search form to search projects on the tasks index page.
+Browse to `http://localhost:3000/tasks` to view all the tasks.
+
+### Step 2
+
+Add the search form to on the tasks index page.
 
 ```rhtml
 <%= form_tag(tasks_path) do %>
@@ -37,10 +41,15 @@ Search form to search projects on the tasks index page.
 <% end %>
 ```
 
+Search for something and click Search. You will get the error:
 
 ```
 ActionController::ParameterMissing in TasksController#create
 ```
+
+### Step 3
+
+Change the `task_params` method in tasks controller to permit the term field in the search form:
 
 ```ruby
 def task_params
@@ -48,7 +57,9 @@ def task_params
 end
 ```
 
-Form by default is POST. So search will not work.
+### Step 4
+
+Search again. The form tag generates the form html tag that uses POST by default. So search will not work. View source to see the generated html. 
 
 ```rhtml
 <form action="/tasks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="pRR/RGMTS+poOOJIGWX96A4LbFcoazOM9oe8MB4YpIWA224ZqczrgpeEgVsO4J+j8YjLGWz9AcxybLemKm2XYg==" />
@@ -57,15 +68,15 @@ Form by default is POST. So search will not work.
 </form>
 ```
 
--
+### Step 5
 
-Change the HTTP verb in the form_tag:
+Change the HTTP verb in the `form_tag` to GET:
 
 ```ruby
 method: :get
 ```
 
-The search section now looks like this:
+The search form now looks like this:
 
 ```rhtml
 <%= form_tag(tasks_path, method: :get) do %>
@@ -74,7 +85,7 @@ The search section now looks like this:
 <% end %>
 ```
 
--
+### Step 6
 
 Reload the tasks index page in the browser. View page source.
 
@@ -85,23 +96,27 @@ Reload the tasks index page in the browser. View page source.
 </form>
 ```
 
--
+You now see the http method is GET.
+
+### Step 7
+
+The tasks controller index action does the search for the tasks.
 
 ```ruby
 def index
-  if params[:term]
-    @tasks = Task.where('name LIKE ?', "%#{params[:term]}%")
+  @tasks = if params[:term]
+     Task.where('name LIKE ?', "%#{params[:term]}%")
   else
-    @tasks = Task.all
+     Task.all
   end
 end
 ```
 
-Search for a term.
+Search for something.
 
--
+### Step 8
 
-Retaining, the search term in the search text field:
+It works. But the search term is not retained in the search form. To retain the search term in the search text field, change the search form `text_field_tag`:
 
 ```rhtml
 <%= form_tag(tasks_path, method: :get) do %>
@@ -110,13 +125,18 @@ Retaining, the search term in the search text field:
 <% end %>
 ```
 
--
+### Step 9
 
-Eliminating 
+When we search, we see:
 
+```
 commit=Search
+```
 
 in the URL.
+
+
+To eliminate it, change the search form `submit_tag`.
 
 ```rhtml
 <%= form_tag(tasks_path, method: :get) do %>
@@ -125,17 +145,17 @@ in the URL.
 <% end %>
 ```
 
--
+### Step 10
 
-projects = Project.search(params[:search])
-
--
+Let's refactor the tasks controller index action:
 
 ```ruby
 def index
   @tasks = Task.search(params[:term])
 end
 ```
+
+Move the database query logic to the task model:
 
 ```ruby
 def self.search(term)
@@ -147,7 +167,9 @@ def self.search(term)
 end
 ```
 
--
+### Step 11
+
+If you would like to order by most recent tasks, change the search method in task model.
 
 ```ruby
 def self.search(term)
@@ -159,9 +181,11 @@ def self.search(term)
 end
 ```
 
-Use id descending to improve performance. The primary key is indexed and the search will be faster.
+We use id descending in the order method to improve performance. The primary key is indexed and the search will be faster. Especially if you have lot of data.
 
--
+## Summary
+
+In this article, you learned how to use a simple search form to search the database for records that has the given string in one of the columns of a table.
 
 
 http://railscasts.com/episodes/37-simple-search-form?view=comments
