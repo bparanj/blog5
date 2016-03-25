@@ -1,0 +1,167 @@
+
+
+-
+
+List of tasks `http://localhost:3000/tasks`.
+
+```rhtml
+<h1>Tasks</h1>
+<table>
+  <thead>
+    <tr>
+      <th></th>
+    </tr>
+  </thead>
+
+  <tbody>
+	<tr>
+	  <% for task in @tasks %>
+		<div class='task'>
+			<strong> <%= task.name %> </strong>
+		</div>
+		<%= link_to 'Edit', edit_task_path(task) %>
+	  <% end %>
+	 </tr>		 
+  </tbody>
+</table>
+```
+
+-
+
+Search form to search projects on the tasks index page.
+
+```rhtml
+<%= form_tag(tasks_path) do %>
+   <%= text_field_tag :term %>
+   <%= submit_tag 'Search' %>
+<% end %>
+```
+
+
+```
+ActionController::ParameterMissing in TasksController#create
+```
+
+```ruby
+def task_params
+  params.require(:task).permit(:name, :complete, :due_date, :term)
+end
+```
+
+Form by default is POST. So search will not work.
+
+```rhtml
+<form action="/tasks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="pRR/RGMTS+poOOJIGWX96A4LbFcoazOM9oe8MB4YpIWA224ZqczrgpeEgVsO4J+j8YjLGWz9AcxybLemKm2XYg==" />
+   <input type="text" name="term" id="term" />
+   <input type="submit" name="commit" value="Search" data-disable-with="Search" />
+</form>
+```
+
+-
+
+Change the HTTP verb in the form_tag:
+
+```ruby
+method: :get
+```
+
+The search section now looks like this:
+
+```rhtml
+<%= form_tag(tasks_path, method: :get) do %>
+   <%= text_field_tag :term %>
+   <%= submit_tag 'Search' %>
+<% end %>
+```
+
+-
+
+Reload the tasks index page in the browser. View page source.
+
+```rhtml
+<form action="/tasks" accept-charset="UTF-8" method="get"><input name="utf8" type="hidden" value="&#x2713;" />
+   <input type="text" name="term" id="term" />
+   <input type="submit" name="commit" value="Search" data-disable-with="Search" />
+</form>
+```
+
+-
+
+```ruby
+def index
+  if params[:term]
+    @tasks = Task.where('name LIKE ?', "%#{params[:term]}%")
+  else
+    @tasks = Task.all
+  end
+end
+```
+
+Search for a term.
+
+-
+
+Retaining, the search term in the search text field:
+
+```rhtml
+<%= form_tag(tasks_path, method: :get) do %>
+   <%= text_field_tag :term, params[:term] %>
+   <%= submit_tag 'Search' %>
+<% end %>
+```
+
+-
+
+Eliminating 
+
+commit=Search
+
+in the URL.
+
+```rhtml
+<%= form_tag(tasks_path, method: :get) do %>
+   <%= text_field_tag :term, params[:term] %>
+   <%= submit_tag 'Search', name: nil %>
+<% end %>
+```
+
+-
+
+projects = Project.search(params[:search])
+
+-
+
+```ruby
+def index
+  @tasks = Task.search(params[:term])
+end
+```
+
+```ruby
+def self.search(term)
+  if term
+    where('name LIKE ?', "%#{term}%")
+  else
+    all
+  end
+end
+```
+
+-
+
+```ruby
+def self.search(term)
+  if term
+    where('name LIKE ?', "%#{term}%").order('id DESC')
+  else
+    order('id DESC') 
+  end
+end
+```
+
+Use id descending to improve performance. The primary key is indexed and the search will be faster.
+
+-
+
+
+http://railscasts.com/episodes/37-simple-search-form?view=comments

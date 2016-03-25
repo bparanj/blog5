@@ -1,0 +1,26 @@
+http://railscasts.com/episodes/38-multibutton-form?view=comments
+
+
+
+<% if params[:preview_button] %>
+  <%= textilize @project.description %>
+<% end %>
+...
+<%= submit_tag 'Create' %>
+<%= submit_tag 'Preview', :name => 'preview_button' %>
+
+
+
+
+
+
+def create
+  @project = Project.new(params[:project])
+  if params[:preview_button] || !@project.save
+    render :action => 'new'
+  else
+    flash[:notice] = "Successfully created project."
+    redirect_to project_path(@project)
+  end
+end
+

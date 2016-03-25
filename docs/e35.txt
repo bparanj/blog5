@@ -162,5 +162,6 @@ end
 
 It shows up in completed tasks page
 
+http://railscasts.com/episodes/35-custom-rest-actions?view=comments
 
 

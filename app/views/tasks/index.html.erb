@@ -1,5 +1,10 @@
 <h1>Tasks</h1>
 
+<%= form_tag(tasks_path, method: :get) do %>
+   <%= text_field_tag :term, params[:term] %>
+   <%= submit_tag 'Search', name: nil %>
+<% end %>
+
 <table>
   <thead>
     <tr>
@@ -8,21 +13,13 @@
   </thead>
 
   <tbody>
-	<% @task_months.each do |month, tasks| %>
-	  <%= month.strftime('%B') %>
 	<tr>
-	  <% for task in tasks %>
+	  <% for task in @tasks %>
 		<div class='task'>
 			<strong> <%= task.name %> </strong>
-			<%= task.due_date.to_s(:due_time) %>
 		</div>
 		<%= link_to 'Edit', edit_task_path(task) %>
-		<%= link_to 'Mark as Complete', complete_task_path(task), method: :put %>
 	  <% end %>
 	 </tr>		 
-	<% end %>	  
   </tbody>
 </table>
-
-<%= link_to "Completed Tasks", completed_tasks_path %>
-<br>

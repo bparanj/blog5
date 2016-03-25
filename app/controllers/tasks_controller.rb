@@ -3,8 +3,7 @@ class TasksController < ApplicationController
   # GET /tasks
   # GET /tasks.json
   def index
-    @tasks = Task.order(:due_date)
-    @task_months = @tasks.group_by {|t| t.due_date.beginning_of_month }
+    @tasks = Task.search(params[:term])
   end
 
   # GET /tasks/1
@@ -83,6 +82,6 @@ class TasksController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def task_params
-      params.require(:task).permit(:name, :complete, :due_date)
+      params.require(:task).permit(:name, :complete, :due_date, :term)
     end
 end
