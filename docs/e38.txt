@@ -1,14 +1,14 @@
 Multi Button Form in Rails 5
 
 ### Steps
-## Step
+## Step 1
 
 ```
 $ rails g migration add_description_to_projects description:text
 rails db:migrate
 ```
 
-## Step
+## Step 2
 
 Add the text area for the project description in the form partial.
 
@@ -19,17 +19,29 @@ Add the text area for the project description in the form partial.
 </div>
 ```
 
-## Step
+## Step 3
 
 The new project page has preview button.
 
 ```rhtml
-<%= f.submit 'Preview', name:  'preview_button'  %>
+<div class="actions">
+  <%= f.submit button_name %>
+	<%= f.submit 'Preview', name:  'preview_button'  %>
+</div>
 ```
 
+We pass the value for `button_name` in the `new.html.erb`:
 
 ```
-Started POST "/projects" for ::1 at 2016-03-25 09:55:12 -0700
+<%= render 'form', project: @project, button_name: 'Create'  %>
+```
+
+## Step 4
+
+You can see the commit key has 'Preview' when you click on Preview button.
+
+```
+Started POST "/projects" for ::1 at 2016-03-25 19:55:12 -0700
 Processing by ProjectsController#create as HTML
   Parameters: {"utf8"=>"✓", "authenticity_token"=>"AwU+d/shpM4RW3zb0ZO70NJruuMJwvNKg6A3a5eHqcKTVqEPeEM9B7H1E3bdovWYBcECJMp36x+11TL7Q6tJWw==", "project"=>{"name"=>"", "description"=>""}, "commit"=>"Preview"}
 Unpermitted parameter: description
@@ -40,29 +52,37 @@ Redirected to http://localhost:3000/projects/5
 Completed 302 Found in 27ms (ActiveRecord: 1.1ms)
 ```
 
-```
-Started GET "/projects/5" for ::1 at 2016-03-25 09:55:12 -0700
-Processing by ProjectsController#show as HTML
-  Parameters: {"id"=>"5"}
-  Project Load (0.2ms)  SELECT  "projects".* FROM "projects" WHERE "projects"."id" = ? LIMIT ?  [["id", 5], ["LIMIT", 1]]
-  Rendered projects/show.html.erb within layouts/application (0.5ms)
-Completed 200 OK in 65ms (Views: 33.7ms | ActiveRecord: 0.2ms)
-```
+Let's change the name of the Preview button to `preview_button`. This will allow us to distinguish the Preview button from Create button in our controller.
 
-## Step
+## Step 5
+
+We can add the preview to the create a new project page.
 
 ```rhtml
-<% if params[:preview_button] %>
-  <%= textilize @project.description %>
+<%= form_for(project) do |f| %>
+
+	<% if params[:preview_button] %>
+	  <%= project.description %>
+	<% end %>
+
+  <div class="field">
+    <%= f.label :name %>
+    <%= f.text_field :name %>
+  </div>
+  <div class="field">
+    <%= f.label :description %>
+    <%= f.text_area :description %>
+  </div>
+  <div class="actions">
+    <%= f.submit button_name %>
+	<%= f.submit 'Preview', name:  'preview_button'  %>
+  </div>
 <% end %>
-...
-<%= submit_tag 'Create' %>
-<%= submit_tag 'Preview', :name => 'preview_button' %>
 ```
 
-## Step
+## Step 6
 
-Projects controller
+We can handle the preview feature in the projects controller create action.
 
 ```ruby
 def create
@@ -76,7 +96,9 @@ def create
 end
 ```
 
-## Step
+## Step 7
+
+We must now allow the project description field.
 
 ```ruby
 def project_params
@@ -84,16 +106,30 @@ def project_params
 end
 ```
 
-## Step
+## Step 8
 
 Fill out the new project form and click Preview to see the preview.
 
--
+Note: The last version of rails that had textilize was 2.3.8. It is not available in Rails 5 anymore.
 
+## Summary
+
+In this article, you learned how to use multiple buttons in a Rails 5 app.
 
 
 http://railscasts.com/episodes/38-multibutton-form?view=comments
 
 
 
+
+
+
+```
+Started GET "/projects/5" for ::1 at 2016-03-25 09:55:12 -0700
+Processing by ProjectsController#show as HTML
+  Parameters: {"id"=>"5"}
+  Project Load (0.2ms)  SELECT  "projects".* FROM "projects" WHERE "projects"."id" = ? LIMIT ?  [["id", 5], ["LIMIT", 1]]
+  Rendered projects/show.html.erb within layouts/application (0.5ms)
+Completed 200 OK in 65ms (Views: 33.7ms | ActiveRecord: 0.2ms)
+```
 
