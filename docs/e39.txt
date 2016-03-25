@@ -1,3 +1,96 @@
 
+Customize Field Error in Rails 5
+
+## Steps
+### Step 1
+
+Add project name validation to project model.
+
+```ruby
+validates :name, presence: true
+```
+
+### Step 2
+
+Submit an empty project form. You will see the error with the name field highlighted in red. You can see the rails generated the div tags with `field_with_errors` class to highlight the text field.
+
+```
+<div id="error_explanation">
+  <h2>1 error prohibited this project from being saved:</h2>
+  <ul>
+  <li>Name can&#39;t be blank</li>
+  </ul>
+</div>
+
+<div class="field">
+  <div class="field_with_errors"><label for="project_name">Name</label></div>
+  <div class="field_with_errors"><input type="text" value="" name="project[name]" id="project_name" /></div>
+</div>
+```
+
+### Step 3
+
+Create `config/initializers/customize_error.rb` file.
+
+```ruby
+ActionView::Base.field_error_proc = Proc.new do |html_tag, instance_tag|
+  html_tag
+end
+```
+
+### Step 4
+
+Restart the server. Submit an empty form. Now the name text field is not highlighted in red. Here is the generated html.
+
+```rhtml
+<div id="error_explanation">
+  <h2>1 error prohibited this project from being saved:</h2>
+
+   <ul>
+     <li>Name can&#39;t be blank</li>
+   </ul>
+</div>
+
+<div class="field">
+  <label for="project_name">Name</label>
+  <input type="text" value="" name="project[name]" id="project_name" />
+</div>
+```
+  
+### Step 5
+
+You can customize the customize_error.rb as much as you want. Note to self, use the following stolen helper from SO after TB4 integration is covered.
+
+```ruby
+ActionView::Base.field_error_proc = Proc.new do |html_tag, instance|
+  html = %(<div class="field_with_errors">#{html_tag}</div>).html_safe
+  # add nokogiri gem to Gemfile
+
+  form_fields = [
+    'textarea',
+    'input',
+    'select'
+  ]
+
+  elements = Nokogiri::HTML::DocumentFragment.parse(html_tag).css "label, " + form_fields.join(', ')
+
+  elements.each do |e|
+    if e.node_name.eql? 'label'
+      html = %(<div class="control-group error">#{e}</div>).html_safe
+    elsif form_fields.include? e.node_name
+      if instance.error_message.kind_of?(Array)
+        html = %(<div class="control-group error">#{html_tag}<span class="help-inline">&nbsp;#{instance.error_message.uniq.join(', ')}</span></div>).html_safe
+      else
+        html = %(<div class="control-group error">#{html_tag}<span class="help-inline">&nbsp;#{instance.error_message}</span></div>).html_safe
+      end
+    end
+  end
+  html
+end
+```
+
+## Summary
+
+In this article, you learned how to customize error display of html fields in Rails 5
 
 http://railscasts.com/episodes/39-customize-field-error?view=comments
