@@ -1,0 +1,72 @@
+Rails 5 : Blocks in View 
+
+-
+
+Task show page has edit link that is only displayed to an admin.
+
+admin_area do
+link_to edit task
+end
+
+-
+
+Define admin_area helper in `application_helper.rb`:
+
+
+def admin_area(&block)
+  content_tag(:div, block.call, class: 'admin')
+end
+
+-
+
+Reload task show page.
+
+Edit link is displayed
+
+-
+
+View page source. Show the generated html for the edit link. It does not have the div tag.
+
+-
+
+Change the view helper implementation:
+
+block.call
+nil
+
+-
+
+Reload the task show page. View page source
+
+-
+
+Change the implementation of application_helper.
+
+ concat('foo', block.binding)
+ yield
+ concat('bar', block.binding)
+
+-
+
+Reload the task show page. It should display 
+
+foo [edit task link] bar
+
+View page source.
+
+-
+
+Change the helper.
+
+concat('<div class="admin">', block.binding)
+yield
+concat('</div>', block.binding)
+
+-
+
+Reload the task show page. The edit link will now be highlighted in yellow because of admin class.
+
+
+
+
+
