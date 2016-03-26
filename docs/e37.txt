@@ -1,4 +1,4 @@
-Simple Search for in Rails 5
+Simple Search Form in Rails 5
 
 ## Steps
 ### Step 1
@@ -36,8 +36,8 @@ Add the search form to on the tasks index page.
 
 ```rhtml
 <%= form_tag(tasks_path) do %>
-   <%= text_field_tag :term %>
-   <%= submit_tag 'Search' %>
+  <%= text_field_tag :term %>
+  <%= submit_tag 'Search' %>
 <% end %>
 ```
 
@@ -62,9 +62,11 @@ end
 Search again. The form tag generates the form html tag that uses POST by default. So search will not work. View source to see the generated html. 
 
 ```rhtml
-<form action="/tasks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="pRR/RGMTS+poOOJIGWX96A4LbFcoazOM9oe8MB4YpIWA224ZqczrgpeEgVsO4J+j8YjLGWz9AcxybLemKm2XYg==" />
-   <input type="text" name="term" id="term" />
-   <input type="submit" name="commit" value="Search" data-disable-with="Search" />
+<form action="/tasks" accept-charset="UTF-8" method="post">
+  <input name="utf8" type="hidden" value="&#x2713;" />
+  <input type="hidden" name="authenticity_token" value="pRsj8YjL" />
+  <input type="text" name="term" id="term" />
+  <input type="submit" name="commit" value="Search" data-disable-with="Search" />
 </form>
 ```
 
@@ -80,8 +82,8 @@ The search form now looks like this:
 
 ```rhtml
 <%= form_tag(tasks_path, method: :get) do %>
-   <%= text_field_tag :term %>
-   <%= submit_tag 'Search' %>
+  <%= text_field_tag :term %>
+  <%= submit_tag 'Search' %>
 <% end %>
 ```
 
@@ -91,8 +93,8 @@ Reload the tasks index page in the browser. View page source.
 
 ```rhtml
 <form action="/tasks" accept-charset="UTF-8" method="get"><input name="utf8" type="hidden" value="&#x2713;" />
-   <input type="text" name="term" id="term" />
-   <input type="submit" name="commit" value="Search" data-disable-with="Search" />
+  <input type="text" name="term" id="term" />
+  <input type="submit" name="commit" value="Search" data-disable-with="Search" />
 </form>
 ```
 
@@ -105,9 +107,9 @@ The tasks controller index action does the search for the tasks.
 ```ruby
 def index
   @tasks = if params[:term]
-     Task.where('name LIKE ?', "%#{params[:term]}%")
+    Task.where('name LIKE ?', "%#{params[:term]}%")
   else
-     Task.all
+    Task.all
   end
 end
 ```
@@ -120,8 +122,8 @@ It works. But the search term is not retained in the search form. To retain the 
 
 ```rhtml
 <%= form_tag(tasks_path, method: :get) do %>
-   <%= text_field_tag :term, params[:term] %>
-   <%= submit_tag 'Search' %>
+  <%= text_field_tag :term, params[:term] %>
+  <%= submit_tag 'Search' %>
 <% end %>
 ```
 
@@ -136,12 +138,12 @@ commit=Search
 in the URL.
 
 
-To eliminate it, change the search form `submit_tag`.
+To eliminate it, change the name of the `submit_tag` in the search form.
 
 ```rhtml
 <%= form_tag(tasks_path, method: :get) do %>
-   <%= text_field_tag :term, params[:term] %>
-   <%= submit_tag 'Search', name: nil %>
+  <%= text_field_tag :term, params[:term] %>
+  <%= submit_tag 'Search', name: nil %>
 <% end %>
 ```
 

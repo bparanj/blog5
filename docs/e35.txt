@@ -13,7 +13,7 @@ resources :tasks
 
 ## Step 2
 
-The index page displays all the tasks. For completed tasks, define a completed action in tasks controller:
+The index page displays all the tasks. To display completed tasks, define a completed action in tasks controller:
 
 ```ruby
 def completed
@@ -40,7 +40,7 @@ Couldn't find Task with 'id'=completed
 
 ## Step 4
 
-Change the `routes.rb` to allow complete action for task resource.
+Define named route in the `routes.rb` to allow complete action for task resource.
 
 ```ruby
 get 'completed', to: 'tasks#completed', as: :completed_tasks
@@ -70,7 +70,7 @@ completed_tasks GET    /completed(.:format)         tasks#completed
 
 ## Step 6
 
-Go to completed view in the browser by browsing to `http://localhost:3000/completed`. In the log file, you can see that nothing was rendered.
+Browse to completed tasks view `http://localhost:3000/completed`. In the log file, you can see that nothing was rendered.
 
 ```sh
 Started GET "/completed" for ::1 at 2016-03-23 17:47:54 -0700
@@ -82,7 +82,7 @@ Completed 204 No Content in 20ms (ActiveRecord: 0.1ms)
 
 ## Step 7
 
-Define `completed.html.erb`:
+The view to display completed tasks is `completed.html.erb`.
 
 ```rhtml
 <h1>Completed Tasks</h1>
@@ -93,7 +93,6 @@ Define `completed.html.erb`:
       <th></th>
     </tr>
   </thead>
-
   <tbody>
 	<tr>
 	  <% for task in @tasks %>
@@ -117,7 +116,7 @@ Add a link to completed tasks in the index page.
 
 ## Step 9
 
-Implement the complete action:
+Implement the tasks controller, complete action:
 
 ```ruby
 def complete
@@ -152,7 +151,7 @@ The complete action in tasks controller marks a task as complete.
 def complete
   @task = Task.find(params[:id])  
   @task.update_attribute(:complete, true)
-  flash[:notice] = 'marked task as complete'
+  flash[:notice] = 'Marked task as complete'
   
   redirect_to completed_tasks_path
 end

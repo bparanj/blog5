@@ -59,12 +59,11 @@ Restart the server. Submit an empty form. Now the name text field is not highlig
   
 ### Step 5
 
-You can customize the customize_error.rb as much as you want. Note to self, use the following stolen helper from SO after TB4 integration is covered.
+You can customize the customize_error.rb as much as you want. You can use the following stolen helper from SO if you have Twitter Bootstrap integrated in your Rails app.
 
 ```ruby
 ActionView::Base.field_error_proc = Proc.new do |html_tag, instance|
   html = %(<div class="field_with_errors">#{html_tag}</div>).html_safe
-  # add nokogiri gem to Gemfile
 
   form_fields = [
     'textarea',

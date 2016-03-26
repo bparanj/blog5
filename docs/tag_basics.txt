@@ -1,0 +1,146 @@
+Tag View Helpers in Rails 5
+
+
+Let's play in the IRB console to learn about content_tag and tag view helpers in Rails 5.
+
+Single Tag
+
+```ruby
+ > helper.content_tag(:p, 'Hello World!')
+ => "<p>Hello World!</p>" 
+```
+
+Nested Tag with One Class
+
+```ruby
+ > helper.content_tag(:div, helper.content_tag(:p, 'Hello world!'), class: 'strong')
+ => "<div class=\"strong\"><p>Hello world!</p></div>" 
+```
+
+Nested Tags with Multiple Classes
+
+```ruby
+ > helper.content_tag(:div, 'Hello world!', class: ['strong', 'highlight'])
+ => "<div class=\"strong highlight\">Hello world!</div>" 
+```
+
+Multiple Selection
+
+```ruby
+ > helper.content_tag('select', 'options', multiple: true)
+ => "<select multiple=\"multiple\">options</select>" 
+```
+
+Difference Between Blank and nil Class
+
+```ruby
+ > helper.content_tag(:div, 'Hello world!', class: '')
+ => "<div class=\"\">Hello world!</div>" 
+
+ > helper.content_tag(:div, 'Hello world!', class: nil)
+ => "<div>Hello world!</div>" 
+```
+
+Empty Html Elements Using Tag Helper
+
+```ruby
+ > helper.tag('br')
+ => "<br />" 
+
+ > helper.tag('img')
+ => "<img />" 
+
+ > helper.tag('input')
+ => "<input />" 
+```
+
+Using collect in Nested content_tag
+
+```ruby
+ > array = %w(a b c)
+ => ["a", "b", "c"] 
+
+ helper.content_tag :div do
+     array.collect {|letter| helper.content_tag(:scan, letter) }
+   end
+ => "<div></div>" 
+```
+
+This does not work as expected. Expected output:
+
+```ruby
+<div>
+  <scan>a</scan>
+  <scan>b</scan>
+  <scan>c</scan>
+</div>
+```
+
+We can make it work like this:
+
+```ruby
+helper.content_tag :div do
+  array.collect do |item|
+    helper.content_tag(:scan, item)
+  end.join.html_safe
+end
+ => "<div><scan>a</scan><scan>b</scan><scan>c</scan></div>" 
+```
+
+We can add a class to the div tag like this:
+
+```ruby
+ => "<div><scan>a</scan><scan>b</scan><scan>c</scan></div>" 
+helper.content_tag(:div, class: 'active') do
+  array.collect do |item|
+    helper.content_tag(:li, item)
+  end.join.html_safe
+end
+=> "<div class=\"active\"><li>a</li><li>b</li><li>c</li></div>" 
+```  
+
+You can also use reduce instead of collect.
+
+```ruby
+helper.content_tag(:div, nil, class: 'some-class') do
+ array.reduce('') do |c, x|
+   c << helper.content_tag(:li, x)
+ end.html_safe
+end
+=> "<div class=\"some-class\"><li>a</li><li>b</li><li>c</li></div>" 
+```
+
+Using each with content_tag
+
+To use each we have to use concat in combination with content_tag like this:
+
+```ruby
+helper.content_tag(:ul, class: 'a class') do
+  array.each do |item|
+    helper.concat(helper.content_tag(:li, item))
+  end
+end
+ => "<ul class=\"a class\"><li>a</li><li>b</li><li>c</li></ul>" 
+```
+
+Conditional in content_tag
+
+```ruby
+ active_item = true
+ > helper.content_tag(:div, 'Hello World', class: ('active' if active_item))
+ => "<div class=\"active\">Hello World</div>" 
+```
+
+Appending to Form the Result
+
+```ruby
+ > content = helper.content_tag(:tr, 'first item')
+ => "<tr>first item</tr>" 
+ > content << helper.content_tag(:tr, 'second item')
+ => "<tr>first item</tr><tr>second item</tr>" 
+```
+
+## Summary
+
+In this article, you learned how to use tag and content_tag view helpers in Rails 5.
+ 
