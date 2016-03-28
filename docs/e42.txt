@@ -1,0 +1,21 @@
+ Without <tt>with_options</tt>, this code contains duplication:
+
+   class Account < ActiveRecord::Base
+     has_many :customers, dependent: :destroy
+     has_many :products,  dependent: :destroy
+     has_many :invoices,  dependent: :destroy
+     has_many :expenses,  dependent: :destroy
+   end
+
+ Using <tt>with_options</tt>, we can remove the duplication:
+
+   class Account < ActiveRecord::Base
+     with_options dependent: :destroy do |assoc|
+       assoc.has_many :customers
+       assoc.has_many :products
+       assoc.has_many :invoices
+       assoc.has_many :expenses
+     end
+   end
+
+http://railscasts.com/episodes/42-with-options?view=comments
