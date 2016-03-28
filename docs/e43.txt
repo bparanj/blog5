@@ -1,0 +1,5 @@
+AJAX with RJS
+
+RJS is no longer used.
+
+http://yehudakatz.com/2007/05/18/railsconf-talk-recap/
