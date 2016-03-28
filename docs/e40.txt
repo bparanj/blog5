@@ -186,6 +186,7 @@ to stylesheets/tasks.scss:
 The edit link will now be highlighted in yellow because of admin class.
 
 
+http://railscasts.com/episodes/40-blocks-in-view?view=comments
 
 
 

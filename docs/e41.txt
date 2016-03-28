@@ -1,0 +1,107 @@
+
+
+
+
+
+
+
+
+
+
+Active Record uses the new_record? instance method to determine whether an object is already in the database or not
+
+ $ rails c
+Loading development environment (Rails 5.0.0.beta3)
+ > user = User.new
+ => #<User id: nil, first_name: nil, middle_initial: nil, last_name: nil, created_at: nil, updated_at: nil, password: nil> 
+ > user.valid?
+ => false 
+ > user.errors
+ => #<ActiveModel::Errors:0x007fe46b573210 @base=#<User id: nil, first_name: nil, middle_initial: nil, last_name: nil, created_at: nil, updated_at: nil, password: nil>, @messages={:first_name=>["can't be blank"]}, @details={:first_name=>[{:error=>:blank}]}> 
+ > user.errors.full_messages
+ => ["First name can't be blank"] 
+ > b = User.new(first_name: 'bugs')
+ => #<User id: nil, first_name: "bugs", middle_initial: nil, last_name: nil, created_at: nil, updated_at: nil, password: nil> 
+ > b.valid?
+ => true 
+ > user.new_record?
+ => true 
+ > b.new_record?
+ => true 
+ > b.id
+ => nil 
+ > user.id
+ => nil 
+ > daffy = User.create(first_name: 'daffy')
+   (0.1ms)  begin transaction
+  SQL (1.3ms)  INSERT INTO "users" ("first_name", "created_at", "updated_at") VALUES (?, ?, ?)  [["first_name", "daffy"], ["created_at", 2016-03-28 18:10:42 UTC], ["updated_at", 2016-03-28 18:10:42 UTC]]
+   (0.5ms)  commit transaction
+ => #<User id: 1, first_name: "daffy", middle_initial: nil, last_name: nil, created_at: "2016-03-28 18:10:42", updated_at: "2016-03-28 18:10:42", password: nil> 
+ > daffy.new_record?
+ => false 
+ > daffy.id
+ => 1 
+ > daffy.first_name = 'duffy'
+ => "duffy" 
+ > daffy.save
+   (0.1ms)  begin transaction
+  SQL (0.9ms)  UPDATE "users" SET "first_name" = ?, "updated_at" = ? WHERE "users"."id" = ?  [["first_name", "duffy"], ["updated_at", 2016-03-28 18:12:58 UTC], ["id", 1]]
+   (0.5ms)  commit transaction
+ => true 
+ > junk = User.new
+ => #<User id: nil, first_name: nil, middle_initial: nil, last_name: nil, created_at: nil, updated_at: nil, password: nil> 
+ > junk.save(validate: false)
+   (0.1ms)  begin transaction
+  SQL (0.8ms)  INSERT INTO "users" ("created_at", "updated_at") VALUES (?, ?)  [["created_at", 2016-03-28 18:20:18 UTC], ["updated_at", 2016-03-28 18:20:18 UTC]]
+   (0.4ms)  commit transaction
+ => true 
+ > junk
+ => #<User id: 2, first_name: nil, middle_initial: nil, last_name: nil, created_at: "2016-03-28 18:20:18", updated_at: "2016-03-28 18:20:18", password: nil> 
+ > user.valid?
+ => false 
+ > user.invalid?
+ => true 
+ > t = User.new
+ => #<User id: nil, first_name: nil, middle_initial: nil, last_name: nil, created_at: nil, updated_at: nil, password: nil> 
+ > t.valid?
+ => false 
+ > t.errors
+ => #<ActiveModel::Errors:0x007fe46d4ba3d0 @base=#<User id: nil, first_name: nil, middle_initial: nil, last_name: nil, created_at: nil, updated_at: nil, password: nil>, @messages={:first_name=>["can't be blank"]}, @details={:first_name=>[{:error=>:blank}]}> 
+ > t.errors.messages
+ => {:first_name=>["can't be blank"]} 
+ > t.errors[:first_name]
+ => ["can't be blank"] 
+ > t.errors[:first_name].any?
+ => true 
+ > y = User.new(first_name: 'Sam')
+ => #<User id: nil, first_name: "Sam", middle_initial: nil, last_name: nil, created_at: nil, updated_at: nil, password: nil> 
+ > y.errors[:first_name].any?
+ => false 
+ > y.errors.details[:first_name]
+ => [] 
+ > t.errors.details[:first_name]
+ => [{:error=>:blank}] 
+
+
+
+Conditional Validation
+
+
+validates password, country, state
+
+-
+
+validates :password, presence: true, on: :create
+
+-
+
+validates :state, presence: true, if: :in_us?
+
+-
+
+def	in_us?
+  country == 'US'
+  
+-
+
+http://railscasts.com/episodes/41-conditional-validations?view=comments
