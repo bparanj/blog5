@@ -4,12 +4,12 @@ module ApplicationHelper
       page_title 
     end 
   end
-  
-  def admin_area(&block)
     # content_tag(:div, block.call, class: 'admin')
-    
-    concat('<div class="admin">', block.binding)
+      
+  def admin_area(&block)
+    concat('<div class="admin">'.html_safe)
     yield
-    concat('</div>', block.binding)
+    concat('</div>'.html_safe)
   end
+
 end

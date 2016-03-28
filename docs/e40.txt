@@ -4,18 +4,73 @@ Rails 5 : Blocks in View
 
 Task show page has edit link that is only displayed to an admin.
 
-admin_area do
-link_to edit task
-end
+<% admin_area do %>
+  <%= link_to 'Edit', edit_task_path(@task) %> |
+<% end %>
+
+
+<p>
+  <strong>Name:</strong>
+  <%= @task.name %>
+</p>
+
+<p>
+  <strong>Complete:</strong>
+  <%= @task.complete %>
+</p>
+
+<p>
+	<%= @task.due_date %>
+</p>
+
+<% admin_area do %>
+  <%= link_to 'Edit', edit_task_path(@task) %> |
+<% end %>
+
+<%= link_to 'Back', tasks_path %>
 
 -
 
 Define admin_area helper in `application_helper.rb`:
 
-
+```
 def admin_area(&block)
   content_tag(:div, block.call, class: 'admin')
 end
+```
+
+-
+
+Add show link to tasks index page.
+
+<%= link_to 'Show', task %>
+
+Task index page.
+
+<h1>Tasks</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+	<tr>
+	  <% for task in @tasks %>
+		<div class='task'>
+			<strong> <%= task.name %> </strong>
+		</div>
+		<%= link_to 'Edit', edit_task_path(task) %>
+		<%= link_to 'Show', task %>
+	  <% end %>
+	 </tr>		 
+  </tbody>
+</table>
+
+-
+
+Click on 'Show' link in the tasks index page. There is nothing that hides the Edit link. View source:
 
 -
 
@@ -27,30 +82,61 @@ Edit link is displayed
 
 View page source. Show the generated html for the edit link. It does not have the div tag.
 
+```
+<a href="/tasks/10/edit">Edit</a> |
+
+<a href="/tasks">Back</a>
+```
+
 -
 
 Change the view helper implementation:
 
-block.call
-nil
+  def admin_area(&block)
+    content_tag(:div, block.call, class: 'admin')
+    nil
+  end
 
 -
 
 Reload the task show page. View page source
 
+The generated html is the same.
+
 -
+
+From Rails docs:
+
+> The preferred method of outputting text in your views is to use the <%= “text” %> eRuby syntax. The regular puts and print methods do not operate as expected in an eRuby code block. If you absolutely must output text within a non-output code block (i.e., <% %>), you can use the concat method.
 
 Change the implementation of application_helper.
 
- concat('foo', block.binding)
- yield
- concat('bar', block.binding)
+  def admin_area(&block)
+    concat('foo', block.binding)
+    yield
+    concat('bar', block.binding)
+  end
+
+Reload the task show page.
+
+wrong number of arguments (given 2, expected 1)
+
+Change the helper to:
+
+  def admin_area(&block)
+    concat('foo')
+    yield
+    concat('bar')
+  end
 
 -
 
 Reload the task show page. It should display 
 
-foo [edit task link] bar
+```
+foo  <a href="/tasks/10/edit">Edit</a> |
+bar
+```
 
 View page source.
 
@@ -58,13 +144,46 @@ View page source.
 
 Change the helper.
 
-concat('<div class="admin">', block.binding)
-yield
-concat('</div>', block.binding)
+  def admin_area(&block)
+    concat('<div class="admin">')
+    yield
+    concat('</div>')
+  end
 
 -
 
-Reload the task show page. The edit link will now be highlighted in yellow because of admin class.
+Reload the task show page. The browser displays:
+
+```
+<div class="admin"> Edit | </div> Back
+```
+
+-
+
+  def admin_area(&block)
+    concat('<div class="admin">'.html_safe)
+    yield
+    concat('</div>'.html_safe)
+  end
+
+View page source:
+
+```
+<div class="admin">  <a href="/tasks/10/edit">Edit</a> |
+</div>
+```
+
+Add:
+
+```
+.admin {
+	background: yellow;
+}
+```
+
+to stylesheets/tasks.scss:
+
+The edit link will now be highlighted in yellow because of admin class.
 
 
 
