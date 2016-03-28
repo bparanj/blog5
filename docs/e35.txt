@@ -1,9 +1,8 @@
-Custom REST Actions
+D
+Custom REST Actions in Rails 5
 
-
-### Steps
-
-## Step 1
+## Steps
+### Step 1
 
 There are 7 standard actions provided by resources declaration in the routes.rb.
 
@@ -11,7 +10,7 @@ There are 7 standard actions provided by resources declaration in the routes.rb.
 resources :tasks
 ```
 
-## Step 2
+### Step 2
 
 The index page displays all the tasks. To display completed tasks, define a completed action in tasks controller:
 
@@ -23,7 +22,7 @@ end
 
 This finds all the completed tasks.
 
-## Step 3
+### Step 3
 
 Browse to the completed tasks view `http://localhost:3000/completed`. It will not work. Delete this:
 
@@ -38,7 +37,7 @@ ActiveRecord::RecordNotFound in TasksController#show
 Couldn't find Task with 'id'=completed
 ```
 
-## Step 4
+### Step 4
 
 Define named route in the `routes.rb` to allow complete action for task resource.
 
@@ -46,7 +45,7 @@ Define named route in the `routes.rb` to allow complete action for task resource
 get 'completed', to: 'tasks#completed', as: :completed_tasks
 ```
 
-## Step 5
+### Step 5
 
 View the routes for the task resource.
 
@@ -68,7 +67,8 @@ The installed routes are:
 completed_tasks GET    /completed(.:format)         tasks#completed
 ```
 
-## Step 6
+
+### Step 6
 
 Browse to completed tasks view `http://localhost:3000/completed`. In the log file, you can see that nothing was rendered.
 
@@ -80,7 +80,7 @@ No template found for TasksController#completed, rendering head :no_content
 Completed 204 No Content in 20ms (ActiveRecord: 0.1ms)
 ```
 
-## Step 7
+### Step 7
 
 The view to display completed tasks is `completed.html.erb`.
 
@@ -106,7 +106,7 @@ The view to display completed tasks is `completed.html.erb`.
 </table>
 ```
 
-## Step 8
+### Step 8
 
 Add a link to completed tasks in the index page.
 
@@ -114,7 +114,7 @@ Add a link to completed tasks in the index page.
 <%= link_to "Completed Tasks", completed_tasks_path %>
 ```
 
-## Step 9
+### Step 9
 
 Implement the tasks controller, complete action:
 
@@ -122,12 +122,13 @@ Implement the tasks controller, complete action:
 def complete
   @task = Task.find(params[:id])  
   @task.update_attribute(:complete, true)
+  flash[:notice] = 'marked task as complete'
   
   redirect_to completed_tasks_path
 end
 ```
 
-## Step 10
+### Step 10
 
 Define the routes for marking a task as complete.
 
@@ -135,7 +136,7 @@ Define the routes for marking a task as complete.
 put 'complete/:id', to: 'tasks#complete', as: :complete_task
 ```
 
-## Step 11
+### Step 11
 
 Add the link to mark a task as complete in index page:
 
@@ -143,7 +144,7 @@ Add the link to mark a task as complete in index page:
 <%= link_to 'Mark as Complete', complete_task_path(task), method: :put %>
 ```
 
-## Step 12
+### Step 12
 
 The complete action in tasks controller marks a task as complete.
 
@@ -157,10 +158,11 @@ def complete
 end
 ```
 
-## Step 13
+Browse to `http://localhost:3000/tasks`. Click on 'Mark as Complete' to mark a task as complete. It shows up in completed tasks page
 
-Browse to `http://localhost:3000/tasks`. Click on 'Mark as Complete' link. The completed tasks now show up in completed tasks page.
+## Summary
 
+In this article, you learned how to use custom REST actions in Rails 5.
 
 
 http://railscasts.com/episodes/35-custom-rest-actions?view=comments
