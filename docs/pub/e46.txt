@@ -1,0 +1,99 @@
+D
+Catch All Route in Rails 5
+
+## Steps
+### Step 1
+
+Create a few products using the scaffold generated code. Let's say television, pillow and table.
+
+### Step 2
+
+Generate a controller to handle unknown routes.
+
+```ruby 
+rails g controller catch_all index
+```
+ 
+### Step 3
+
+Let's inspect the params sent to the server in the browser.
+
+```ruby
+class CatchAllController < ApplicationController
+  def index
+    render text: params.inspect
+  end
+end
+```
+
+### Step 4
+
+Define the catch all route in the routes.rb.
+
+```ruby
+get '*path', to: 'catch_all#index'
+```
+
+### Step 5
+
+Browse to `http://localhost:3000/tele`. In the browser, you will see:
+
+```
+"catch_all", "action"=>"index", "path"=>"tele"} permitted: false>
+```
+
+Browse to `http://localhost:3000/tele/mundo`. In the browser, you will see:
+
+```
+"catch_all", "action"=>"index", "path"=>"tele/mundo"} permitted: false>
+```
+
+### Step 7
+
+Browse to `http://localhost:3000/tele/mundo?l=10`. In the browser, you will see:
+
+```
+{"l"=>"10", "path"=>"tele/mundo"}
+```
+
+### Step 8
+
+The `request.request_uri` is no longer available in Rails 5. Rails 3.0.9 is the last version that had this method. We can use `request.url` instead:
+
+```ruby
+render text: request.url
+```
+
+### Step 9
+
+Reload the page: `http://localhost:3000/tele/mundo/manga`. Browser output is: 
+
+```
+http://localhost:3000/tele/mundo/manga.
+```
+
+Browse to `http://localhost:3000/tele/mundo/manga?q=test`. Browser output is:
+
+```
+http://localhost:3000/tele/mundo/manga?q=test
+```
+
+### Step 10
+
+Let's find the product that begins with the string in the first part of the URL.
+
+```ruby
+class CatchAllController < ApplicationController
+  def index
+    product = Product.where('name LIKE ?', "#{params[:path].first}%").first
+    
+    redirect_to product_path(product)
+  end
+end
+```
+
+Type `http://localhost:3000/tele` in the browser. You will go to the television product show page.
+
+## Summary
+
+In this article, you learned how to use catch all route in Rails 5. This is helpful if you want to handle legacy routes in your app to new URL.
