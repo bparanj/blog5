@@ -1,0 +1,204 @@
+HABTM
+Has Many Through
+
+
+-
+
+rails g model category name
+
+
+class CreateCategories < ActiveRecord::Migration[5.0]
+  def change
+    create_table :categories do |t|
+      t.string :name
+
+      t.timestamps
+    end
+  end
+end
+
+-
+
+
+rails g model product name
+
+class CreateProducts < ActiveRecord::Migration[5.0]
+  def change
+    create_table :products do |t|
+      t.string :name
+
+      t.timestamps
+    end
+  end
+end
+
+
+Rails 5 creates the attribute with string as the default type. 
+
+-
+
+Many to Many Association
+
+HABTM
+
+Create a join table.
+
+rails g migration CreateJoinTableCategoryProduct category product
+
+class CreateJoinTableCategoryProduct < ActiveRecord::Migration[5.0]
+  def change
+    create_join_table :categories, :products do |t|
+      t.index [:category_id, :product_id]
+    end
+  end
+end
+
+The migration generator will produce join tables if JoinTable is part of the name.
+
+-
+
+rails db:migrate
+
+schema.rb:
+
+ActiveRecord::Schema.define(version: 20160329172233) do
+
+  create_table "categories", force: :cascade do |t|
+    t.string   "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "categories_products", id: false, force: :cascade do |t|
+    t.integer "category_id", null: false
+    t.integer "product_id",  null: false
+  end
+
+  add_index "categories_products", ["category_id", "product_id"], name: "index_categories_products_on_category_id_and_product_id"
+
+  create_table "products", force: :cascade do |t|
+    t.string   "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+end
+
+-
+
+class Product < ApplicationRecord
+  has_and_belongs_to_many :categories
+end
+
+
+class Category < ApplicationRecord
+  has_and_belongs_to_many :products
+end
+
+-
+
+Has Many Through
+
+Create a join model
+
+
+rails g model categorization product_id:integer category_id:integer position:integer
+
+
+class CreateCategorizations < ActiveRecord::Migration[5.0]
+  def change
+    create_table :categorizations do |t|
+      t.integer :product_id
+      t.integer :category_id
+      t.integer :position
+
+      t.timestamps
+    end
+    
+    add_index :categorizations, [:product_id, :category_id]
+  end
+end
+
+
+
+tion
+ship
+ment
+
+-
+
+rails db:migrate
+
+# encoding: UTF-8
+# This file is auto-generated from the current state of the database. Instead
+# of editing this file, please use the migrations feature of Active Record to
+# incrementally modify your database, and then regenerate this schema definition.
+#
+# Note that this schema.rb definition is the authoritative source for your
+# database schema. If you need to create the application database on another
+# system, you should be using db:schema:load, not running all the migrations
+# from scratch. The latter is a flawed and unsustainable approach (the more migrations
+# you'll amass, the slower it'll run and the greater likelihood for issues).
+#
+# It's strongly recommended that you check this file into your version control system.
+
+ActiveRecord::Schema.define(version: 20160329173814) do
+
+  create_table "categories", force: :cascade do |t|
+    t.string   "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "categories_products", id: false, force: :cascade do |t|
+    t.integer "category_id", null: false
+    t.integer "product_id",  null: false
+  end
+
+  add_index "categories_products", ["category_id", "product_id"], name: "index_categories_products_on_category_id_and_product_id"
+
+  create_table "categorizations", force: :cascade do |t|
+    t.integer  "product_id"
+    t.integer  "category_id"
+    t.integer  "position"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+  end
+
+  add_index "categorizations", ["product_id", "category_id"], name: "index_categorizations_on_product_id_and_category_id"
+
+  create_table "products", force: :cascade do |t|
+    t.string   "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+end
+
+-
+
+class Categorization < ApplicationRecord
+  belongs_to :product
+  belongs_to :category
+end
+
+
+class Product < ApplicationRecord
+  has_many :categorizations
+  has_many :categories, through: :categorizations
+end
+
+class Category < ApplicationRecord
+  has_many :categorizations
+  has_many :products, through: :categorizations
+end
+
+-
+
+http://railscasts.com/episodes/47-two-many-to-many?view=comments
+
+
+
+
+
+-
