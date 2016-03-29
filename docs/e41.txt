@@ -1,46 +1,103 @@
+D
+Rails 5 Validation Basics
 
 
+Let's create a new user and check if it is valid.
 
-
-
-
-
-
-
-
-Active Record uses the new_record? instance method to determine whether an object is already in the database or not
-
- $ rails c
-Loading development environment (Rails 5.0.0.beta3)
+```ruby
  > user = User.new
  => #<User id: nil, first_name: nil, middle_initial: nil, last_name: nil, created_at: nil, updated_at: nil, password: nil> 
  > user.valid?
  => false 
+```
+
+The user model has a validation for `first_name`. 
+
+```ruby
+class User < ApplicationRecord
+  validates_presence_of :first_name
+  
+  def full_name
+    [first_name, last_name].join(' ')
+  end
+  
+  def full_name=(name)
+    split = name.split(' ', 2)
+    self.first_name = split.first
+    self.last_name = split.last
+  end
+end
+```
+
+What are the errors? We can check for errors like this:
+
+```ruby
  > user.errors
  => #<ActiveModel::Errors:0x007fe46b573210 @base=#<User id: nil, first_name: nil, middle_initial: nil, last_name: nil, created_at: nil, updated_at: nil, password: nil>, @messages={:first_name=>["can't be blank"]}, @details={:first_name=>[{:error=>:blank}]}> 
+```
+
+We can retrieve the human readable error message like this:
+
+```ruby 
  > user.errors.full_messages
  => ["First name can't be blank"] 
+``` 
+
+Let's create a valid user object by providing the `first_name`.
+
+```ruby
  > b = User.new(first_name: 'bugs')
  => #<User id: nil, first_name: "bugs", middle_initial: nil, last_name: nil, created_at: nil, updated_at: nil, password: nil> 
+```
+
+We can verify that it is valid.
+
+```ruby
  > b.valid?
  => true 
+```
+
+From Rails Guides:
+> Active Record uses the `new_record?` instance method to determine whether an object is already in the database or not.
+
+```ruby
  > user.new_record?
  => true 
- > b.new_record?
- => true 
- > b.id
- => nil 
+```
+
+How does Active Record know whether an object is saved in the database or not?
+
+```ruby
  > user.id
- => nil 
+ => nil
+```
+
+If the primary key is nil then it knows that the object has not been saved in the database yet. What happens when we use create method?
+
+```ruby 
  > daffy = User.create(first_name: 'daffy')
    (0.1ms)  begin transaction
   SQL (1.3ms)  INSERT INTO "users" ("first_name", "created_at", "updated_at") VALUES (?, ?, ?)  [["first_name", "daffy"], ["created_at", 2016-03-28 18:10:42 UTC], ["updated_at", 2016-03-28 18:10:42 UTC]]
    (0.5ms)  commit transaction
- => #<User id: 1, first_name: "daffy", middle_initial: nil, last_name: nil, created_at: "2016-03-28 18:10:42", updated_at: "2016-03-28 18:10:42", password: nil> 
+```
+
+Active Record inserts the object into the database. We can check if the object that has been saved in the database is a new record or not.
+
+```ruby
  > daffy.new_record?
  => false 
+```
+
+Active Record knows that it is not a new record because the primary key value has been populated.
+
+```ruby
  > daffy.id
  => 1 
+```
+
+What happens when we change an attribute of an existing record and save it?
+
+```ruby
  > daffy.first_name = 'duffy'
  => "duffy" 
  > daffy.save
@@ -48,6 +105,11 @@ Loading development environment (Rails 5.0.0.beta3)
   SQL (0.9ms)  UPDATE "users" SET "first_name" = ?, "updated_at" = ? WHERE "users"."id" = ?  [["first_name", "duffy"], ["updated_at", 2016-03-28 18:12:58 UTC], ["id", 1]]
    (0.5ms)  commit transaction
  => true 
+```
+
+In that cases, Active Record updates the existing record. You can bypass the validation by passing false for validate key.
+
+```ruby
  > junk = User.new
  => #<User id: nil, first_name: nil, middle_initial: nil, last_name: nil, created_at: nil, updated_at: nil, password: nil> 
  > junk.save(validate: false)
@@ -55,33 +117,57 @@ Loading development environment (Rails 5.0.0.beta3)
   SQL (0.8ms)  INSERT INTO "users" ("created_at", "updated_at") VALUES (?, ?)  [["created_at", 2016-03-28 18:20:18 UTC], ["updated_at", 2016-03-28 18:20:18 UTC]]
    (0.4ms)  commit transaction
  => true 
+```
+
+This is generally not a good idea. The user we just created is not a valid user.
+
+```ruby
  > junk
  => #<User id: 2, first_name: nil, middle_initial: nil, last_name: nil, created_at: "2016-03-28 18:20:18", updated_at: "2016-03-28 18:20:18", password: nil> 
- > user.valid?
+ > junk.valid?
  => false 
- > user.invalid?
+```
+
+Active Record gives another method `invalid?`.
+
+```ruby
+ > junk.invalid?
  => true 
+```
+
+We can get list of all error messages as a hash like this:
+
+```ruby
  > t = User.new
  => #<User id: nil, first_name: nil, middle_initial: nil, last_name: nil, created_at: nil, updated_at: nil, password: nil> 
- > t.valid?
- => false 
- > t.errors
- => #<ActiveModel::Errors:0x007fe46d4ba3d0 @base=#<User id: nil, first_name: nil, middle_initial: nil, last_name: nil, created_at: nil, updated_at: nil, password: nil>, @messages={:first_name=>["can't be blank"]}, @details={:first_name=>[{:error=>:blank}]}> 
  > t.errors.messages
  => {:first_name=>["can't be blank"]} 
+```
+
+We can get a specific error message for a field like this:
+
+```ruby
  > t.errors[:first_name]
  => ["can't be blank"] 
+```
+
+We can check if a specific field has any error like this:
+
+```ruby
  > t.errors[:first_name].any?
  => true 
- > y = User.new(first_name: 'Sam')
- => #<User id: nil, first_name: "Sam", middle_initial: nil, last_name: nil, created_at: nil, updated_at: nil, password: nil> 
- > y.errors[:first_name].any?
- => false 
- > y.errors.details[:first_name]
- => [] 
+```
+
+We can also use the details method to get a list of errors for a given field.
+
+```ruby
  > t.errors.details[:first_name]
  => [{:error=>:blank}] 
+```
 
+## Summary
+
+In this article, you learned the basics of Active Record validation in Rails 5.
 
 
 Conditional Validation
