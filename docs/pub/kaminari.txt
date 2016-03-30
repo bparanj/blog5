@@ -1,0 +1,80 @@
+D
+Pagination using Kaminari in Rails 5
+
+
+## Steps
+
+### Step 1
+
+Add the Kaminari gem to the Gemfile:
+
+```ruby
+gem 'kaminari', :git => "git://github.com/amatsuda/kaminari.git", :branch => 'master'
+```
+
+Run bundle:
+
+```
+bundle
+```
+
+### Step 2
+
+Add the number of tasks to be displayed per page in task model:
+
+```ruby
+paginates_per  5
+```
+
+### Step 3
+
+The search method now needs to use Kaminari gem provided page method like this:
+
+```ruby  
+def self.search(term, page)
+  if term
+    where('name LIKE ?', "%#{term}%").order('id DESC').page(current_page)
+  else
+    # note: default is all, just sorted
+    order('id DESC').page(current_page) 
+  end
+end
+```
+
+### Step 4
+
+Add the paginate view helper in `tasks/index.html.erb`:
+
+```rhtml
+<%= paginate @tasks %>
+```
+
+### Step 5 
+
+You can customize the number of links that is displayed.
+
+```rhtml
+<%= paginate @tasks, :left => 1, :right => 3 %>
+```
+
+### Step 6
+
+Another option to customize the pagination:
+
+```rhtml
+<%= paginate @tasks, :outer_window => 3 %>
+```
+
+### Step 7
+
+You can use custom themes. Let's install google theme.
+
+```
+rails g kaminari:views google
+```
+
+The pagination now has Google look and feel. There are other themes available such as bootstrap, github etc, checkout the Kaminari home page for more details.
+
+## Summary
+
+In this article, you learned how to paginate using Kaminari Gem in Rails 5.

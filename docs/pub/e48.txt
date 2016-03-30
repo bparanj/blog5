@@ -1,35 +1,19 @@
 rails c production --sandbox
 
+D
+
+Console Tricks in Rails 5
 
 
+You can print the yaml representation of an object using the `y` method.
 
-Create .irbrc in home folder.
-
-require 'pp' is not needed by default rails console has it.
-
-class Object
-  def foo
-    'bar'
-  end
-end
-
-
-rails c
-Loading development environment (Rails 5.0.0.beta3)
- > foo
- => "bar" 
-
-
-
-
-
-
+```
 $ rails c
 p Loading development environment (Rails 5.0.0.beta3)
-2.3.0 :001 > p = Product.first
+ > p = Product.first
   Product Load (0.3ms)  SELECT  "products".* FROM "products" ORDER BY "products"."id" ASC LIMIT ?  [["LIMIT", 1]]
  => #<Product id: 1, name: "Television", price: #<BigDecimal:7fb81444ba50,'0.99E2',9(18)>, created_at: "2016-03-28 21:58:42", updated_at: "2016-03-28 21:58:42"> 
-2.3.0 :002 > y p
+ > y p
 --- !ruby/object:Product
 raw_attributes:
   id: 1
@@ -114,9 +98,14 @@ attributes: !ruby/object:ActiveRecord::AttributeSet
 new_record: false
 active_record_yaml_version: 1
  => nil 
-2.3.0 :003 > require 'pp'
+```
+
+You can use pretty print `pp` to give a better output.
+
+```
+ > require 'pp'
  => false 
-2.3.0 :004 > pp p
+ > pp p
 #<Product:0x007fb814438c70
  id: 1,
  name: "Television",
@@ -124,30 +113,62 @@ active_record_yaml_version: 1
  created_at: Mon, 28 Mar 2016 21:58:42 UTC +00:00,
  updated_at: Mon, 28 Mar 2016 21:58:42 UTC +00:00>
  => #<Product id: 1, name: "Television", price: #<BigDecimal:7fb81444ba50,'0.99E2',9(18)>, created_at: "2016-03-28 21:58:42", updated_at: "2016-03-28 21:58:42"> 
-2.3.0 :005 > Acti
-ActionCable       ActionController  ActionDispatch    ActionMailer      ActionPack        ActionView        ActiveJob         ActiveModel       ActiveRecord      ActiveSupport     
-2.3.0 :005 > 'foo'.to_
+```
+
+This is much more readable than the yaml method. The `pp` is already required by Rails 5, that is the reason you see the result false. 
+
+You can autocomplete strings by typing the first few characters and hitting the tab a few times.
+
+```
+ > Acti
+
+ActionCable       ActionController  ActionDispatch    ActionMailer      ActionPack        ActionView        ActiveJob         ActiveModel       ActiveRecord      ActiveSupport   
+```
+
+Here we see all classes that begins with Acti. You can also check what methods are available on an object by hitting tabs a few times.
+
+```  
+ > 'foo'.to_
 'foo'.to_blob             'foo'.to_date             'foo'.to_f                'foo'.to_json_raw         'foo'.to_query            'foo'.to_str              'foo'.to_yaml
 'foo'.to_c                'foo'.to_datetime         'foo'.to_i                'foo'.to_json_raw_object  'foo'.to_r                'foo'.to_sym              'foo'.to_yaml_properties
-'foo'.to_d                'foo'.to_enum             'foo'.to_json             'foo'.to_param            'foo'.to_s                'foo'.to_time             
-2.3.0 :005 > 'tab'.to_
-'tab'.to_blob             'tab'.to_date             'tab'.to_f                'tab'.to_json_raw         'tab'.to_query            'tab'.to_str              'tab'.to_yaml
-'tab'.to_c                'tab'.to_datetime         'tab'.to_i                'tab'.to_json_raw_object  'tab'.to_r                'tab'.to_sym              'tab'.to_yaml_properties
-'tab'.to_d                'tab'.to_enum             'tab'.to_json             'tab'.to_param            'tab'.to_s                'tab'.to_time             
-2.3.0 :006 > Pro
+```
+
+What are the classes that begin with Pro?
+
+```
+ > Pro
 Proc     Process  Product  
-2.3.0 :006 > p.new_record?
+```
+
+What are the methods that are available in our product object?
+
+```
+ > p.new_record?
 p.new_record?
-2.3.0 :006 > p.new_record?
+ > p.new_record?
  => false 
-2.3.0 :007 > p.n
+```
+
+What are the methods that begin with the letter n for the product object?
+
+```
+ > p.n
 p.name                        p.name_before_type_cast       p.name_changed?               p.name_was                    p.nested_attributes_options?  p.no_touching?
 p.name=                       p.name_came_from_user?        p.name_previous_change        p.name_will_change!           p.new_record?                 
-p.name?                       p.name_change                 p.name_previously_changed?    p.nested_attributes_options   p.nil?                        
-2.3.0 :007 > app.class
+p.name?                       p.name_change                 p.name_previously_changed?    p.nested_attributes_options   p.nil?  ```
+
+We have access to the app instance in the rails console.
+
+```                      
+ > app.class
  => ActionDispatch::Integration::Session 
-2.3.0 :008 > app.get '/'
-Started GET "/" for 127.0.0.1 at 2016-03-29 10:56:34 -0700
+```
+
+We can send a GET request for the home page.
+
+```
+ > app.get '/'
+Started GET "/" for 127.0.0.1 at 2016-03-29 20:56:34 -0700
   ActiveRecord::SchemaMigration Load (0.3ms)  SELECT "schema_migrations".* FROM "schema_migrations"
 Processing by ProjectsController#index as HTML
   Project Load (0.4ms)  SELECT "projects".* FROM "projects"
@@ -156,49 +177,81 @@ Processing by ProjectsController#index as HTML
   Task Load (0.1ms)  SELECT "tasks".* FROM "tasks" WHERE "tasks"."project_id" = ?  [["project_id", 6]]
   Rendered projects/index.html.erb within layouts/application (85.1ms)
 Completed 200 OK in 450ms (Views: 353.3ms | ActiveRecord: 1.6ms)
-
-
  => 200 
-2.3.0 :009 > app.flash
+```
+
+We see projects and the associated tasks loaded from the database. The http status code is 200. We can check the flash.
+
+```
+ > app.flash
  => #<ActionDispatch::Flash::FlashHash:0x007fb813c34718 @discard=#<Set: {}>, @flashes={}, @now=nil> 
-2.3.0 :010 > app.assigns[:tasks]
+```
+
+However, in Rails 5, you cannot access the variables that you make available in the controller for the view.
+
+```
+ > app.assigns[:tasks]
 NoMethodError: assigns has been extracted to a gem. To continue using it,
         add `gem 'rails-controller-testing'` to your Gemfile.
-	from /Users/bparanj/.rvm/gems/ruby-2.3.0@rails5/gems/actionpack-5.0.0.beta3/lib/action_dispatch/testing/test_process.rb:7:in `assigns'
-	from (irb):10
-	from /Users/bparanj/.rvm/gems/ruby-2.3.0@rails5/gems/railties-5.0.0.beta3/lib/rails/commands/console.rb:65:in `start'
-	from /Users/bparanj/.rvm/gems/ruby-2.3.0@rails5/gems/railties-5.0.0.beta3/lib/rails/commands/console_helper.rb:9:in `start'
-	from /Users/bparanj/.rvm/gems/ruby-2.3.0@rails5/gems/railties-5.0.0.beta3/lib/rails/commands/commands_tasks.rb:78:in `console'
-	from /Users/bparanj/.rvm/gems/ruby-2.3.0@rails5/gems/railties-5.0.0.beta3/lib/rails/commands/commands_tasks.rb:49:in `run_command!'
-	from /Users/bparanj/.rvm/gems/ruby-2.3.0@rails5/gems/railties-5.0.0.beta3/lib/rails/command.rb:20:in `run'
-	from /Users/bparanj/.rvm/gems/ruby-2.3.0@rails5/gems/railties-5.0.0.beta3/lib/rails/commands.rb:18:in `<top (required)>'
-	from bin/rails:9:in `require'
-	from bin/rails:9:in `<main>'
-2.3.0 :011 > app.cookies
- => #<Rack::Test::CookieJar:0x007fb8154bcc18 @default_host="www.example.com", @cookies=[#<Rack::Test::Cookie:0x007fb81b232d98 @default_host="www.example.com", @name_value_raw="_blog5_session=UGZoa0hWMVFtalNIZk9udUhCSTJyZnlIVm1FV1Vvb05ES2dOckFyTjlPS0V4MXVjVURxZDVreVVYek5YTkV2a1hBZ2RqMFNvT3NtZ2RjcnJUYiswdE9KaERlekZnanF4UlRLT3YyaG4vSTBFYml5Z2RGd1ZxRml0VmxQRklnc0h4RDZCcU1Rczhpd1h5TDJIT2UrMXhBPT0tLVNuV01SWWRFYnQ2dnNHTjQvZHpOR0E9PQ%3D%3D--03a465d4d5aee561c9e4f5c771d74062766c6a4b", @name="_blog5_session", @value="UGZoa0hWMVFtalNIZk9udUhCSTJyZnlIVm1FV1Vvb05ES2dOckFyTjlPS0V4MXVjVURxZDVreVVYek5YTkV2a1hBZ2RqMFNvT3NtZ2RjcnJUYiswdE9KaERlekZnanF4UlRLT3YyaG4vSTBFYml5Z2RGd1ZxRml0VmxQRklnc0h4RDZCcU1Rczhpd1h5TDJIT2UrMXhBPT0tLVNuV01SWWRFYnQ2dnNHTjQvZHpOR0E9PQ==--03a465d4d5aee561c9e4f5c771d74062766c6a4b", @options={"path"=>"/", "HttpOnly"=>nil, "domain"=>"www.example.com"}>]> 
-2.3.0 :012 > helper.text_field_tag :card
- => "<input type=\"text\" name=\"card\" id=\"card\" />" 
-2.3.0 :013 > helper.pluralize(5, 'item')
- => "5 items" 
-2.3.0 :014 > app.methods
- => [:main_app, :_main_app, :_routes, :root_path, :rails_mailers_path, :products_path, :new_product_path, ...] 
+```
 
-2.3.0 :016 > app._routes
+You can view the cookies.
+
+```
+ > app.cookies
+ => #<Rack::Test::CookieJar:0x007fb8 @default_host="www.example.com", @cookies=[#<Rack::Test::Cookie:0x007fb @default_host="www.example.com", @name_value_raw="_blog5_session=UGZoa0hWMVFtalNIZk9udUhCSTJyZnlIVm1Fb", @name="_blog5_session", @value="DJIT5aee561c9e4f5c771d7406", @options={"path"=>"/", "HttpOnly"=>nil, "domain"=>"www.example.com"}>]> 
+```
+
+You can access the view helpers by using the helper object.
+
+```
+ > helper.text_field_tag :card
+ => "<input type=\"text\" name=\"card\" id=\"card\" />" 
+ > helper.pluralize(5, 'item')
+ => "5 items" 
+```
+
+We can check the available methods in the app object by hitting tabs a few times.
+
+```
+ > app.methods
+ => [:main_app, :_main_app, :_routes, :root_path, :rails_mailers_path, :products_path, :new_product_path, ...] 
+```
+
+What are the available methods in the `_routes` ?
+
+```
+ > app._routes
  => #<ActionDispatch::Routing::RouteSet:0x007fb8135ce360> 
-2.3.0 :017 > app._routes.methods
+ > app._routes.methods
  => [:empty?, :inspect, :call, :prepend, :append, :request_class, :set, :formatter=, ...] 
-2.3.0 :018 > app.methods.grep(/_path$/).sort
+ > app.methods.grep(/_path$/).sort
  => [:complete_task_path, :completed_tasks_path, :edit_polymorphic_path, :edit_product_path, ...] 
-2.3.0 :019 > _.class
+```
+
+The underscore is a special global variable that has the value of the last executed command.
+
+```
+ > _.class
  => Array 
-2.3.0 :020 > _
+```
+
+It is an array in this case. Can we inspect it?
+
+```
+ > _
  => Array 
-2.3.0 :021 > y _
+ > y _
 --- !ruby/class 'Array'
  => nil 
-2.3.0 :023 > app._routes.methods
+```
+
+Here is a better example to illustrate the usefullness of underscore global variable.
+
+```
+ > app._routes.methods
  => [:empty?, :inspect, :call, :prepend, :append, :request_class, :set, :formatter=, ...] 
-2.3.0 :024 > y _
+ > y _
 ---
 - :empty?
 - :inspect
@@ -210,15 +263,18 @@ NoMethodError: assigns has been extracted to a gem. To continue using it,
 ...
 
 
+If you change something in the file, you can reload the changes in the rails console by using the reload! method.
 
+```
 > reload!
 Reloading...
  => true 
+```
  
- 
-$ rails c
-Loading development environment (Rails 5.0.0.beta3)
-2.3.0 :001 > app.get '/'
+After requesting the home page, we can check the path like this:
+
+``` 
+ > app.get '/'
 Started GET "/" for 127.0.0.1 at 2016-03-29 11:15:30 -0700
   ActiveRecord::SchemaMigration Load (0.2ms)  SELECT "schema_migrations".* FROM "schema_migrations"
 Processing by ProjectsController#index as HTML
@@ -228,30 +284,17 @@ Processing by ProjectsController#index as HTML
   Task Load (0.1ms)  SELECT "tasks".* FROM "tasks" WHERE "tasks"."project_id" = ?  [["project_id", 6]]
   Rendered projects/index.html.erb within layouts/application (51.9ms)
 Completed 200 OK in 337ms (Views: 281.0ms | ActiveRecord: 1.7ms)
-
-
  => 200 
-2.3.0 :002 > app.assigns['tasks']
-NoMethodError: assigns has been extracted to a gem. To continue using it,
-        add `gem 'rails-controller-testing'` to your Gemfile.
-	from /Users/bparanj/.rvm/gems/ruby-2.3.0@rails5/gems/actionpack-5.0.0.beta3/lib/action_dispatch/testing/test_process.rb:7:in `assigns'
-	from (irb):2
-	from /Users/bparanj/.rvm/gems/ruby-2.3.0@rails5/gems/railties-5.0.0.beta3/lib/rails/commands/console.rb:65:in `start'
-	from /Users/bparanj/.rvm/gems/ruby-2.3.0@rails5/gems/railties-5.0.0.beta3/lib/rails/commands/console_helper.rb:9:in `start'
-	from /Users/bparanj/.rvm/gems/ruby-2.3.0@rails5/gems/railties-5.0.0.beta3/lib/rails/commands/commands_tasks.rb:78:in `console'
-	from /Users/bparanj/.rvm/gems/ruby-2.3.0@rails5/gems/railties-5.0.0.beta3/lib/rails/commands/commands_tasks.rb:49:in `run_command!'
-	from /Users/bparanj/.rvm/gems/ruby-2.3.0@rails5/gems/railties-5.0.0.beta3/lib/rails/command.rb:20:in `run'
-	from /Users/bparanj/.rvm/gems/ruby-2.3.0@rails5/gems/railties-5.0.0.beta3/lib/rails/commands.rb:18:in `<top (required)>'
-	from bin/rails:9:in `require'
-	from bin/rails:9:in `<main>'
-2.3.0 :003 > reload!
-Reloading...
- => true 
-2.3.0 :004 > app.path
+ > app.path
  => "/" 
-2.3.0 :005 > app.reset!
+```
+
+We can reset the path and request a different page like this:
+
+```
+ > app.reset!
  => nil 
-2.3.0 :006 > app.get '/projects'
+ > app.get '/projects'
 Started GET "/projects" for 127.0.0.1 at 2016-03-29 11:20:23 -0700
 Processing by ProjectsController#index as HTML
   Project Load (0.5ms)  SELECT "projects".* FROM "projects"
@@ -260,31 +303,72 @@ Processing by ProjectsController#index as HTML
   Task Load (0.1ms)  SELECT "tasks".* FROM "tasks" WHERE "tasks"."project_id" = ?  [["project_id", 6]]
   Rendered projects/index.html.erb within layouts/application (39.6ms)
 Completed 200 OK in 120ms (Views: 78.1ms | ActiveRecord: 2.1ms)
+```
 
+You can get into a specific object context by providing irb the class name like this:
 
- => 200 
-2.3.0 :007 > irb Task
-2.3.0 :001 > self
+```
+ > irb Task
+ > self
  => Task(id: integer, name: string, complete: boolean, created_at: datetime, updated_at: datetime, project_id: integer, priority: integer, due_date: datetime) 
-2.3.0 :002 > all
+```
+
+Now we are in the Task class context, we can call the methods without the receiver.
+
+```
+ > all
   Task Load (0.2ms)  SELECT "tasks".* FROM "tasks"
- => #<ActiveRecord::Relation [#<Task id: 1, name: "Get rich quick", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-24 01:12:25", project_id: 1, priority: 4, due_date: "2016-01-18 21:37:57">, #<Task id: 2, name: "Write a book", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-18 21:37:57", project_id: 1, priority: 5, due_date: "2016-02-18 21:37:57">, #<Task id: 3, name: "Buy a puppy", complete: false, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-18 21:37:57", project_id: 2, priority: 9, due_date: "2016-02-18 21:37:57">, #<Task id: 4, name: "Dance in the rain", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-18 22:20:05", project_id: 2, priority: 7, due_date: "2016-01-22 21:37:57">, #<Task id: 5, name: "Dance in the snow", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-18 21:37:57", project_id: 2, priority: 6, due_date: "2016-01-18 21:37:57">, #<Task id: 6, name: "Walk on water", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-18 21:37:57", project_id: 2, priority: 7, due_date: "2016-05-18 21:37:57">, #<Task id: 7, name: "Just Blog It", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-18 21:37:57", project_id: 2, priority: 5, due_date: "2016-04-18 21:37:57">, #<Task id: 8, name: "Play tennis", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-18 21:37:57", project_id: 2, priority: 4, due_date: "2016-03-16 21:37:57">, #<Task id: 9, name: "Make fun of Donald Trump", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-18 21:37:57", project_id: 2, priority: 3, due_date: "2016-03-16 21:37:57">, #<Task id: 10, name: "Walk on moon", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-18 21:37:57", project_id: 2, priority: 2, due_date: "2016-03-16 21:37:57">]> 
-2.3.0 :003 > quit
- => #<IRB::Irb: @context=#<IRB::Context:0x007ff002a49f08>, @signal_status=:IN_EVAL, @scanner=#<RubyLex:0x007ff0021db420>> 
-2.3.0 :008 > irb Task.first
+ => #<ActiveRecord::Relation [#<Task id: 1, name: "Get rich quick", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-24 01:12:25", project_id: 1, priority: 4, due_date: "2016-01-18 21:37:57">, #<Task id: 2, name: "Write a book", complete: true, created_at: ...]> 
+ > quit
+  => #<IRB::Irb: @context=#<IRB::Context:0x007ff002a49f08>, @signal_status=:IN_EVAL, @scanner=#<RubyLex:0x007ff0021db420>> 
+```
+
+You can get out of the Task class context by calling the exit. We can get into a specific task object like this:
+
+```
+ > irb Task.first
   Task Load (0.3ms)  SELECT  "tasks".* FROM "tasks" ORDER BY "tasks"."id" ASC LIMIT ?  [["LIMIT", 1]]
-2.3.0 :001 > name
+ > name
  => "Get rich quick" 
-2.3.0 :002 > quit
+```
+
+Here we are printing the name of the task object. We can get out of the task object by typing quit.
+
+```
+ > quit
  => #<IRB::Irb: @context=#<IRB::Context:0x007ff002a49f08>, @signal_status=:IN_EVAL, @scanner=#<RubyLex:0x007ff0021db420>> 
-2.3.0 :009 > irb app
-2.3.0 :001 > host
+```
+
+We can switch to the app context and check the host like this:
+
+```
+ > irb app
+ > host
  => "www.example.com" 
-2.3.0 :002 > 
+```
 
+You can customize your IRB by creating an .irbrc in your home folder. Let's open the Object class and define a method.
 
+```ruby
+class Object
+  def foo
+    'bar'
+  end
+end
+```
+
+Now you can access the foo method in the rails console like this:
+
+```
+rails c
+Loading development environment (Rails 5.0.0.beta3)
+ > foo
+ => "bar" 
+```
+
+## Summary
+
+In this article, you learned some console tricks.
 
 
 http://railscasts.com/episodes/48-console-tricks?view=comments
-
-

@@ -1,8 +1,7 @@
+D
 Has Many Through and Has and Belongs to Many in Rails 5
 
-
-
-## Steps
+## Has and Belongs to Many Association
 ### Step 1
 
 Create a category model with name attribute.
@@ -11,7 +10,7 @@ Create a category model with name attribute.
 rails g model category name
 ```
 
-In Rails 5, if you don't provide the column type, it defaults to string.
+In Rails 5, if you don't provide the column type, it defaults to string. As you can see it in the generated migration file:
 
 ```ruby
 class CreateCategories < ActiveRecord::Migration[5.0]
@@ -51,7 +50,7 @@ Rails 5 creates the attribute with string as the default type.
 
 ### Step 3
 
-For the has_and_belongs_to_many association, let's create a join table.
+For the `has_and_belongs_to_many` association, let's create a join table.
 
 ```
 rails g migration CreateJoinTableCategoryProduct category product
@@ -71,15 +70,16 @@ end
 
 ### Step 4
 
+Migrate the database:
+
 ```
 rails db:migrate
 ```
 
-In schema.rb, you can see the index and the join table:
+In schema.rb, you can see the index and the `categories_products` join table:
 
 ```ruby
 ActiveRecord::Schema.define(version: 20160329172233) do
-
   create_table "categories", force: :cascade do |t|
     t.string   "name"
     t.datetime "created_at", null: false
@@ -98,12 +98,14 @@ ActiveRecord::Schema.define(version: 20160329172233) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
-
 end
 ```
 
+You can also see the index defined for the categories_products table.
+
 ### Step 5
 
+Declare the `has_and_belongs_to_many` in the product model.
 
 ```ruby
 class Product < ApplicationRecord
@@ -111,17 +113,18 @@ class Product < ApplicationRecord
 end
 ```
 
+Declare the `has_and_belongs_to_many` in the category model.
+
 ```ruby
 class Category < ApplicationRecord
   has_and_belongs_to_many :products
 end
 ```
 
--
+## Has Many Through
+### Step 1
 
-Has Many Through
-
-Create a join model
+Create a categorization join model.
 
 ```
 rails g model categorization product_id:integer category_id:integer position:integer
@@ -143,16 +146,19 @@ class CreateCategorizations < ActiveRecord::Migration[5.0]
 end
 ```
 
+To find the abstraction, think about a concept that ends in tion, ship or ment.
 
-tion
-ship
-ment
+### Step 3
 
--
+Migrate the database:
 
 ```
 rails db:migrate
 ```
+
+### Step 4
+
+You can see the structure of the tables in the schema.rb.
 
 ```ruby
 ActiveRecord::Schema.define(version: 20160329173814) do
@@ -185,11 +191,14 @@ ActiveRecord::Schema.define(version: 20160329173814) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
-
 end
 ```
 
--
+We have categorizations table with an index defined for all the foreign keys it it.
+
+### Step 5
+
+Declare the `belongs_to` association in the Categorization model.
 
 ```ruby
 class Categorization < ApplicationRecord
@@ -197,6 +206,8 @@ class Categorization < ApplicationRecord
   belongs_to :category
 end
 ```
+
+Declare the `has_many_through` declarations in the product and category models.
 
 ```ruby
 class Product < ApplicationRecord
@@ -214,14 +225,8 @@ end
 
 ## Summary
 
-In this aricle, you learned how to use has_and_belongs_to_many and has_many through associations in Rails 5
+In this aricle, you learned how to use `has_and_belongs_to_many` and `has_many` through associations in Rails 5.
 
--
+
 
 http://railscasts.com/episodes/47-two-many-to-many?view=comments
-
-
-
-
-
--

@@ -1,0 +1,155 @@
+D
+Will Paginate in Rails 5
+
+
+## Steps
+### Step 1
+
+Add the gem to the Gemfile.
+
+```ruby
+gem 'will_paginate', '>= 3.1'
+```
+
+Run:
+
+```
+bundle
+```
+
+### Step 2
+
+```
+  def index
+    @tasks = Task.search(params[:term], params[:page])
+  end
+```
+
+### Step 3
+
+Add the will_paginate view helper to the tasks index page.
+
+```
+<%= will_paginate @tasks %>
+```
+
+### Step 4
+
+You can play in the Rails console to see how the `will_paginate` works:
+
+```
+$ rails c
+Loading development environment (Rails 5.0.0.beta3)
+ > t = Task.paginate(page: 1, per_page: 5)
+  Task Load (1.6ms)  SELECT  "tasks".* FROM "tasks" LIMIT ? OFFSET ?  [["LIMIT", 5], ["OFFSET", 0]]
+ => #<ActiveRecord::Relation [#<Task id: 1, name: "Get rich quick", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-24 01:12:25", project_id: 1, priority: 4, due_date: "2016-01-18 21:37:57">, #<Task id: 2, name: "Write a book", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-18 21:37:57", project_id: 1, priority: 5, due_date: "2016-02-18 21:37:57">, #<Task id: 3, name: "Buy a puppy", complete: false, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-18 21:37:57", project_id: 2, priority: 9, due_date: "2016-02-18 21:37:57">, #<Task id: 4, name: "Dance in the rain", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-18 22:20:05", project_id: 2, priority: 7, due_date: "2016-01-22 21:37:57">, #<Task id: 5, name: "Dance in the snow", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-18 21:37:57", project_id: 2, priority: 6, due_date: "2016-01-18 21:37:57">]> 
+ > t.class
+ => Task::ActiveRecord_Relation 
+```
+
+We can call the paginate method with current page and per page values. It returns ActiveRelation object. We can get all the records by calling `to_a` on ActiveRelation object.
+
+```
+ > results = t.to_a
+   (0.2ms)  SELECT COUNT(*) FROM "tasks"
+ => [#<Task id: 1, name: "Get rich quick", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-24 01:12:25", project_id: 1, priority: 4, due_date: "2016-01-18 21:37:57">, #<Task id: 2, name: "Write a book", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-18 21:37:57", project_id: 1, priority: 5, due_date: "2016-02-18 21:37:57">, #<Task id: 3, name: "Buy a puppy", complete: false, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-18 21:37:57", project_id: 2, priority: 9, due_date: "2016-02-18 21:37:57">, #<Task id: 4, name: "Dance in the rain", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-18 22:20:05", project_id: 2, priority: 7, due_date: "2016-01-22 21:37:57">, #<Task id: 5, name: "Dance in the snow", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-18 21:37:57", project_id: 2, priority: 6, due_date: "2016-01-18 21:37:57">] 
+ > results.size
+ => 5 
+```
+
+There are 10 tasks.
+
+```
+ > Task.count
+   (0.1ms)  SELECT COUNT(*) FROM "tasks"
+ => 10 
+```
+
+We can use the page method provided by `will_paginate` to paginate the tasks.
+
+```
+ > t1 = Task.page(1).order('id DESC')
+  Task Load (0.4ms)  SELECT  "tasks".* FROM "tasks" ORDER BY id DESC LIMIT ? OFFSET ?  [["LIMIT", 30], ["OFFSET", 0]]
+ => #<ActiveRecord::Relation [#<Task id: 10, name: "Walk on moon", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-18 21:37:57", project_id: 2, priority: 2, due_date: "2016-03-16 21:37:57">, #<Task id: 9, name: "Make fun of Donald Trump", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-18 21:37:57", project_id: 2, priority: 3, due_date: "2016-03-16 ...">]> 
+ > t1.class
+ => Task::ActiveRecord_Relation 
+ > t1r = t1.to_a
+ => [#<Task id: 10, name: "Walk on moon", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-18 21:37:57", project_id: 2, priority: 2, due_date: "2016-03-16 21:37:57">, #<Task id: 9, name: "Make fun of Donald Trump", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-18 21:37:57", project_id: 2, priority: 3, due_date: "2016-03-16 21:37:57">, #<Task id: 8, name: "Play tennis", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-18 21:37:57", project_id: 2, priority: 4,...>] 
+ > t1r.size
+ => 10 
+```
+ 
+### Step 5
+
+Let's use the page method provided by the `will_paginate` gem.
+
+```ruby
+def self.search(term, current_page)
+  if term
+    page(current_page).where('name LIKE ?', "%#{term}%").order('id DESC')
+  else
+    page(current_page).order('id DESC') 
+  end
+end
+```
+
+This gves 10 tasks per page. So no pagination links are displayed on the browser. Because we only have 10 tasks.
+
+### Step 6
+
+Let's use the paginate method provided by `will_paginate` gem.
+
+```ruby
+def self.search(term, page)
+  if term
+    where('name LIKE ?', "%#{term}%").paginate(page: page, per_page: 5).order('id DESC')
+  else
+    paginate(page: page, per_page: 5).order('id DESC') 
+  end
+end
+```
+
+The pagination now works for index and search results.
+
+### Step 7
+
+The tasks index page looks like this:
+
+```rhtml
+<h1>Tasks</h1>
+
+<%= form_tag(tasks_path, method: :get) do %>
+   <%= text_field_tag :term, params[:term] %>
+   <%= submit_tag 'Search', name: nil %>
+<% end %>
+ 
+<table>
+  <thead>
+    <tr>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+	<tr>
+	  <% for task in @tasks %>
+		<div class='task'>
+			<strong> <%= task.name %> </strong>
+		</div>
+		<%= link_to 'Edit', edit_task_path(task) %>
+		<%= link_to 'Show', task %>
+	  <% end %>
+	 </tr>		 
+  </tbody>
+</table>
+
+<%= will_paginate @tasks %>
+```
+
+## Summary
+
+In this article, you learned how to use `will_paginate` gem to paginate ActiveRecord objects in Rails 5.
+
+
+
+http://railscasts.com/episodes/51-will-paginate?view=comments
+

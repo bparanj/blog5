@@ -1,3 +1,4 @@
+D
 Update Through Checkboxes in Rails 5
 
 ## Steps
@@ -101,7 +102,7 @@ Completed 302 Found in 19ms (ActiveRecord: 0.0ms)
 
 ### Step 7
 
-View the page source. You see that the name of all the checkboxes is the same.
+View the page source. You see that the name of all the checkboxes is the same (task_id).
 
 ```html
 <ul>
