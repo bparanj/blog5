@@ -1,12 +1,19 @@
-HABTM
-Has Many Through
+Has Many Through and Has and Belongs to Many in Rails 5
 
 
--
 
+## Steps
+### Step 1
+
+Create a category model with name attribute.
+
+```
 rails g model category name
+```
 
+In Rails 5, if you don't provide the column type, it defaults to string.
 
+```ruby
 class CreateCategories < ActiveRecord::Migration[5.0]
   def change
     create_table :categories do |t|
@@ -16,12 +23,19 @@ class CreateCategories < ActiveRecord::Migration[5.0]
     end
   end
 end
+```
 
--
+### Step 2
 
+Create a product model with name attribute.
 
+```ruby
 rails g model product name
+```
 
+Here is the generated Migration file for products.
+
+```ruby
 class CreateProducts < ActiveRecord::Migration[5.0]
   def change
     create_table :products do |t|
@@ -31,20 +45,21 @@ class CreateProducts < ActiveRecord::Migration[5.0]
     end
   end
 end
-
+```
 
 Rails 5 creates the attribute with string as the default type. 
 
--
+### Step 3
 
-Many to Many Association
+For the has_and_belongs_to_many association, let's create a join table.
 
-HABTM
-
-Create a join table.
-
+```
 rails g migration CreateJoinTableCategoryProduct category product
+```
 
+If you use CreateJoinTableTableName1TableName2 model1 model2 for migration, Rails 5 migration generator will automatically create the migration file with the appropriate join table with index like this:
+
+```ruby
 class CreateJoinTableCategoryProduct < ActiveRecord::Migration[5.0]
   def change
     create_join_table :categories, :products do |t|
@@ -52,15 +67,17 @@ class CreateJoinTableCategoryProduct < ActiveRecord::Migration[5.0]
     end
   end
 end
+```
 
-The migration generator will produce join tables if JoinTable is part of the name.
+### Step 4
 
--
-
+```
 rails db:migrate
+```
 
-schema.rb:
+In schema.rb, you can see the index and the join table:
 
+```ruby
 ActiveRecord::Schema.define(version: 20160329172233) do
 
   create_table "categories", force: :cascade do |t|
@@ -83,17 +100,22 @@ ActiveRecord::Schema.define(version: 20160329172233) do
   end
 
 end
+```
 
--
+### Step 5
 
+
+```ruby
 class Product < ApplicationRecord
   has_and_belongs_to_many :categories
 end
+```
 
-
+```ruby
 class Category < ApplicationRecord
   has_and_belongs_to_many :products
 end
+```
 
 -
 
@@ -101,10 +123,11 @@ Has Many Through
 
 Create a join model
 
-
+```
 rails g model categorization product_id:integer category_id:integer position:integer
+```
 
-
+```ruby
 class CreateCategorizations < ActiveRecord::Migration[5.0]
   def change
     create_table :categorizations do |t|
@@ -118,7 +141,7 @@ class CreateCategorizations < ActiveRecord::Migration[5.0]
     add_index :categorizations, [:product_id, :category_id]
   end
 end
-
+```
 
 
 tion
@@ -127,21 +150,11 @@ ment
 
 -
 
+```
 rails db:migrate
+```
 
-# encoding: UTF-8
-# This file is auto-generated from the current state of the database. Instead
-# of editing this file, please use the migrations feature of Active Record to
-# incrementally modify your database, and then regenerate this schema definition.
-#
-# Note that this schema.rb definition is the authoritative source for your
-# database schema. If you need to create the application database on another
-# system, you should be using db:schema:load, not running all the migrations
-# from scratch. The latter is a flawed and unsustainable approach (the more migrations
-# you'll amass, the slower it'll run and the greater likelihood for issues).
-#
-# It's strongly recommended that you check this file into your version control system.
-
+```ruby
 ActiveRecord::Schema.define(version: 20160329173814) do
 
   create_table "categories", force: :cascade do |t|
@@ -174,24 +187,34 @@ ActiveRecord::Schema.define(version: 20160329173814) do
   end
 
 end
+```
 
 -
 
+```ruby
 class Categorization < ApplicationRecord
   belongs_to :product
   belongs_to :category
 end
+```
 
-
+```ruby
 class Product < ApplicationRecord
   has_many :categorizations
   has_many :categories, through: :categorizations
 end
+```
 
+```ruby
 class Category < ApplicationRecord
   has_many :categorizations
   has_many :products, through: :categorizations
 end
+```
+
+## Summary
+
+In this aricle, you learned how to use has_and_belongs_to_many and has_many through associations in Rails 5
 
 -
 

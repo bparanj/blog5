@@ -1,26 +1,13 @@
+Update Through Checkboxes in Rails 5
 
+## Steps
 
-Incomplete Tasks
+### Step 1
 
-- 
-- 
-- 
-- 
+The tasks index page displays a list of incomplete tasks and complete tasks. The `tasks/index.html.erb` looks like this:
 
-Complete Tasks
-
--
--
--
-
--
-
-
-`tasks/index.html.erb`:
-
-```
+```rhtml
 <h1>Incomplete Tasks</h1>
-
 <ul>
 <% for task in @incomplete_tasks %>
   <li>
@@ -39,31 +26,45 @@ Complete Tasks
 </ul>
 ```
 
--
+### Step 2
 
-  def self.incomplete
-    where(complete: false).order('id DESC')
-  end
+The task model has the incomplete and complete class methods.
 
-  def self.complete
-    where(complete: true).order('id DESC')
-  end  
+```ruby
+def self.incomplete
+  where(complete: false).order('id DESC')
+end
 
--
+def self.complete
+  where(complete: true).order('id DESC')
+end  
+```
 
-  def index
-    @incomplete_tasks = Task.incomplete
-    @complete_tasks = Task.complete
-  end
+### Step 3
 
--
+The tasks controller index action looks like this:
 
-  put 'complete/:id', to: 'tasks#complete', as: :complete_task  
+```ruby
+def index
+  @incomplete_tasks = Task.incomplete
+  @complete_tasks = Task.complete
+end
+```
 
--
+### Step 4
 
+Define the routes for completing a task.
+
+```ruby
+put 'complete_task', to: 'tasks#complete', as: :complete_tasks  
+```
+
+### Step 5
+
+Diplay a checkbox next to the task for marking a task as completed.
+
+```rhtml
 <h1>Incomplete Tasks</h1>
-
 <%= form_tag(complete_tasks_path, method: :put)  do %> 
   <% for task in @incomplete_tasks %> 
 	<ul>
@@ -84,107 +85,115 @@ Complete Tasks
   </li> 
 <% end %>
 </ul>
+```
 
--
+### Step 6
 
+When you select multiple tasks and submit, you see in the log file that there is only one task_id that is sent to the server.
 
-Started PUT "/complete_task" for ::1 at 2016-03-29 16:14:18 -0700
+```
+Started PUT "/complete_task" for ::1 at 2016-03-29 20:14:18 -0700
 Processing by TasksController#complete as HTML
-  Parameters: {"utf8"=>"✓", "authenticity_token"=>"RSkjkmCWQmLnMXFYlVDUfo+2lDGOreCyIJLWVuOHBcrVerzq4/Tbq0efHvWZYZo2WBws9k0Y+OcW59PGN6vlUw==", "task_id"=>"18", "commit"=>"Mark as Complete"}
+Parameters: {"authenticity_token"=>"RSkjkmC", "task_id"=>"18", "commit"=>"Mark as Complete"}
 Redirected to http://localhost:3000/tasks
 Completed 302 Found in 19ms (ActiveRecord: 0.0ms)
+```
 
+### Step 7
 
-Started GET "/tasks" for ::1 at 2016-03-29 16:14:18 -0700
-Processing by TasksController#index as HTML
-  Task Load (0.4ms)  SELECT "tasks".* FROM "tasks" WHERE "tasks"."complete" = ? ORDER BY id DESC  [["complete", false]]
-  Task Load (0.1ms)  SELECT "tasks".* FROM "tasks" WHERE "tasks"."complete" = ? ORDER BY id DESC  [["complete", true]]
-  Rendered tasks/index.html.erb within layouts/application (3.1ms)
-Completed 200 OK in 74ms (Views: 37.6ms | ActiveRecord: 0.5ms)
+View the page source. You see that the name of all the checkboxes is the same.
 
--
-
+```html
 <ul>
-	  <li>
-		<input type="checkbox" name="task_id" id="task_id" value="19" />  
-		june puppy mama   
-	  </li>
-	</ul>
-	<ul>
-	  <li>
-		<input type="checkbox" name="task_id" id="task_id" value="18" />  
-		june puppy dog   
-	  </li>
-	</ul>
-	<ul>
-	  <li>
-		<input type="checkbox" name="task_id" id="task_id" value="17" />  
-		june puppy sis   
-	  </li>
-	</ul>
+  <li>
+	<input type="checkbox" name="task_id" id="task_id" value="19" />  
+	june puppy mama   
+  </li>
+</ul>
+<ul>
+  <li>
+	<input type="checkbox" name="task_id" id="task_id" value="18" />  
+	june puppy dog   
+  </li>
+</ul>
+<ul>
+  <li>
+	<input type="checkbox" name="task_id" id="task_id" value="17" />  
+	june puppy sis   
+  </li>
+</ul>
+```
 
--
+This is the reason why all the id of the selected tasks is not sent to the server.
 
+### Step 8
+
+Change the name of the checkbox tag to `task_id[]`.
+
+```rhtml
 <%= check_box_tag 'task_id[]', task.id %>  
+```
 
+### Step 9
 
--
+View the page source, you will see that all the checkboxes now have the name `task_id[]`.
 
-
+```html
 <ul>
-	  <li>
-		<input type="checkbox" name="task_id[]" id="task_id_" value="19" />  
-		june puppy mama   
-	  </li>
-	</ul>
-	<ul>
-	  <li>
-		<input type="checkbox" name="task_id[]" id="task_id_" value="18" />  
-		june puppy dog   
-	  </li>
-	</ul>
-	<ul>
+  <li>
+	<input type="checkbox" name="task_id[]" id="task_id_" value="19" />  
+	june puppy mama   
+  </li>
+</ul>
+<ul>
+  <li>
+	<input type="checkbox" name="task_id[]" id="task_id_" value="18" />  
+	june puppy dog   
+  </li>
+</ul>
+<ul>
+```
 	
--
+### Step 10
 
-Started PUT "/complete_task" for ::1 at 2016-03-29 16:46:26 -0700
+Select multiple tasks and submit the form. You can now see an array of task ids sent to the server in the log file.
+
+```
+Started PUT "/complete_task" for ::1 at 2016-03-29 20:46:26 -0700
 Processing by TasksController#complete as HTML
-  Parameters: {"utf8"=>"✓", "authenticity_token"=>"ViMGjGVzQGW5qf2+YtdslZ5b9Axhmt6BaBDjCIfyqirGcJn05hHZrBkHkhNu5iLdSfFMy6IvxtReZeaYU95Ksw==", "task_id"=>["19", "18"], "commit"=>"Mark as Complete"}
+  Parameters: {"authenticity_token"=>"khNu5iLd", "task_id"=>["19", "18"], "commit"=>"Mark as Complete"}
 Redirected to http://localhost:3000/tasks
 Completed 302 Found in 20ms (ActiveRecord: 0.0ms)
+```
 
+### Step 11
 
-Started GET "/tasks" for ::1 at 2016-03-29 16:46:26 -0700
-Processing by TasksController#index as HTML
-  Task Load (0.3ms)  SELECT "tasks".* FROM "tasks" WHERE "tasks"."complete" = ? ORDER BY id DESC  [["complete", false]]
-  Task Load (0.2ms)  SELECT "tasks".* FROM "tasks" WHERE "tasks"."complete" = ? ORDER BY id DESC  [["complete", true]]
-  Rendered tasks/index.html.erb within layouts/application (4.0ms)
-Completed 200 OK in 82ms (Views: 47.7ms | ActiveRecord: 0.5ms)
+We can now implement the complete task in the tasks controller.
 
--
+```ruby
+def complete
+  Task.where(id: params[:task_id]).update_all(complete: true)
+  
+  redirect_to tasks_path  
+end
+```
 
-  def complete
-    Task.where(id: params[:task_id]).update_all(complete: true)
-    
-    redirect_to tasks_path  
-  end
+### Step 12
 
--
+You can see the generated SQL query that updates all the tasks and marks them as complete.
 
-Started PUT "/complete_task" for ::1 at 2016-03-29 17:01:29 -0700
+```
+Started PUT "/complete_task" for ::1 at 2016-03-29 20:01:29 -0700
 Processing by TasksController#complete as HTML
-  Parameters: {"utf8"=>"✓", "authenticity_token"=>"37qnHWgoKlfNF2a9o/Wwp7ZEXYg1hN5MCEj/RauGe2lP6Thl60qznm25CRCvxP7vYe7lT/Yxxhk+PfrVf6qb8A==", "task_id"=>["13", "11"], "commit"=>"Mark as Complete"}
+  Parameters: { "authenticity_token"=>"3qn", "task_id"=>["13", "11"], "commit"=>"Mark as Complete"}
   SQL (1.0ms)  UPDATE "tasks" SET "complete" = 't' WHERE "tasks"."id" IN (13, 11)
 Redirected to http://localhost:3000/tasks
 Completed 302 Found in 21ms (ActiveRecord: 1.0ms)
+```
 
+## Summary
 
-Started GET "/tasks" for ::1 at 2016-03-29 17:01:29 -0700
-Processing by TasksController#index as HTML
-  Task Load (0.2ms)  SELECT "tasks".* FROM "tasks" WHERE "tasks"."complete" = ? ORDER BY id DESC  [["complete", false]]
-  Task Load (0.2ms)  SELECT "tasks".* FROM "tasks" WHERE "tasks"."complete" = ? ORDER BY id DESC  [["complete", true]]
-  Rendered tasks/index.html.erb within layouts/application (3.0ms)
-Completed 200 OK in 71ms (Views: 37.4ms | ActiveRecord: 0.4ms)
+In this article, you learned how to use check boxes to select multiple items and save them in the database in Rails 5.
 
 -
 
