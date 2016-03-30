@@ -1,0 +1,112 @@
+
+
+gem 'will_paginate', '>= 3.1'
+
+bundle
+
+-
+
+  def index
+    @tasks = Task.search(params[:term], params[:page])
+  end
+
+-
+
+<%= will_paginate @tasks %>
+
+in index.html.erb
+
+-
+
+
+$ rails c
+Loading development environment (Rails 5.0.0.beta3)
+ > t = Task.paginate(page: 1, per_page: 5)
+  Task Load (1.6ms)  SELECT  "tasks".* FROM "tasks" LIMIT ? OFFSET ?  [["LIMIT", 5], ["OFFSET", 0]]
+ => #<ActiveRecord::Relation [#<Task id: 1, name: "Get rich quick", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-24 01:12:25", project_id: 1, priority: 4, due_date: "2016-01-18 21:37:57">, #<Task id: 2, name: "Write a book", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-18 21:37:57", project_id: 1, priority: 5, due_date: "2016-02-18 21:37:57">, #<Task id: 3, name: "Buy a puppy", complete: false, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-18 21:37:57", project_id: 2, priority: 9, due_date: "2016-02-18 21:37:57">, #<Task id: 4, name: "Dance in the rain", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-18 22:20:05", project_id: 2, priority: 7, due_date: "2016-01-22 21:37:57">, #<Task id: 5, name: "Dance in the snow", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-18 21:37:57", project_id: 2, priority: 6, due_date: "2016-01-18 21:37:57">]> 
+ > t.class
+ => Task::ActiveRecord_Relation 
+ > results = t.to_a
+   (0.2ms)  SELECT COUNT(*) FROM "tasks"
+ => [#<Task id: 1, name: "Get rich quick", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-24 01:12:25", project_id: 1, priority: 4, due_date: "2016-01-18 21:37:57">, #<Task id: 2, name: "Write a book", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-18 21:37:57", project_id: 1, priority: 5, due_date: "2016-02-18 21:37:57">, #<Task id: 3, name: "Buy a puppy", complete: false, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-18 21:37:57", project_id: 2, priority: 9, due_date: "2016-02-18 21:37:57">, #<Task id: 4, name: "Dance in the rain", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-18 22:20:05", project_id: 2, priority: 7, due_date: "2016-01-22 21:37:57">, #<Task id: 5, name: "Dance in the snow", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-18 21:37:57", project_id: 2, priority: 6, due_date: "2016-01-18 21:37:57">] 
+ > results.size
+ => 5 
+ > Task.count
+   (0.1ms)  SELECT COUNT(*) FROM "tasks"
+ => 10 
+ > t1 = Task.page(1).order('id DESC')
+  Task Load (0.4ms)  SELECT  "tasks".* FROM "tasks" ORDER BY id DESC LIMIT ? OFFSET ?  [["LIMIT", 30], ["OFFSET", 0]]
+ => #<ActiveRecord::Relation [#<Task id: 10, name: "Walk on moon", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-18 21:37:57", project_id: 2, priority: 2, due_date: "2016-03-16 21:37:57">, #<Task id: 9, name: "Make fun of Donald Trump", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-18 21:37:57", project_id: 2, priority: 3, due_date: "2016-03-16 21:37:57">, #<Task id: 8, name: "Play tennis", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-18 21:37:57", project_id: 2, priority: 4, due_date: "2016-03-16 21:37:57">, #<Task id: 7, name: "Just Blog It", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-18 21:37:57", project_id: 2, priority: 5, due_date: "2016-04-18 21:37:57">, #<Task id: 6, name: "Walk on water", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-18 21:37:57", project_id: 2, priority: 7, due_date: "2016-05-18 21:37:57">, #<Task id: 5, name: "Dance in the snow", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-18 21:37:57", project_id: 2, priority: 6, due_date: "2016-01-18 21:37:57">, #<Task id: 4, name: "Dance in the rain", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-18 22:20:05", project_id: 2, priority: 7, due_date: "2016-01-22 21:37:57">, #<Task id: 3, name: "Buy a puppy", complete: false, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-18 21:37:57", project_id: 2, priority: 9, due_date: "2016-02-18 21:37:57">, #<Task id: 2, name: "Write a book", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-18 21:37:57", project_id: 1, priority: 5, due_date: "2016-02-18 21:37:57">, #<Task id: 1, name: "Get rich quick", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-24 01:12:25", project_id: 1, priority: 4, due_date: "2016-01-18 21:37:57">]> 
+ > t1.class
+ => Task::ActiveRecord_Relation 
+ > t1r = t1.to_a
+ => [#<Task id: 10, name: "Walk on moon", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-18 21:37:57", project_id: 2, priority: 2, due_date: "2016-03-16 21:37:57">, #<Task id: 9, name: "Make fun of Donald Trump", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-18 21:37:57", project_id: 2, priority: 3, due_date: "2016-03-16 21:37:57">, #<Task id: 8, name: "Play tennis", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-18 21:37:57", project_id: 2, priority: 4, due_date: "2016-03-16 21:37:57">, #<Task id: 7, name: "Just Blog It", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-18 21:37:57", project_id: 2, priority: 5, due_date: "2016-04-18 21:37:57">, #<Task id: 6, name: "Walk on water", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-18 21:37:57", project_id: 2, priority: 7, due_date: "2016-05-18 21:37:57">, #<Task id: 5, name: "Dance in the snow", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-18 21:37:57", project_id: 2, priority: 6, due_date: "2016-01-18 21:37:57">, #<Task id: 4, name: "Dance in the rain", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-18 22:20:05", project_id: 2, priority: 7, due_date: "2016-01-22 21:37:57">, #<Task id: 3, name: "Buy a puppy", complete: false, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-18 21:37:57", project_id: 2, priority: 9, due_date: "2016-02-18 21:37:57">, #<Task id: 2, name: "Write a book", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-18 21:37:57", project_id: 1, priority: 5, due_date: "2016-02-18 21:37:57">, #<Task id: 1, name: "Get rich quick", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-24 01:12:25", project_id: 1, priority: 4, due_date: "2016-01-18 21:37:57">] 
+ > t1r.size
+ => 10 
+ 
+-
+
+  def self.search(term, current_page)
+    if term
+      page(current_page).where('name LIKE ?', "%#{term}%").order('id DESC')
+    else
+      # note: default is all, just sorted
+      page(current_page).order('id DESC') 
+    end
+  end
+
+
+Gives 10 tasks per page. So no pagination links are displayed on the browser.
+
+-
+
+
+  def self.search(term, page)
+    if term
+      where('name LIKE ?', "%#{term}%").paginate(page: page, per_page: 5).order('id DESC')
+    else
+      # note: default is all, just sorted
+      paginate(page: page, per_page: 5).order('id DESC') 
+    end
+  end
+
+The pagination works for index and search results.
+
+-
+
+Tasks index page.
+
+<h1>Tasks</h1>
+
+<%= form_tag(tasks_path, method: :get) do %>
+   <%= text_field_tag :term, params[:term] %>
+   <%= submit_tag 'Search', name: nil %>
+<% end %>
+ 
+<table>
+  <thead>
+    <tr>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+	<tr>
+	  <% for task in @tasks %>
+		<div class='task'>
+			<strong> <%= task.name %> </strong>
+		</div>
+		<%= link_to 'Edit', edit_task_path(task) %>
+		<%= link_to 'Show', task %>
+	  <% end %>
+	 </tr>		 
+  </tbody>
+</table>
+
+<%= will_paginate @tasks %>
+
+-
+
+
+
+http://railscasts.com/episodes/51-will-paginate?view=comments
+

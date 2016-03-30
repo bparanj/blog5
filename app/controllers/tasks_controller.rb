@@ -3,7 +3,8 @@ class TasksController < ApplicationController
   # GET /tasks
   # GET /tasks.json
   def index
-    @tasks = Task.search(params[:term])
+    @incomplete_tasks = Task.incomplete
+    @complete_tasks = Task.complete
   end
 
   # GET /tasks/1
@@ -71,6 +72,12 @@ class TasksController < ApplicationController
   
   def completed
     @tasks = Task.where(complete: true)  
+  end
+  
+  def complete
+    Task.where(id: params[:task_id]).update_all(complete: true)
+    
+    redirect_to tasks_path  
   end
   
   private

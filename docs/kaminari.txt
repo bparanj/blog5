@@ -1,0 +1,47 @@
+
+
+
+
+gem 'kaminari', :git => "git://github.com/amatsuda/kaminari.git", :branch => 'master'
+
+bundle
+
+-
+
+In task model:
+  paginates_per  5
+  
+  def self.search(term, page)
+    if term
+      where('name LIKE ?', "%#{term}%").order('id DESC').page(current_page)
+    else
+      # note: default is all, just sorted
+      order('id DESC').page(current_page) 
+    end
+  end
+
+-
+
+In `tasks/index.html.erb`:
+
+<%= paginate @tasks %>
+
+-
+
+<%= paginate @tasks, :left => 1, :right => 3 %>
+
+-
+
+<%= paginate @tasks, :outer_window => 3 %>
+
+-
+
+Custom Themes
+
+rails g kaminari:views google
+
+-
+
+The pagination has Google look and feel. There are other themes available such as bootstrap, github etc, checkout the Kaminari home page for more details.
+
+- 

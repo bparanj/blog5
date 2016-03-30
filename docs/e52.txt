@@ -1,0 +1,194 @@
+
+
+Incomplete Tasks
+
+- 
+- 
+- 
+- 
+
+Complete Tasks
+
+-
+-
+-
+
+-
+
+
+`tasks/index.html.erb`:
+
+```
+<h1>Incomplete Tasks</h1>
+
+<ul>
+<% for task in @incomplete_tasks %>
+  <li>
+	<%= task.name %>
+  </li>
+<% end %>
+</ul>
+
+<h1>Complete Tasks</h1>
+<ul>
+<% for task in @complete_tasks %>
+  <li> 
+	  <%= task.name %> 
+  </li> 
+<% end %>
+</ul>
+```
+
+-
+
+  def self.incomplete
+    where(complete: false).order('id DESC')
+  end
+
+  def self.complete
+    where(complete: true).order('id DESC')
+  end  
+
+-
+
+  def index
+    @incomplete_tasks = Task.incomplete
+    @complete_tasks = Task.complete
+  end
+
+-
+
+  put 'complete/:id', to: 'tasks#complete', as: :complete_task  
+
+-
+
+<h1>Incomplete Tasks</h1>
+
+<%= form_tag(complete_tasks_path, method: :put)  do %> 
+  <% for task in @incomplete_tasks %> 
+	<ul>
+	  <li>
+		<%= check_box_tag 'task_id', task.id %>  
+		<%= task.name %>   
+	  </li>
+	</ul>
+  <% end %>
+  <%= submit_tag 'Mark as Complete' %>
+<% end %>
+
+<h1>Complete Tasks</h1>
+<ul>
+<% for task in @complete_tasks %>
+  <li> 
+	  <%= task.name %> 
+  </li> 
+<% end %>
+</ul>
+
+-
+
+
+Started PUT "/complete_task" for ::1 at 2016-03-29 16:14:18 -0700
+Processing by TasksController#complete as HTML
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"RSkjkmCWQmLnMXFYlVDUfo+2lDGOreCyIJLWVuOHBcrVerzq4/Tbq0efHvWZYZo2WBws9k0Y+OcW59PGN6vlUw==", "task_id"=>"18", "commit"=>"Mark as Complete"}
+Redirected to http://localhost:3000/tasks
+Completed 302 Found in 19ms (ActiveRecord: 0.0ms)
+
+
+Started GET "/tasks" for ::1 at 2016-03-29 16:14:18 -0700
+Processing by TasksController#index as HTML
+  Task Load (0.4ms)  SELECT "tasks".* FROM "tasks" WHERE "tasks"."complete" = ? ORDER BY id DESC  [["complete", false]]
+  Task Load (0.1ms)  SELECT "tasks".* FROM "tasks" WHERE "tasks"."complete" = ? ORDER BY id DESC  [["complete", true]]
+  Rendered tasks/index.html.erb within layouts/application (3.1ms)
+Completed 200 OK in 74ms (Views: 37.6ms | ActiveRecord: 0.5ms)
+
+-
+
+<ul>
+	  <li>
+		<input type="checkbox" name="task_id" id="task_id" value="19" />  
+		june puppy mama   
+	  </li>
+	</ul>
+	<ul>
+	  <li>
+		<input type="checkbox" name="task_id" id="task_id" value="18" />  
+		june puppy dog   
+	  </li>
+	</ul>
+	<ul>
+	  <li>
+		<input type="checkbox" name="task_id" id="task_id" value="17" />  
+		june puppy sis   
+	  </li>
+	</ul>
+
+-
+
+<%= check_box_tag 'task_id[]', task.id %>  
+
+
+-
+
+
+<ul>
+	  <li>
+		<input type="checkbox" name="task_id[]" id="task_id_" value="19" />  
+		june puppy mama   
+	  </li>
+	</ul>
+	<ul>
+	  <li>
+		<input type="checkbox" name="task_id[]" id="task_id_" value="18" />  
+		june puppy dog   
+	  </li>
+	</ul>
+	<ul>
+	
+-
+
+Started PUT "/complete_task" for ::1 at 2016-03-29 16:46:26 -0700
+Processing by TasksController#complete as HTML
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"ViMGjGVzQGW5qf2+YtdslZ5b9Axhmt6BaBDjCIfyqirGcJn05hHZrBkHkhNu5iLdSfFMy6IvxtReZeaYU95Ksw==", "task_id"=>["19", "18"], "commit"=>"Mark as Complete"}
+Redirected to http://localhost:3000/tasks
+Completed 302 Found in 20ms (ActiveRecord: 0.0ms)
+
+
+Started GET "/tasks" for ::1 at 2016-03-29 16:46:26 -0700
+Processing by TasksController#index as HTML
+  Task Load (0.3ms)  SELECT "tasks".* FROM "tasks" WHERE "tasks"."complete" = ? ORDER BY id DESC  [["complete", false]]
+  Task Load (0.2ms)  SELECT "tasks".* FROM "tasks" WHERE "tasks"."complete" = ? ORDER BY id DESC  [["complete", true]]
+  Rendered tasks/index.html.erb within layouts/application (4.0ms)
+Completed 200 OK in 82ms (Views: 47.7ms | ActiveRecord: 0.5ms)
+
+-
+
+  def complete
+    Task.where(id: params[:task_id]).update_all(complete: true)
+    
+    redirect_to tasks_path  
+  end
+
+-
+
+Started PUT "/complete_task" for ::1 at 2016-03-29 17:01:29 -0700
+Processing by TasksController#complete as HTML
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"37qnHWgoKlfNF2a9o/Wwp7ZEXYg1hN5MCEj/RauGe2lP6Thl60qznm25CRCvxP7vYe7lT/Yxxhk+PfrVf6qb8A==", "task_id"=>["13", "11"], "commit"=>"Mark as Complete"}
+  SQL (1.0ms)  UPDATE "tasks" SET "complete" = 't' WHERE "tasks"."id" IN (13, 11)
+Redirected to http://localhost:3000/tasks
+Completed 302 Found in 21ms (ActiveRecord: 1.0ms)
+
+
+Started GET "/tasks" for ::1 at 2016-03-29 17:01:29 -0700
+Processing by TasksController#index as HTML
+  Task Load (0.2ms)  SELECT "tasks".* FROM "tasks" WHERE "tasks"."complete" = ? ORDER BY id DESC  [["complete", false]]
+  Task Load (0.2ms)  SELECT "tasks".* FROM "tasks" WHERE "tasks"."complete" = ? ORDER BY id DESC  [["complete", true]]
+  Rendered tasks/index.html.erb within layouts/application (3.0ms)
+Completed 200 OK in 71ms (Views: 37.4ms | ActiveRecord: 0.4ms)
+
+-
+
+Update episode 17 with create_join_table tip. 
+
+
+http://railscasts.com/episodes/52-update-through-checkboxes?view=comments
