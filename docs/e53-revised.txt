@@ -1,0 +1,135 @@
+
+
+Handling Exceptions in Rails 5
+
+## Steps
+### Step 1
+
+Browsing to a non-existing task `http://localhost:3000/tasks/100` throws a stack trace when ActiveRecord::RecordNotFound exception is raised. This is the behavior in development environment.
+
+### Step 2
+
+In development.rb, you can see:
+
+```ruby
+# Show full error reports.
+config.consider_all_requests_local = true
+```
+
+This flag is the reason why the stack trace is shown in the browser.
+
+### Step 3
+
+Start the rails app in production mode.
+
+```
+RAILS_ENV=production rails s
+```
+
+Hit the URL with task id that does not exist in the database: `http://localhost:3001/tasks/100`. You will see an error page in the browser:
+
+```
+An unhandled lowlevel error occurred. The application logs may have details.
+```
+
+In the log file:
+
+```
+Rack app error: #<RuntimeError: Missing `secret_key_base` for 'production' environment, set this value in `config/secrets.yml`>
+```
+
+Note that there is no stack trace shown in the browser in production mode.
+
+### Step 4
+
+```
+export SECRET_KEY_BASE='secret'
+```
+
+Go to task show page for a task id that does not exist. You will see an error in the browser:
+
+```
+We're sorry, but something went wrong.
+If you are the application owner check the logs for more information.
+```
+
+The user does not see any stack trace for any errors that occurs in production.
+
+### Step 5
+
+We can render 404 by customizing the exception handling. Add the following code to application controller.
+
+```ruby
+rescue_from ActiveRecord::RecordNotFound, with: :not_found_error
+
+protected
+
+def not_found_error
+  render plain: '404 Not Found', status: :not_found
+end
+```
+
+### Step 6
+
+By default, 500.html is displayed in production and '404 Not Found' in development. If you change the implementation for `not_found_error` to following:
+
+```ruby
+render file: 'public/401', status: :not_found
+```
+	
+It does not work in dev.
+
+### Step 7
+
+Let's change the implementation of `not_found_error` to:
+
+```ruby
+render nothing: true, status: :unauthorized
+```
+
+This results in deprecation warning.
+
+```
+DEPRECATION WARNING: `:nothing` option is deprecated and will be removed in Rails 5.1. Use `head` method to respond with empty response body. (called from not_found_error at /Users/bparanj/projects/blog5/app/controllers/application_controller.rb:11)
+  Rendered text template (0.0ms)
+Completed 401 Unauthorized in 11ms (Views: 1.9ms | ActiveRecord: 0.8ms)
+```
+
+The `render nothing: true` has been deprecated in Rails 5. The alternative is to use:
+
+```ruby
+head :unauthorized
+```
+
+```
+Started GET "/tasks/100" for ::1 at 2016-03-30 21:01:12 -0700
+Processing by TasksController#show as HTML
+  Parameters: {"id"=>"100"}
+  Task Load (0.1ms)  SELECT  "tasks".* FROM "tasks" WHERE "tasks"."id" = ? LIMIT ?  [["id", 100], ["LIMIT", 1]]
+Completed 401 Unauthorized in 8ms (ActiveRecord: 0.7ms)
+```
+
+The render file call:
+
+```ruby
+render file: 'public/401.html', status: :not_found
+```
+
+does not work. **Note**:
+
+
+```ruby
+consider_all_requests_local = true
+```
+
+means the stack trace will be displayed on the browser.
+
+**Note**:
+
+The last version of Rails that had rescue_action_in_public is 2.3.8. It is no longer available in Rails 5.
+
+## Summary
+
+In this article, you learned how to handle exceptions by defining your own exception handlers in Rails 5.
+
+http://railscasts.com/episodes/53-handling-exceptions?view=comments

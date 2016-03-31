@@ -1,0 +1,7 @@
+How to Quickly Create Test Cases to Fix Problems
+
+Based on How to Contribute to Rails Guides 
+
+Use the same test case template. Instead of running the tests, fire up an IRB console to experiment with the code.
+
+This can also be used to learn the API. This can also be a learning tool. A useful tool for resolving Rails upgrade issues.
