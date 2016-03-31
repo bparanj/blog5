@@ -1,0 +1,143 @@
+How to Benchmark Your Code using benchmark-ips Gem
+
+In this article, you will see how easy it is to start benchmarking your code. The Ruby version used is 2.3.0. First, install the benchmark-ips gem.
+
+```
+gem install benchmark-ips
+```
+
+The advantage of using this gem is that you don't have to guess the iteration number to benchmark your code. The gem automatically figures out the iteration number to use.
+
+## Dynamically Sending a Message to an Object
+
+Let's compare sending message to an object using `send` vs using implicit send to execute code.
+
+```ruby
+require 'benchmark/ips'
+ 
+Benchmark.ips do |x|
+  x.report('addition') { 1 + 2 }
+  x.report('addition with send') { 1.send(:+, 2) }
+  x.compare!
+end
+```
+
+Run the benchmark.
+
+```
+$ ruby add.rb
+```
+
+Here is the performance results.
+
+```
+Warming up --------------------------------------
+            addition   171.062k i/100ms
+  addition with send   159.831k i/100ms
+Calculating -------------------------------------
+            addition     12.818M (± 2.5%) i/s -     64.148M
+  addition with send      8.173M (± 2.1%) i/s -     40.917M
+
+Comparison:
+            addition: 12817978.9 i/s
+  addition with send:  8173109.1 i/s - 1.57x slower
+```
+
+You can see using `send` is slower.
+
+## String Concatenation
+
+```ruby
+require 'benchmark/ips'
+ 
+Benchmark.ips do |x|
+  x.report('concat with +=') do
+    s = 'bat'
+	s += 'mat'
+  end
+  x.report('concat with <<') do
+    s = 'bat'
+    s += 'mat'
+  end
+  x.report('concat with concat') do
+    s = 'bat'
+    s.concat('mat')
+  end
+  
+  x.compare!
+end
+```
+
+Run the benchmark.
+
+```
+ruby concat.rb
+```
+
+Here is the performance results.
+
+```
+Warming up --------------------------------------
+      concat with +=   139.541k i/100ms
+      concat with <<   139.269k i/100ms
+  concat with concat   140.424k i/100ms
+Calculating -------------------------------------
+      concat with +=      5.430M (± 3.7%) i/s -     27.210M
+      concat with <<      5.450M (± 2.3%) i/s -     27.297M
+  concat with concat      5.215M (± 2.2%) i/s -     26.119M
+
+Comparison:
+      concat with <<:  5449732.2 i/s
+      concat with +=:  5429731.5 i/s - same-ish: difference falls within error
+  concat with concat:  5214770.8 i/s - same-ish: difference falls within error
+```
+
+There doesn't seem to be that much difference in performance. But we know that anything that creates lot of objects will be slower. So we should prefer either << or concat.
+## Parallel Assignment
+
+Let's now compare parallel assignment with sequential assignment.
+
+```ruby
+require 'benchmark/ips'
+ 
+Benchmark.ips do |x|
+  x.report('parallel') do
+    a, b = 10, 20
+  end
+  
+  x.report('sequential') do
+    a = 10
+	b = 20
+  end
+  
+  x.compare!
+end
+```
+
+Run the benchmark.
+
+```
+$ ruby assignment.rb 
+```
+
+Here is the performance results.
+
+```
+Warming up --------------------------------------
+            parallel   163.915k i/100ms
+          sequential   172.552k i/100ms
+Calculating -------------------------------------
+            parallel      9.089M (± 3.5%) i/s -     45.404M
+          sequential     12.342M (± 3.4%) i/s -     61.774M
+
+Comparison:
+          sequential: 12341542.5 i/s
+            parallel:  9088599.9 i/s - 1.36x slower
+
+## Summary
+
+In this article, you learned how to use benchmark-ips gem to benchmark your code. It is a lot easier to interpret the results when you use benchmark-ips gem. 
+
+## Reference
+
+[benchmark-ips](https://github.com/evanphx/benchmark-ips 'benchmark-ips')

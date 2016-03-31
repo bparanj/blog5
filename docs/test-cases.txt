@@ -1,0 +1,397 @@
+
+Rails 5 ActiveRecord Troubleshooting and Learning Tool
+
+In this article, you will learn how to quickly create test cases to reproduce problems. This is very useful when you want to isolate problems due to gem versions. This can save you lot of time when you run into issues after upgrading Rails. We will use the Rails bug report template as the base for creating our test case template. Instead of running the tests we will fire up an IRB console to experiment with the code. This script can also be used to teach and learn Rails. The script is based on [How to Contribute to Rails Guides](http://guides.rubyonrails.org/contributing_to_ruby_on_rails.html 'How to Contribute to Rails Guides'). Here is the ActiveRecord bug template stolen from the Rails Guides:
+
+```ruby
+begin
+  require 'bundler/inline'
+rescue LoadError => e
+  $stderr.puts 'Bundler version 1.10 or later is required. Please update your Bundler'
+  raise e
+end
+
+gemfile(true) do
+  source 'https://rubygems.org'
+  # Activate the gem you are reporting the issue against.
+  gem 'activerecord', '5.0.0.beta3'
+  gem 'sqlite3'
+end
+
+require 'active_record'
+require 'minitest/autorun'
+require 'logger'
+
+# Ensure backward compatibility with Minitest 4
+Minitest::Test = MiniTest::Unit::TestCase unless defined?(Minitest::Test)
+
+# This connection will do for database-independent bug reports.
+ActiveRecord::Base.establish_connection(adapter: 'sqlite3', database: ':memory:')
+ActiveRecord::Base.logger = Logger.new(STDOUT)
+
+ActiveRecord::Schema.define do
+  create_table :posts, force: true do |t|
+  end
+
+  create_table :comments, force: true do |t|
+    t.integer :post_id
+  end
+end
+
+class Post < ActiveRecord::Base
+  has_many :comments
+end
+
+class Comment < ActiveRecord::Base
+  belongs_to :post
+end
+
+class BugTest < Minitest::Test
+  def test_association_stuff
+    post = Post.create!
+    post.comments << Comment.create!
+
+    assert_equal 1, post.comments.count
+    assert_equal 1, Comment.count
+    assert_equal post.id, Comment.first.post.id
+  end
+end
+```
+
+Run the script.
+
+
+```
+ruby ar_template.rb
+```
+
+Here is the output:
+
+```
+Resolving dependencies...
+Using concurrent-ruby 1.0.1
+Using i18n 0.7.0
+Using minitest 5.8.4
+Using thread_safe 0.3.5
+Using arel 7.0.0
+Using sqlite3 1.3.11
+Using bundler 1.11.2
+Using tzinfo 1.2.2
+Using activesupport 5.0.0.beta3
+Using activemodel 5.0.0.beta3
+Using activerecord 5.0.0.beta3
+-- create_table(:posts, {:force=>true})
+D, [2016-03-31T11:24:06 #38315] DEBUG - :  (1.0ms)  CREATE TABLE "posts" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL) 
+   -> 0.0446s
+-- create_table(:comments, {:force=>true})
+D, [2016-03-31T11:24:06 #38315] DEBUG - :  (0.1ms)  CREATE TABLE "comments" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "post_id" integer) 
+   -> 0.0006s
+D, [2016-03-31T21:24:06 #38315] DEBUG - :  (0.1ms)  CREATE TABLE "ar_internal_metadata" ("key" varchar PRIMARY KEY, "value" varchar, "created_at" datetime NOT NULL, "updated_at" datetime NOT NULL) 
+D, [2016-03-31T21:24:06 #38315] DEBUG - :  ActiveRecord::InternalMetadata Load (0.2ms)  SELECT  "ar_internal_metadata".* FROM "ar_internal_metadata" ORDER BY "ar_internal_metadata"."key" ASC LIMIT ?  [["LIMIT", 1]]
+D, [2016-03-31T21:24:06 #38315] DEBUG - :  (0.0ms)  begin transaction
+D, [2016-03-31T21:24:06 #38315] DEBUG - :  SQL (0.1ms)  INSERT INTO "ar_internal_metadata" ("key", "value", "created_at", "updated_at") VALUES (?, ?, ?, ?)  [["key", "environment"], ["value", "default_env"], ["created_at", 2016-03-31 21:24:06 UTC], ["updated_at", 2016-03-31 21:24:06 UTC]]
+D, [2016-03-31T21:24:06 #38315] DEBUG - :  (0.0ms)  commit transaction
+Run options: --seed 14885
+
+# Running:
+
+D, [2016-03-31T21:24:06 #38315] DEBUG - :  (0.0ms)  begin transaction
+D, [2016-03-31T21:24:06 #38315] DEBUG - : SQL (0.1ms)  INSERT INTO "posts" DEFAULT VALUES
+D, [2016-03-31T21:24:06 #38315] DEBUG - :  (0.0ms)  commit transaction
+D, [2016-03-31T21:24:06 #38315] DEBUG - :  (0.0ms)  begin transaction
+D, [2016-03-31T21:24:06 #38315] DEBUG - : SQL (0.0ms)  INSERT INTO "comments" DEFAULT VALUES
+D, [2016-03-31T21:24:06 #38315] DEBUG - :  (0.0ms)  commit transaction
+D, [2016-03-31T21:24:06 #38315] DEBUG - :  (0.0ms)  begin transaction
+D, [2016-03-31T21:24:06 #38315] DEBUG - : SQL (0.1ms)  UPDATE "comments" SET "post_id" = ? WHERE "comments"."id" = ?  [["post_id", 1], ["id", 1]]
+D, [2016-03-31T21:24:06 #38315] DEBUG - :  (0.0ms)  commit transaction
+D, [2016-03-31T21:24:06 #38315] DEBUG - :  (0.1ms)  SELECT COUNT(*) FROM "comments" WHERE "comments"."post_id" = ?  [["post_id", 1]]
+D, [2016-03-31T21:24:06 #38315] DEBUG - :  (0.0ms)  SELECT COUNT(*) FROM "comments"
+D, [2016-03-31T21:24:06 #38315] DEBUG - : Comment Load (0.1ms)  SELECT  "comments".* FROM "comments" ORDER BY "comments"."id" ASC LIMIT ?  [["LIMIT", 1]]
+D, [2016-03-31T21:24:06 #38315] DEBUG - : Post Load (0.1ms)  SELECT  "posts".* FROM "posts" WHERE "posts"."id" = ? LIMIT ?  [["id", 1], ["LIMIT", 1]]
+.
+
+Finished in 0.045340s, 22.0555 runs/s, 66.1664 assertions/s.
+
+1 runs, 3 assertions, 0 failures, 0 errors, 0 skips
+```
+
+Instead of running a test, let's drop into an IRB console to experiment with the ActiveRecord API. Remove the BugTest class and add:
+
+```ruby
+IRB.start
+```
+
+to the end of the script. Run the script.
+
+```
+$ ruby ar_template.rb
+```
+
+You can see the following output in the terminal.
+
+```
+Resolving dependencies...
+Using concurrent-ruby 1.0.1
+Using i18n 0.7.0
+Using minitest 5.8.4
+Using thread_safe 0.3.5
+Using arel 7.0.0
+Using sqlite3 1.3.11
+Using bundler 1.11.2
+Using tzinfo 1.2.2
+Using activesupport 5.0.0.beta3
+Using activemodel 5.0.0.beta3
+Using activerecord 5.0.0.beta3
+-- create_table(:posts, {:force=>true})
+D, [2016-03-31T11:27:09 #38616] DEBUG -:  (0.3ms)  CREATE TABLE "posts" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL) 
+   -> 0.0194s
+-- create_table(:comments, {:force=>true})
+D, [2016-03-31T11:27:09 #38616] DEBUG - :  (0.1ms)  CREATE TABLE "comments" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "post_id" integer) 
+   -> 0.0005s
+D, [2016-03-31T11:27:09 #38616] DEBUG - :  (0.1ms)  CREATE TABLE "ar_internal_metadata" ("key" varchar PRIMARY KEY, "value" varchar, "created_at" datetime NOT NULL, "updated_at" datetime NOT NULL) 
+D, [2016-03-31T11:27:09 #38616] DEBUG - :  ActiveRecord::InternalMetadata Load (0.1ms)  SELECT  "ar_internal_metadata".* FROM "ar_internal_metadata" ORDER BY "ar_internal_metadata"."key" ASC LIMIT ?  [["LIMIT", 1]]
+D, [2016-03-31T11:27:09 #38616] DEBUG - :  (0.0ms)  begin transaction
+D, [2016-03-31T11:27:09 #38616] DEBUG - :  SQL (0.1ms)  INSERT INTO "ar_internal_metadata" ("key", "value", "created_at", "updated_at") VALUES (?, ?, ?, ?)  [["key", "environment"], ["value", "default_env"], ["created_at", 2016-03-31 18:27:09 UTC], ["updated_at", 2016-03-31 18:27:09 UTC]]
+D, [2016-03-31T11:27:09 #38616] DEBUG - :  (0.0ms)  commit transaction
+```
+
+We are now dropped in a IRB console. We can experiment as much as we want here. Let's create a post.
+
+```
+ > post = Post.create!
+```
+
+You can see the generated SQL for inserting a post record.
+
+``` 
+D, [2016-03-31T11:27:18 #38616] DEBUG - :  (0.0ms)  begin transaction
+D, [2016-03-31T11:27:18 #38616] DEBUG - :  SQL (0.1ms)  INSERT INTO "posts" DEFAULT VALUES
+D, [2016-03-31T11:27:18 #38616] DEBUG - :  (0.0ms)  commit transaction
+ => #<Post id: 1> 
+```
+
+Let's associate a new comment to this post.
+
+```
+ > post.comments << Comment.create!
+```
+
+We see an insert and update in the terminal output.
+
+```
+D, [2016-03-31T11:27:35.751052 #38616] DEBUG - :  (0.0ms)  begin transaction
+D, [2016-03-31T11:27:35.751599 #38616] DEBUG - :  SQL (0.0ms)  INSERT INTO "comments" DEFAULT VALUES
+D, [2016-03-31T11:27:35.751753 #38616] DEBUG - :  (0.0ms)  commit transaction
+D, [2016-03-31T11:27:35.751918 #38616] DEBUG - :  (0.0ms)  begin transaction
+D, [2016-03-31T11:27:35.754817 #38616] DEBUG - :  SQL (0.1ms)  UPDATE "comments" SET "post_id" = ? WHERE "comments"."id" = ?  [["post_id", 1], ["id", 1]]
+D, [2016-03-31T11:27:35.754966 #38616] DEBUG - :  (0.0ms)  commit transaction
+D, [2016-03-31T11:27:35.756718 #38616] DEBUG - :  Comment Load (0.1ms)  SELECT "comments".* FROM "comments" WHERE "comments"."post_id" = ?  [["post_id", 1]]
+ => #<ActiveRecord::Associations::CollectionProxy [#<Comment id: 1, post_id: 1>]> 
+```
+
+We can count the comments for the post we created.
+
+```
+ > post.comments.count
+```
+
+We see the SQL query to get the count.
+
+```
+D, [2016-03-31T11:27:45 #38616] DEBUG - :  (0.1ms)  SELECT COUNT(*) FROM "comments" WHERE "comments"."post_id" = ?  [["post_id", 1]]
+ => 1
+```
+
+We can count the comment.
+
+```
+ > Comment.count
+```
+
+The corresponding SQL is shown in the output.
+
+``` 
+D, [2016-03-31T11:27:51 #38616] DEBUG - :  (0.1ms)  SELECT COUNT(*) FROM "comments"
+ => 1 
+```
+
+We can navigate the comment `belongs_to` post and check the id is the same as the id of the post.
+
+```
+ > Comment.first.post.id
+D, [2016-03-31T11:27:59 #38616] DEBUG - : Comment Load (0.1ms)  SELECT  "comments".* FROM "comments" ORDER BY "comments"."id" ASC LIMIT ?  [["LIMIT", 1]]
+D, [2016-03-31T11:27:59 #38616] DEBUG - : Post Load (0.1ms)  SELECT  "posts".* FROM "posts" WHERE "posts"."id" = ? LIMIT ?  [["id", 1], ["LIMIT", 1]]
+ => 1 
+ > post.id
+ => 1 
+```
+
+Here is the full script to run for learning or trouble shooting purposes.
+
+```ruby
+require 'irb'
+
+begin
+  require 'bundler/inline'
+rescue LoadError => e
+  $stderr.puts 'Bundler version 1.10 or later is required. Please update your Bundler'
+  raise e
+end
+
+gemfile(true) do
+  source 'https://rubygems.org'
+  # Activate the gem you want to play with.
+  gem 'activerecord', '5.0.0.beta3'
+  gem 'sqlite3'
+end
+
+require 'active_record'
+require 'logger'
+
+# This connection will do for database-independent katas.
+ActiveRecord::Base.establish_connection(adapter: 'sqlite3', database: ':memory:')
+ActiveRecord::Base.logger = Logger.new(STDOUT)
+
+ActiveRecord::Schema.define do
+  create_table :articles, force: true do |t|
+  end
+
+  create_table :comments, force: true do |t|
+    t.integer :article_id
+  end
+end
+
+class Article < ActiveRecord::Base
+  has_many :comments
+end
+
+class Comment < ActiveRecord::Base
+  belongs_to :article
+end
+
+IRB.start
+```
+
+## ActionController Bug Template
+
+```ruby
+begin
+  require 'bundler/inline'
+rescue LoadError => e
+  $stderr.puts 'Bundler version 1.10 or later is required. Please update your Bundler'
+  raise e
+end
+
+gemfile(true) do
+  source 'https://rubygems.org'
+  # Activate the gem you are reporting the issue against.
+  gem 'rails', '5.0.0.beta3'
+end
+
+require 'rack/test'
+require 'action_controller/railtie'
+
+class TestApp < Rails::Application
+  config.root = File.dirname(__FILE__)
+  config.session_store :cookie_store, key: 'cookie_store_key'
+  secrets.secret_token    = 'secret_token'
+  secrets.secret_key_base = 'secret_key_base'
+
+  config.logger = Logger.new($stdout)
+  Rails.logger  = config.logger
+
+  routes.draw do
+    get '/' => 'test#index'
+  end
+end
+
+class TestController < ActionController::Base
+  include Rails.application.routes.url_helpers
+
+  def index
+    render plain: 'Home'
+  end
+end
+
+require 'minitest/autorun'
+
+# Ensure backward compatibility with Minitest 4
+Minitest::Test = MiniTest::Unit::TestCase unless defined?(Minitest::Test)
+
+class BugTest < Minitest::Test
+  include Rack::Test::Methods
+
+  def test_returns_success
+    get '/'
+    assert last_response.ok?
+  end
+
+  private
+    def app
+      Rails.application
+    end
+end
+```
+
+Run the script.
+
+```
+$ ruby ac_template.rb
+Resolving dependencies...
+Using rake 11.1.2
+Using concurrent-ruby 1.0.1
+Using i18n 0.7.0
+Using minitest 5.8.4
+Using thread_safe 0.3.5
+Using builder 3.2.2
+Using erubis 2.7.0
+Using mini_portile2 2.0.0
+Using json 1.8.3
+Using nio4r 1.2.1
+Using websocket-extensions 0.1.2
+Using mime-types-data 3.2016.0221
+Using arel 7.0.0
+Using bundler 1.11.2
+Using method_source 0.8.2
+Using thor 0.19.1
+Using tzinfo 1.2.2
+Using nokogiri 1.6.7.2
+Using rack 2.0.0.alpha
+Using websocket-driver 0.6.3
+Using mime-types 3.0
+Using activesupport 5.0.0.beta3
+Using loofah 2.0.3
+Using rack-test 0.6.3
+Using sprockets 3.5.2
+Using mail 2.6.4
+Using rails-deprecated_sanitizer 1.0.3
+Using globalid 0.3.6
+Using activemodel 5.0.0.beta3
+Using rails-html-sanitizer 1.0.3
+Using rails-dom-testing 1.0.7
+Using activejob 5.0.0.beta3
+Using activerecord 5.0.0.beta3
+Using actionview 5.0.0.beta3
+Using actionpack 5.0.0.beta3
+Using actioncable 5.0.0.beta3
+Using actionmailer 5.0.0.beta3
+Using railties 5.0.0.beta3
+Using sprockets-rails 3.0.4
+Using rails 5.0.0.beta3
+Run options: --seed 18277
+
+# Running:
+
+I, [2016-03-31T21:40:16 #47936]  INFO -- : Started GET "/" for 127.0.0.1 at 2016-03-31 21:40:16 -0700
+.
+
+Finished in 0.178257s, 5.6099 runs/s, 5.6099 assertions/s.
+
+1 runs, 1 assertions, 0 failures, 0 errors, 0 skips
+```
+
+I have not figured out how to customize the ActionController bug template that we can play with in the IRB yet. Let me know if you know how.
+
+## Summary
+
+In this article, you learned how easy it is to customize the Rails 5 bug report template and use it as a learning or teaching tool. It is also a useful tool for isolating problems due to Rails upgrade.
