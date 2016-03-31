@@ -1,0 +1,81 @@
+
+
+Tasks due within 10 days
+
+Today: today's date
+
+List of tasks
+that are due in the next 10 days
+
+-
+
+
+Tasks controller.
+
+tasks = Task.find_near_due(Date.today)
+
+-
+
+Task model
+
+self.find_near_due(time)
+  due_date = time + 10.days
+  find(:all, conditions: ['due_at < ?', due_date], order: 'due_at')
+  
+-
+
+gem install ruby-debug -y
+
+-
+
+Add debugger to set a breakpoint
+
+Restart the server
+
+-
+
+rdb:1 help
+
+-
+
+list
+next
+
+p variable
+-
+
+http://railscasts.com/episodes/54-debugging-with-ruby-debug?view=comments
+
+
+54 Revised
+-
+
+gem 'debugger', group development and test
+
+-
+
+debugger to set break point
+
+-
+
+help
+help list
+l or list
+next
+l
+pp @variable
+
+step to step in
+irb to switch to IRB
+exit to exit out of IRB session
+
+-
+
+pry is alternative Episode 280.
+
+-
+
+https://github.com/deivid-rodriguez/byebug
+
+
+

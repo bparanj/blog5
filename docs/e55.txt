@@ -1,0 +1,114 @@
+
+
+carts/current;
+Shopping Cart Page
+
+Product , quantity , unit price, full price
+
+total : amount in dollars
+
+Continue Shopping Edit cart , checkout
+
+-
+
+cart/show.html.erb:
+
+
+
+
+<% title "Shopping Cart" %>
+
+<table id="line_items">
+  <tr>
+    <th>Product</th>
+    <th>Qty</th>
+    <th class="price">Unit Price</th>
+    <th class="price">Full Price</th>
+  </tr>
+  <%= render :partial => 'line_item', :collection => @cart.line_items %>
+  <tr>
+    <td class="total price" colspan="4">
+      Total: <%= number_to_currency @cart.total_price %>
+    </td>
+  </tr>
+</table>
+
+-
+
+carts/_line_item.html.erb
+
+
+
+<tr class="<%= cycle :odd, :even %>">
+  <td><%=h line_item.product.name %></td>
+  <td class="qty"><%= line_item.quantity %></td>
+  <td class="price"><%= free_when_zero(line_item.unit_price) %></td>
+  <td class="price"><%= free_when_zero(line_item.full_price) %></td>
+</tr>
+
+
+-
+
+LineItem
+
+def full_price
+  unit_price*quantity
+end
+
+Cart
+
+
+
+def total_price
+  line_items.to_a.sum(&:full_price)
+end
+
+@cart.items.inject(0.0){|total,item|total+(item.price*item.quantity)}
+
+
+def free_when_zero(price)
+  price.zero? ? "FREE" : number_to_currency(price)
+end
+
+Rename free_when_zero to price_of_item
+-
+
+Don't initialize any variables in the view.
+
+-
+
+Don't loop.
+
+-
+
+Don't do calculations
+
+-
+
+$ rails c
+Loading development environment (Rails 5.0.0.beta3)
+
+ > for i in (1..10).to_a do
+ >     helper.cycle(:odd, :even)
+ >   end
+ => [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] 
+ > for i in (1..10).to_a do
+ >     p helper.cycle(:odd, :even)
+ >   end
+"odd"
+"even"
+"odd"
+"even"
+"odd"
+"even"
+"odd"
+"even"
+"odd"
+"even"
+ => [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+ 
+-
+
+http://railscasts.com/episodes/55-cleaning-up-the-view?view=comments
+
+

@@ -1,0 +1,372 @@
+Create Model Through Text Field in Rails 5
+
+## Steps
+### Step 1
+
+Create a new Rails 5 project.
+
+```
+rails new shopi
+```
+
+### Step 2
+
+Generate the product model with name, price and category_id fields.
+
+```
+rails g model product name price:decimal category:references
+```
+
+The generated migration file looks like this:
+
+```ruby
+class CreateProducts < ActiveRecord::Migration[5.0]
+  def change
+    create_table :products do |t|
+      t.string :name
+      t.decimal :price
+      t.references :category, foreign_key: true
+
+      t.timestamps
+    end
+  end
+end
+```
+
+Rails 5 automatically creates the index for category_id foreign key. You can see it in the schema.rb:
+
+```
+add_index "products", ["category_id"], name: "index_products_on_category_id"
+```
+
+### Step 3
+
+Create a category model with name field.
+
+```
+rails g model category name
+```
+
+The generated migration file looks like this:
+
+```ruby
+class CreateCategories < ActiveRecord::Migration[5.0]
+  def change
+    create_table :categories do |t|
+      t.string :name
+
+      t.timestamps
+    end
+  end
+end
+```
+
+Migrate the database.
+
+```
+rails db:migrate
+```
+
+### Step 4
+
+Create a products controller with index and new actions.
+
+```
+rails g controller products index new
+```
+
+### Step 5
+
+Define the product resource in routes.rb.
+
+```ruby
+resources :products
+```
+  
+### Step 6
+
+Declare the `belongs_to` association in the product model.
+
+```ruby
+class Product < ApplicationRecord
+  belongs_to :category
+end
+```
+
+### Step 7
+
+The `products/_form.html.erb` looks like this:
+
+```rhtml
+<%= form_for(product) do |f| %>
+  <% if product.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(product.errors.count, "error") %> prohibited this product from being saved:</h2>
+      <ul>
+      <% product.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+  <div class="field">
+    <%= f.label :name %>
+    <%= f.text_field :name %>
+  </div>
+  <div class="field">
+    <%= f.label :price %>
+    <%= f.text_field :price %>
+  </div>
+  <p>
+    <label for="product_category_id">Category:</label><br />
+    <%= f.collection_select :category_id, Category.all, :id, :name, :prompt => "Select a Category" %>
+    or create one:
+    <%= f.text_field :new_category_name %>
+  </p>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>
+```
+
+### Step 8
+
+The `index.html.erb` looks like this:
+
+```rhtml
+<h1>Products</h1>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Price</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @products.each do |product| %>
+      <tr>
+        <td><%= product.name %></td>
+        <td><%= product.price %></td>
+        <td><%= link_to 'Show', product %></td>
+        <td><%= link_to 'Edit', edit_product_path(product) %></td>
+        <td><%= link_to 'Destroy', product, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+<%= link_to 'New Product', new_product_path %>
+```
+
+### Step 9
+
+The `new.html.erb` looks like this:
+
+```rhtml
+<h1>New Product</h1>
+<%= render 'form', product: @product %>
+<%= link_to 'Back', products_path %>
+```
+
+### Step 10
+
+The products controller index action retrieves all the products in the database:
+
+```ruby
+def index
+  @products = Product.all
+end
+```
+
+### Step 11
+
+Let's create some sample data in seeds.rb:
+
+```ruby
+clothes = Category.create(name: 'Clothes')
+furniture = Category.create(name: 'Furniture')
+groceries = Category.create(name: 'Groceries')
+electronics = Category.create(name: 'Electronics')
+
+rug = Product.new(name: 'rug', price: 100)
+rug.category = clothes
+rug.save
+bowl = Product.new(name: 'bowl', price: 20.95)
+bowl.category = furniture
+bowl.save
+pillow = Product.new(name: 'pillow', price: 90)
+pillow.category = clothes
+pillow.save
+light = Product.new(name: 'light', price: 10.95)
+light.category = electronics
+light.save
+```
+
+Populate the database.
+
+```
+rails db:seed
+```
+
+### Step 12
+
+Create the product object in products controller new action.
+
+```ruby
+def new
+  @product = Product.new
+end
+```
+
+### Step 13
+
+Browse to products index page. Click new product. You will get the error:
+
+```
+undefined method `new_category_name' for #<Product:0x007f9f4a113730>
+```
+
+### Step 14
+
+The product form partial has a text field for `new_category_name`. We need to define a virtual attribute in the product model.
+
+```ruby
+attr_accessor :new_category_name
+```
+
+### Step 15
+
+Implement the products controller create action.
+
+```ruby
+def create
+  @product = Product.new(product_params)
+
+  if @product.save
+    redirect_to @product, notice: 'Product was successfully created.'
+  else
+    render :new
+  end
+end
+```
+  
+### Step 16
+
+We also need to permit the `category_id` to be submitted to the server.
+
+```ruby
+def product_params
+  params.require(:product).permit(:name, :price, :category_id)
+end
+```
+
+### Step 17
+
+The products show page looks like this:
+
+```rhtml
+<p>
+  <strong>Name:</strong>
+  <%= @product.name %>
+</p>
+<p>
+  <strong>Price:</strong>
+  <%= @product.price %>
+</p>
+<%= link_to 'Edit', edit_product_path(@product) %> |
+<%= link_to 'Back', products_path %>
+```
+
+### Step 18
+
+Create a product with the existing category in the dropdown.
+
+### Step 19
+
+Enter a value for new category text field and click Create. You will get the error:
+
+```
+Category must exist
+```
+
+### Step 20
+
+Rails 5 has changed the default value for category to true. We can change it to false like this:
+
+```ruby
+belongs_to :category, required: false
+```
+
+### Step 21
+
+You can now create a new product with a new category entry in the text field.
+
+### Step 23
+
+Define a `before_save` call back that will create the category before the product is saved in the database.
+
+```ruby
+class Product < ApplicationRecord
+  belongs_to :category, required: false
+  attr_accessor :new_category_name
+  before_save :create_category_from_name
+  
+  def create_category_from_name
+    create_category(name: new_category_name) unless new_category_name.blank?
+  end
+end
+```
+
+We don't want to create a new category if the user selects a category from the dropdown menu. So we have conditional to make sure that the text field for new category is not blank.
+
+### Step 22
+
+You can check the available methods that begins with creat in the rails console.
+
+```
+ > p.category.methods.grep(/creat/)
+ => [:created_at, :created_at=, :created_at_before_type_cast, :created_at_came_from_user?, :created_at?, :created_at_changed?, :created_at_change, :created_at_will_change!, :created_at_was, :created_at_previously_changed?, :created_at_previous_change, :restore_created_at!, :_create_callbacks, :_run_create_callbacks, :_create_callbacks?, :create_or_update, :arel_attributes_with_values_for_create] 
+```
+
+We don't see `create_category` in this list. The `create_category` is available due to the `belongs_to` association. Since it is implemented using meta-programming, it is hidden and we cannot see it.
+
+### Step 24
+
+We need to allow `new_category_name` to be submitted to the server.
+
+```ruby
+def product_params
+  params.require(:product).permit(:name, :price, :category_id, :new_category_name)
+end
+```
+
+### Step 25
+
+The product show page can display the product category.
+
+```rhtml
+<p>
+  <strong>Name:</strong>
+  <%= @product.name %>
+</p>
+<p>
+  <strong>Price:</strong>
+  <%= @product.price %>
+</p>
+<p>
+	In Category: <%= @product.category.name %>
+</p>
+<%= link_to 'Edit', edit_product_path(@product) %> |
+<%= link_to 'Back', products_path %>
+```
+
+## Summary
+
+In this article, you learned how to create model through text field in Rails 5.
+
+## Reference
+
+[belongs_to should default to required: true](https://github.com/rails/rails/issues/18233 'belongs_to should default to required: true')
+
+http://railscasts.com/episodes/57-create-model-through-text-field?view=comments
+ 

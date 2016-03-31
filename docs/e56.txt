@@ -1,0 +1,54 @@
+http://railscasts.com/episodes/56-the-logger?view=comments
+
+
+tail -f log/development.log
+
+-
+
+logger.debug in carts controller
+
+-
+
+View the log
+
+-
+
+logger.debug @cart.to_yaml
+
+-
+
+RAILS_DEFAULT_LOGGER.debug
+logger.debug
+
+-
+
+Severity of log levels:
+
+debug
+info
+warn
+error
+fatal
+
+-
+
+config.active_record.colorize = false in environment.rb
+
+-
+
+Add time and severity to each message
+
+-
+
+config.log_level flag to set the severity level of messages
+
+-
+
+config.logger = Logger like log4r or something else
+
+-
+
+rake log:clear to erase log files
+
+-
+
