@@ -1,3 +1,4 @@
+D
 Create Model Through Text Field in Rails 5
 
 ## Steps
@@ -279,7 +280,7 @@ The products show page looks like this:
 
 ### Step 18
 
-Create a product with the existing category in the dropdown.
+Create a product with the existing category in the dropdown. It will work.
 
 ### Step 19
 
@@ -291,17 +292,13 @@ Category must exist
 
 ### Step 20
 
-Rails 5 has changed the default value for category to true. We can change it to false like this:
+Rails 5 has changed the default value for `belongs_to` category to true. We can change it to false like this:
 
 ```ruby
 belongs_to :category, required: false
 ```
 
 ### Step 21
-
-You can now create a new product with a new category entry in the text field.
-
-### Step 23
 
 Define a `before_save` call back that will create the category before the product is saved in the database.
 
@@ -317,7 +314,7 @@ class Product < ApplicationRecord
 end
 ```
 
-We don't want to create a new category if the user selects a category from the dropdown menu. So we have conditional to make sure that the text field for new category is not blank.
+We don't want to create a new category if the user selects a category from the dropdown menu. So we have conditional to make sure that the text field for new category is not blank. Where did the `create_category` come from?
 
 ### Step 22
 
@@ -330,7 +327,7 @@ You can check the available methods that begins with creat in the rails console.
 
 We don't see `create_category` in this list. The `create_category` is available due to the `belongs_to` association. Since it is implemented using meta-programming, it is hidden and we cannot see it.
 
-### Step 24
+### Step 23
 
 We need to allow `new_category_name` to be submitted to the server.
 
@@ -340,9 +337,13 @@ def product_params
 end
 ```
 
+### Step 24
+
+You can now create a new product with a new category entry in the text field.
+
 ### Step 25
 
-The product show page can display the product category.
+The product show page can now display the product category.
 
 ```rhtml
 <p>
@@ -369,4 +370,3 @@ In this article, you learned how to create model through text field in Rails 5.
 [belongs_to should default to required: true](https://github.com/rails/rails/issues/18233 'belongs_to should default to required: true')
 
 http://railscasts.com/episodes/57-create-model-through-text-field?view=comments
- 
