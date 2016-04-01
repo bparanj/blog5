@@ -179,13 +179,13 @@ Let's associate a new comment to this post.
 We see an insert and update in the terminal output.
 
 ```
-D, [2016-03-31T11:27:35.751052 #38616] DEBUG - :  (0.0ms)  begin transaction
-D, [2016-03-31T11:27:35.751599 #38616] DEBUG - :  SQL (0.0ms)  INSERT INTO "comments" DEFAULT VALUES
-D, [2016-03-31T11:27:35.751753 #38616] DEBUG - :  (0.0ms)  commit transaction
-D, [2016-03-31T11:27:35.751918 #38616] DEBUG - :  (0.0ms)  begin transaction
-D, [2016-03-31T11:27:35.754817 #38616] DEBUG - :  SQL (0.1ms)  UPDATE "comments" SET "post_id" = ? WHERE "comments"."id" = ?  [["post_id", 1], ["id", 1]]
-D, [2016-03-31T11:27:35.754966 #38616] DEBUG - :  (0.0ms)  commit transaction
-D, [2016-03-31T11:27:35.756718 #38616] DEBUG - :  Comment Load (0.1ms)  SELECT "comments".* FROM "comments" WHERE "comments"."post_id" = ?  [["post_id", 1]]
+D, [2016-03-31T21:27:35 #38616] DEBUG - : (0.0ms)  begin transaction
+D, [2016-03-31T21:27:35 #38616] DEBUG - : SQL (0.0ms)  INSERT INTO "comments" DEFAULT VALUES
+D, [2016-03-31T21:27:35 #38616] DEBUG - : (0.0ms)  commit transaction
+D, [2016-03-31T21:27:35 #38616] DEBUG - : (0.0ms)  begin transaction
+D, [2016-03-31T21:27:35 #38616] DEBUG - : SQL (0.1ms)  UPDATE "comments" SET "post_id" = ? WHERE "comments"."id" = ?  [["post_id", 1], ["id", 1]]
+D, [2016-03-31T21:27:35 #38616] DEBUG - : (0.0ms)  commit transaction
+D, [2016-03-31T21:27:35 #38616] DEBUG - : Comment Load (0.1ms)  SELECT "comments".* FROM "comments" WHERE "comments"."post_id" = ?  [["post_id", 1]]
  => #<ActiveRecord::Associations::CollectionProxy [#<Comment id: 1, post_id: 1>]> 
 ```
 
@@ -198,7 +198,7 @@ We can count the comments for the post we created.
 We see the SQL query to get the count.
 
 ```
-D, [2016-03-31T11:27:45 #38616] DEBUG - :  (0.1ms)  SELECT COUNT(*) FROM "comments" WHERE "comments"."post_id" = ?  [["post_id", 1]]
+D, [2016-03-31T21:27:45 #38616] DEBUG - :  (0.1ms)  SELECT COUNT(*) FROM "comments" WHERE "comments"."post_id" = ?  [["post_id", 1]]
  => 1
 ```
 
@@ -211,7 +211,7 @@ We can count the comment.
 The corresponding SQL is shown in the output.
 
 ``` 
-D, [2016-03-31T11:27:51 #38616] DEBUG - :  (0.1ms)  SELECT COUNT(*) FROM "comments"
+D, [2016-03-31T21:27:51 #38616] DEBUG - :  (0.1ms)  SELECT COUNT(*) FROM "comments"
  => 1 
 ```
 
@@ -219,8 +219,8 @@ We can navigate the comment `belongs_to` post and check the id is the same as th
 
 ```
  > Comment.first.post.id
-D, [2016-03-31T11:27:59 #38616] DEBUG - : Comment Load (0.1ms)  SELECT  "comments".* FROM "comments" ORDER BY "comments"."id" ASC LIMIT ?  [["LIMIT", 1]]
-D, [2016-03-31T11:27:59 #38616] DEBUG - : Post Load (0.1ms)  SELECT  "posts".* FROM "posts" WHERE "posts"."id" = ? LIMIT ?  [["id", 1], ["LIMIT", 1]]
+D, [2016-03-31T21:27:59 #38616] DEBUG - : Comment Load (0.1ms)  SELECT  "comments".* FROM "comments" ORDER BY "comments"."id" ASC LIMIT ?  [["LIMIT", 1]]
+D, [2016-03-31T21:27:59 #38616] DEBUG - : Post Load (0.1ms)  SELECT  "posts".* FROM "posts" WHERE "posts"."id" = ? LIMIT ?  [["id", 1], ["LIMIT", 1]]
  => 1 
  > post.id
  => 1 
@@ -390,7 +390,7 @@ Finished in 0.178257s, 5.6099 runs/s, 5.6099 assertions/s.
 1 runs, 1 assertions, 0 failures, 0 errors, 0 skips
 ```
 
-I have not figured out how to customize the ActionController bug template that we can play with in the IRB yet. Let me know if you know how.
+I have not yet figured out how to customize the ActionController bug template that we can play with in the IRB. Let me know if you know how.
 
 ## Summary
 

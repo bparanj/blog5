@@ -1,0 +1,8 @@
+Check if there is an article on tagged logging.
+
+Ready to Go
+
+1. benchmark.txt
+2. e53-revised.txt
+3. test-cases.txt
+

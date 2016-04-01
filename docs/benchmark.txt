@@ -6,7 +6,7 @@ In this article, you will see how easy it is to start benchmarking your code. Th
 gem install benchmark-ips
 ```
 
-The advantage of using this gem is that you don't have to guess the iteration number to benchmark your code. The gem automatically figures out the iteration number to use.
+The advantage of using this gem is that you don't need to guess the iteration number to benchmark your code. The gem automatically figures out the iteration number to use.
 
 ## Dynamically Sending a Message to an Object
 
@@ -47,6 +47,8 @@ You can see using `send` is slower.
 
 ## String Concatenation
 
+Let's compare concatenating string using +=, << and concat.
+
 ```ruby
 require 'benchmark/ips'
  
@@ -57,7 +59,7 @@ Benchmark.ips do |x|
   end
   x.report('concat with <<') do
     s = 'bat'
-    s += 'mat'
+    s << 'mat'
   end
   x.report('concat with concat') do
     s = 'bat'
@@ -77,22 +79,24 @@ ruby concat.rb
 Here is the performance results.
 
 ```
+ruby concat.rb
 Warming up --------------------------------------
-      concat with +=   139.541k i/100ms
-      concat with <<   139.269k i/100ms
-  concat with concat   140.424k i/100ms
+      concat with +=   143.335k i/100ms
+      concat with <<   147.118k i/100ms
+  concat with concat   142.974k i/100ms
 Calculating -------------------------------------
-      concat with +=      5.430M (± 3.7%) i/s -     27.210M
-      concat with <<      5.450M (± 2.3%) i/s -     27.297M
-  concat with concat      5.215M (± 2.2%) i/s -     26.119M
+      concat with +=      5.502M (± 1.6%) i/s -     27.520M
+      concat with <<      5.678M (± 1.1%) i/s -     28.394M
+  concat with concat      5.283M (± 2.8%) i/s -     26.450M
 
 Comparison:
-      concat with <<:  5449732.2 i/s
-      concat with +=:  5429731.5 i/s - same-ish: difference falls within error
-  concat with concat:  5214770.8 i/s - same-ish: difference falls within error
+      concat with <<:  5678462.1 i/s
+      concat with +=:  5502116.5 i/s - 1.03x slower
+  concat with concat:  5283407.1 i/s - 1.07x slower
 ```
 
-There doesn't seem to be that much difference in performance. But we know that anything that creates lot of objects will be slower. So we should prefer either << or concat.
+You can see << has the best performance. The += is 1.03 times slower than <<. The concat method is 1.07x times slower than <<. So we should prefer << over += or concat. Remember that anything that creates lot of objects will be slower. In this case, += creates new object everytime it concatenates a string to an existing object.
+
 ## Parallel Assignment
 
 Let's now compare parallel assignment with sequential assignment.
@@ -133,6 +137,7 @@ Calculating -------------------------------------
 Comparison:
           sequential: 12341542.5 i/s
             parallel:  9088599.9 i/s - 1.36x slower
+```
 
 ## Summary
 

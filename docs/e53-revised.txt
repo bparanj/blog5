@@ -20,7 +20,7 @@ This flag is the reason why the stack trace is shown in the browser.
 
 ### Step 3
 
-Start the rails app in production mode.
+Start the Rails app in production mode.
 
 ```
 RAILS_ENV=production rails s
@@ -71,13 +71,13 @@ end
 
 ### Step 6
 
-By default, 500.html is displayed in production and '404 Not Found' in development. If you change the implementation for `not_found_error` to following:
+By default, 500.html is displayed in production and `404 Not Found` in development. If you change the implementation for `not_found_error` to following:
 
 ```ruby
 render file: 'public/401', status: :not_found
 ```
 	
-It does not work in dev.
+It does not work in development.
 
 ### Step 7
 
@@ -100,6 +100,8 @@ The `render nothing: true` has been deprecated in Rails 5. The alternative is to
 ```ruby
 head :unauthorized
 ```
+
+If you access a non-existent task, you will get unauthorized status code in the log file.
 
 ```
 Started GET "/tasks/100" for ::1 at 2016-03-30 21:01:12 -0700
@@ -126,7 +128,7 @@ means the stack trace will be displayed on the browser.
 
 **Note**:
 
-The last version of Rails that had rescue_action_in_public is 2.3.8. It is no longer available in Rails 5.
+The last version of Rails that had `rescue_action_in_public` is 2.3.8. It is no longer available in Rails 5.
 
 ## Summary
 
