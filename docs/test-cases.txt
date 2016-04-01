@@ -1,4 +1,4 @@
-
+D
 Rails 5 ActiveRecord Troubleshooting and Learning Tool
 
 In this article, you will learn how to quickly create test cases to reproduce problems. This is very useful when you want to isolate problems due to gem versions. This can save you lot of time when you run into issues after upgrading Rails. We will use the Rails bug report template as the base for creating our test case template. Instead of running the tests we will fire up an IRB console to experiment with the code. This script can also be used to teach and learn Rails. The script is based on [How to Contribute to Rails Guides](http://guides.rubyonrails.org/contributing_to_ruby_on_rails.html 'How to Contribute to Rails Guides'). Here is the ActiveRecord bug template stolen from the Rails Guides:
