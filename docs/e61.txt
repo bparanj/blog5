@@ -1,0 +1,1 @@
+Sending Email using SMTP. Already covered sending email using Sendgrid. Skipping this.

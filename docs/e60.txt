@@ -1,0 +1,1 @@
+Testing without Fixtures. Skipping it. Fabric and Factory Girl is already covered for Rails 4.x

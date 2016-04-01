@@ -1,0 +1,86 @@
+Very Very Old Way of doing it. This is CRAP. Skip it.
+
+
+
+http://railscasts.com/episodes/58-how-to-make-a-generator?view=comments
+http://railscasts.com/episodes/218-making-generators-in-rails-3?view=comments
+
+
+
+
+
+$ rails g initializer --help
+Usage:
+  rails generate initializer [options]
+
+Runtime options:
+  -f, [--force]                    # Overwrite files that already exist
+  -p, [--pretend], [--no-pretend]  # Run but do not make any changes
+  -q, [--quiet], [--no-quiet]      # Suppress status output
+  -s, [--skip], [--no-skip]        # Skip files that already exist
+
+Description:
+    Create initializer generator files for initializer generator.
+	
+$ rails g initializer
+      create  config/initializers/initializer.rb
+```
+
+Contents of config/initializers/initializer.rb:
+
+```
+# Add initialization content here	
+```
+	
+
+rails g generator initializer
+Running via Spring preloader in process 54266
+      create  lib/generators/initializer
+      create  lib/generators/initializer/initializer_generator.rb
+      create  lib/generators/initializer/USAGE
+      create  lib/generators/initializer/templates
+      invoke  test_unit
+      create    test/lib/generators/initializer_generator_test.rb
+	  
+$ rails g generator initializer
+Running via Spring preloader in process 54266
+      create  lib/generators/initializer
+      create  lib/generators/initializer/initializer_generator.rb
+      create  lib/generators/initializer/USAGE
+      create  lib/generators/initializer/templates
+      invoke  test_unit
+      create    test/lib/generators/initializer_generator_test.rb
+shopi bparanj$ git status
+fatal: Not a git repository (or any of the parent directories): .git
+shopi bparanj$ rails g initializer --help
+Running via Spring preloader in process 54474
+Usage:
+  rails generate initializer NAME [options]
+
+Options:
+  [--skip-namespace], [--no-skip-namespace]  # Skip namespace (affects only isolated applications)
+
+Runtime options:
+  -f, [--force]                    # Overwrite files that already exist
+  -p, [--pretend], [--no-pretend]  # Run but do not make any changes
+  -q, [--quiet], [--no-quiet]      # Suppress status output
+  -s, [--skip], [--no-skip]        # Skip files that already exist
+
+Description:
+    Explain the generator
+
+Example:
+    rails generate initializer Thing
+
+    This will create:
+        what/will/it/create
+
+	  	
+	
+rails g generator layout
+   create  lib/generators/layout
+   create  lib/generators/layout/layout_generator.rb
+   create  lib/generators/layout/USAGE
+   create  lib/generators/layout/templates
+   invoke  test_unit
+   create    test/lib/generators/layout_generator_test.rb

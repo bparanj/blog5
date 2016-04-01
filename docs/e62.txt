@@ -1,0 +1,1 @@
+Hacking ActiveRecord uses alias_method_chain which is no longer available in Rails 5. Shows how to disable validation in old Rails. Skipping it.

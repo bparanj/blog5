@@ -1,0 +1,37 @@
+Not ideal solution. Skipping it.
+
+add_column :products, :lock_version, :integer, :default => 0, :null => false
+
+
+
+def update
+  @product = Product.find(params[:id])
+  if @product.update_attributes(params[:product])
+    flash[:notice] = "Successfully updated product."
+    redirect_to product_path(@product)
+  else
+    render :action => 'edit'
+  end
+rescue ActiveRecord::StaleObjectError
+  @product.reload
+  render :action => 'conflict'
+end
+
+
+
+<%= f.hidden_field :lock_version %>
+
+Someone edited the product the same time you did. Please re-apply your changes to the product.
+
+<h2>Your Submission:</h2>
+<pre>
+<% params[:product].each do |name, value| %>
+  <%=h name.humanize %>: <%=h value %>
+<% end %>
+</pre>
+
+<h2>Edit Product:</h2>
+<% form_for :product, :url => product_path(@product), :html => { :method => :put } do |f| %>
+  <%= render :partial => 'form', :locals => { :f => f } %>
+  <%= submit_tag 'Resolve' %>
+<% end %>

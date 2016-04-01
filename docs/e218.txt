@@ -1,0 +1,7 @@
+Uses Rails 3.0 way creating generators. Skipping it.
+
+
+
+
+
+	  
