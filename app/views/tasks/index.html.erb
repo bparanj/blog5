@@ -1,22 +1,5 @@
-<h1>Incomplete Tasks</h1>
+<h1> Tasks</h1>
 
-<%= form_tag(complete_tasks_path, method: :put)  do %> 
-  <% for task in @incomplete_tasks %> 
-	<ul>
-	  <li>
-		<%= check_box_tag 'task_id[]', task.id %>  
-		<%= task.name %>   
-	  </li>
-	</ul>
-  <% end %>
-  <%= submit_tag 'Mark as Complete' %>
-<% end %>
-
-<h1>Complete Tasks</h1>
 <ul>
-<% for task in @complete_tasks %>
-  <li> 
-	  <%= task.name %> 
-  </li> 
-<% end %>
+<%= render partial: 'task', collection: @tasks, as: :todo, locals: {title: 'My Honey Do List'} %>	
 </ul>

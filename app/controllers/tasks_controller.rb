@@ -3,8 +3,7 @@ class TasksController < ApplicationController
   # GET /tasks
   # GET /tasks.json
   def index
-    @incomplete_tasks = Task.incomplete
-    @complete_tasks = Task.complete
+    @tasks = Task.all
   end
 
   # GET /tasks/1
