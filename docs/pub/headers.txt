@@ -1,3 +1,4 @@
+D
 Build Header-Only Responses in Rails 5
 
 In the tasks controller index action use the head method to indicate a resource has been created.

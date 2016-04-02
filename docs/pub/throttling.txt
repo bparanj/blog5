@@ -1,14 +1,15 @@
-Throttling Network to Test Rails 5 Apps
+D
 
+Throttling Network to Test Rails 5 Apps
 
 It is a good idea to test your Rails 5 app with different network speeds such as 2G, 3G, 4G, WiFi, DSL etc. In Chrome, go to `Network` tab and click on the drop down where the default value is No throttling.
 
-https://2.bp.blogspot.com/-Oa6vyslq0V8/VwAg-oaeHVI/AAAAAAAABFs/THlw8raE_1M6dWr07POVmrah5lI3-K9cQ/s1600/Screen%2BShot%2B2016-04-02%2Bat%2B12.43.26%2BPM.png
+<img src="https://2.bp.blogspot.com/-Oa6vyslq0V8/VwAg-oaeHVI/AAAAAAAABFs/THlw8raE_1M6dWr07POVmrah5lI3-K9cQ/s1600/Screen%2BShot%2B2016-04-02%2Bat%2B12.43.26%2BPM.png" alt="Network Throttle" style="border: 1px solid #000; max-width:700px; max-height:600px;"/> 
 
 
 You can now select different network speed to test your web app.
 
-https://1.bp.blogspot.com/-uC_-uWt8ymo/VwAgKoDhowI/AAAAAAAABFk/bPdjq8nHpOYaKuRSzWx59QCuZhf6m-XpA/s1600/Screen%2BShot%2B2016-04-02%2Bat%2B12.33.07%2BPM.png
+<img src="https://1.bp.blogspot.com/-uC_-uWt8ymo/VwAgKoDhowI/AAAAAAAABFk/bPdjq8nHpOYaKuRSzWx59QCuZhf6m-XpA/s1600/Screen%2BShot%2B2016-04-02%2Bat%2B12.33.07%2BPM.png" alt="Network Throttle" style="border: 1px solid #000; max-width:700px; max-height:600px;"/> 
 
 If you have offline feature, you can test that also using this tip. This is useful to make sure that you are loading only the resources that is required for a given page. You will also be able to discover problems that happens only in slow network connections, for instance missing image spinners.
 

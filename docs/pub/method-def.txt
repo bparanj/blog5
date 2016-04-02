@@ -1,3 +1,4 @@
+D
 How to Find Out Where a Method is Defined in Rails 5
 
 ## View Helpers
