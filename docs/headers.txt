@@ -1,0 +1,138 @@
+Build Header-Only Responses in Rails 5
+
+In the tasks controller index action use the head method to indicate a resource has been created.
+
+```ruby
+head :created
+```
+
+Hit the tasks index action using curl.
+
+```
+$curl -i http://localhost:3000/tasks
+```
+
+The output shows that the resource is created with the http status code 201.
+
+```
+HTTP/1.1 201 Created
+X-Frame-Options: SAMEORIGIN
+X-XSS-Protection: 1; mode=block
+X-Content-Type-Options: nosniff
+Content-Type: text/html
+ETag: W/"7cbafb0bf60694009a67e72cae4ee7ae"
+Cache-Control: max-age=0, private, must-revalidate
+X-Request-Id: a492c444-a44b-4316-942f-29f5b84b8062
+X-Runtime: 0.040294
+Transfer-Encoding: chunked
+```
+
+Change the tasks controller index action to use head method with bad request.
+
+```ruby
+head :bad_request
+```
+
+Hit the tasks index action using curl.
+
+```
+$ curl -i http://localhost:3000/tasks
+```
+
+The output shows that the client request was a bad request with http status code 400. The http status codes that are in 400-4xx range is used to indicate client side issues.
+
+```
+HTTP/1.1 400 Bad Request
+X-Frame-Options: SAMEORIGIN
+X-XSS-Protection: 1; mode=block
+X-Content-Type-Options: nosniff
+Content-Type: text/html
+Cache-Control: no-cache
+X-Request-Id: e54f08dd-ff63-4d9b-a466-eee075da320c
+X-Runtime: 0.018747
+Transfer-Encoding: chunked
+```
+
+Change the tasks controller index action to use head method to render text, 'OK'.
+
+```ruby
+render plain: 'OK'
+```
+
+Hit the tasks index action using curl.
+
+```
+$ curl -i http://localhost:3000/tasks
+```
+
+The output shows that the client received OK with http status code 200.
+
+```
+HTTP/1.1 200 OK
+X-Frame-Options: SAMEORIGIN
+X-XSS-Protection: 1; mode=block
+X-Content-Type-Options: nosniff
+Content-Type: text/plain; charset=utf-8
+ETag: W/"e0aa021e21dddbd6d8cecec71e9cf564"
+Cache-Control: max-age=0, private, must-revalidate
+X-Request-Id: f6a9432f-9be4-4d08-ba0c-3e0b508bda98
+X-Runtime: 0.031623
+Transfer-Encoding: chunked
+
+OK
+```
+
+Change the tasks controller index action to use head method to render nothing.
+
+```ruby
+render nothing: true
+```
+
+Hit the tasks index action using curl.
+
+```
+$ curl -i http://localhost:3000/tasks
+```
+
+The output shows that the status code was 200. The client did not receive any text in the response.
+
+```
+HTTP/1.1 200 OK
+X-Frame-Options: SAMEORIGIN
+X-XSS-Protection: 1; mode=block
+X-Content-Type-Options: nosniff
+Content-Type: text/plain; charset=utf-8
+Cache-Control: no-cache
+X-Request-Id: 66ea4b7d-5509-4deb-a056-4e20e602718c
+X-Runtime: 0.039058
+Transfer-Encoding: chunked
+```
+
+Change the tasks controller index action to use head method with http status code 200 (we are using the symbol).
+
+```ruby
+head :ok
+```
+
+Hit the tasks index action using curl.
+
+```
+$ curl -i http://localhost:3000/tasks
+```
+
+You can see the output shows that the client received the http status code 200.
+
+```	
+HTTP/1.1 200 OK
+X-Frame-Options: SAMEORIGIN
+X-XSS-Protection: 1; mode=block
+X-Content-Type-Options: nosniff
+Content-Type: text/html
+ETag: W/"cc82873b693baa4b140aa904245d2342"
+Cache-Control: max-age=0, private, must-revalidate
+X-Request-Id: 3077b3fb-fa93-493a-a202-4e938654d1ec
+X-Runtime: 0.062023
+Transfer-Encoding: chunked
+```
+
+You can use anything in this [status table](http://guides.rubyonrails.org/layouts_and_rendering.html#the-status-option 'http status code') with the head method.

@@ -1,0 +1,47 @@
+How to Find Out Where a Method is Defined in Rails 5
+
+## View Helpers
+
+What are the available view helpers?
+
+```
+ > helper.methods
+ => [:title, :admin_area, :alert, :cookies, :view_cache_dependencies, :protect_against_forgery?, :form_authenticity_token, :notice, :fragment_cache_key, :config, :config=, :locale, :locale=, :logger, :default_formats, :default_formats=, :logger=, :streaming_completion_on_exception, ...] 
+```
+
+The result shows that we have Rails 5 specific helpers as well as the helpers that we defined in our project such as title, `admin_area` etc.
+
+Where are the view helper methods such as `truncate`, `link_to` and `number_to_currency` defined in Rails 5? We can use the `method` method to answer that question.
+
+```
+ > helper.method(:truncate)
+ => #<Method: ActionView::Base(ActionView::Helpers::TextHelper)#truncate> 
+ > helper.method(:link_to)
+ => #<Method: ActionView::Base(ActionView::Helpers::UrlHelper)#link_to> 
+ > helper.method(:number_to_currency)
+ => #<Method: ActionView::Base(ActionView::Helpers::NumberHelper)#number_to_currency> 
+```
+
+## Class Methods
+
+How to find out where a class method in our application is defined? We can use the `singleton_method` that takes the name of the class method as the argument in combination with `source_location` method.
+
+```
+ > Task.singleton_method(:incomplete).source_location
+ => ["/Users/bparanj/projects/blog5/app/models/task.rb", 9] 
+```
+
+This technique will work even for code that you did not write such as gems that application uses.
+
+## Controller Helpers
+
+What helpers are available in our controllers?
+
+``` 
+ > ApplicationController.helpers.methods
+ => [:title, :admin_area, :alert, :cookies, :view_cache_dependencies, :protect_against_forgery?, :form_authenticity_token, :notice, :fragment_cache_key, :config, :config=, :locale, :locale=, :logger, :default_formats, :default_formats=, :logger=, :streaming_completion_on_exception, :debug_missing_translation, :debug_missing_translation=, :assets_manifest, :assets_prefix, :assets_prefix=, :digest_assets, ...] 
+```
+
+## Summary
+
+In this article, you learned about the view helpers, controller helpers and how to find their location in the code.
