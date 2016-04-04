@@ -69,6 +69,9 @@ step to step in
 irb to switch to IRB
 exit to exit out of IRB session
 
+
+debugger is port of ruby-debug that works on 1.9.2 and 1.9.3. Accepting bug fixes only. Status: Maintained until 8/1/15. After this date, this gem will have no more releases. Use of Ruby 2.X is recommended as the Ruby core team has advised. 
+
 -
 
 pry is alternative Episode 280.

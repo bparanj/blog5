@@ -1,0 +1,267 @@
+
+-
+
+Byebug is included in Rails 5 project by default. It supports MRI 2.3.0.
+
+```ruby
+group :development, :test do
+  # Call 'byebug' anywhere in the code to stop execution and get a debugger console
+  gem 'byebug'
+end
+```
+
+
+-
+
+Add byebug to the code anywhere. Let's say tasks controller index action.
+
+```ruby
+def index
+  @tasks = Task.all
+  byebug
+end
+```
+
+-
+
+Start the rails server.
+
+```
+rails s
+```
+
+Browse to `http://localhost:3000/tasks`.
+
+```
+[3, 12] in /Users/bparanj/projects/blog5/app/controllers/tasks_controller.rb
+    3:   # GET /tasks
+    4:   # GET /tasks.json
+    5:   def index
+    6:     @tasks = Task.all
+    7:     byebug
+=>  8:   end
+    9: 
+   10:   # GET /tasks/1
+   11:   # GET /tasks/1.json
+   12:   def show
+```
+
+-
+
+Helps you using byebug.
+
+```
+(byebug) help
+
+  break      -- Sets breakpoints in the source code
+  catch      -- Handles exception catchpoints
+  condition  -- Sets conditions on breakpoints
+  continue   -- Runs until program ends, hits a breakpoint or reaches a line
+  debug      -- Spawns a subdebugger
+  delete     -- Deletes breakpoints
+  disable    -- Disables breakpoints or displays
+  display    -- Evaluates expressions every time the debugger stops
+  down       -- Moves to a lower frame in the stack trace
+  edit       -- Edits source files
+  enable     -- Enables breakpoints or displays
+  finish     -- Runs the program until frame returns
+  frame      -- Moves to a frame in the call stack
+  help       -- Helps you using byebug
+  history    -- Shows byebug's history of commands
+  info       -- Shows several informations about the program being debugged
+  interrupt  -- Interrupts the program
+  irb        -- Starts an IRB session
+  kill       -- Sends a signal to the current process
+  list       -- Lists lines of source code
+  method     -- Shows methods of an object, class or module
+  next       -- Runs one or more lines of code
+  pry        -- Starts a Pry session
+  quit       -- Exits byebug
+  restart    -- Restarts the debugged program
+  save       -- Saves current byebug session to a file
+  set        -- Modifies byebug settings
+  show       -- Shows byebug settings
+  source     -- Restores a previously saved byebug session
+  step       -- Steps into blocks or methods one or more times
+  thread     -- Commands to manipulate threads
+  tracevar   -- Enables tracing of a global variable
+  undisplay  -- Stops displaying all or some expressions when program stops
+  untracevar -- Stops tracing a global variable
+  up         -- Moves to a higher frame in the stack trace
+  var        -- Shows variables and its values
+  where      -- Displays the backtrace
+```
+
+-
+
+display : Evaluates expressions every time the debugger stops.
+
+```
+(byebug) info display
+There are no auto-display expressions now.
+(byebug) info line
+Line 8 of "/Users/bparanj/projects/blog5/app/controllers/tasks_controller.rb"
+```
+
+-
+
+Inspect variable.
+
+```
+ p @tasks
+  Task Load (2.5ms)  SELECT "tasks".* FROM "tasks"
+#<ActiveRecord::Relation [#<Task id: 1, name: "Get rich quick", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-24 01:12:25", project_id: 1, priority: 4, due_date: "2016-01-18 21:37:57">, #<Task id: 2, name: "Write a book", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-18 21:37:57", project_id: 1, p...
+```
+
+-
+
+step : Steps into blocks or methods one or more times.
+
+
+```
+(byebug) step
+
+[1, 10] in /Users/bparanj/.rvm/gems/ruby-2.3.0@rails5/gems/actionpack-5.0.0.beta3/lib/action_controller/metal/basic_implicit_render.rb
+    1: module ActionController
+    2:   module BasicImplicitRender
+    3:     def send_action(method, *args)
+=>  4:       super.tap { default_render unless performed? }
+    5:     end
+    6: 
+    7:     def default_render(*args)
+    8:       head :no_content
+    9:     end
+   10:   end
+```
+
+-
+
+eval - One way to print the values of variables.
+
+```
+(byebug) eval performed?
+false
+```
+
+-
+
+continue : Runs until program ends, hits a breakpoint or reaches a line.
+
+```
+(byebug) continue
+  Rendered collection of tasks/_task.html.erb [19 times] (0.6ms)
+  Rendered tasks/index.html.erb within layouts/application (2.3ms)
+Completed 200 OK in 1860538ms (Views: 48.7ms | ActiveRecord: 2.5ms)
+```
+
+-
+
+```ruby
+def index
+  byebug
+  @tasks = Task.all
+end
+```
+
+-
+
+Step - s.
+
+```ruby
+Started GET "/tasks" for ::1 at 2016-04-04 11:21:58 -0700
+Processing by TasksController#index as HTML
+1: args = (undefined)
+
+[2, 11] in /Users/bparanj/projects/blog5/app/controllers/tasks_controller.rb
+    2:   
+    3:   # GET /tasks
+    4:   # GET /tasks.json
+    5:   def index
+    6:     byebug
+=>  7:     @tasks = Task.all
+    8:   end
+    9: 
+   10:   # GET /tasks/1
+   11:   # GET /tasks/1.json
+(byebug) s
+1: args = (undefined)
+
+[20, 29] in /Users/bparanj/.rvm/gems/ruby-2.3.0@rails5/gems/activerecord-5.0.0.beta3/lib/active_record/scoping/named.rb
+   20:         #   fruits = fruits.limit(10) if limited?
+   21:         #
+   22:         # You can define a scope that applies to all finders using
+   23:         # {default_scope}[rdoc-ref:Scoping::Default::ClassMethods#default_scope].
+   24:         def all
+=> 25:           if current_scope
+   26:             current_scope.clone
+   27:           else
+   28:             default_scoped
+   29:           end
+```
+
+-
+
+Move to a higher frame.
+
+```ruby
+(byebug) up
+
+[2, 11] in /Users/bparanj/projects/blog5/app/controllers/tasks_controller.rb
+    2:   
+    3:   # GET /tasks
+    4:   # GET /tasks.json
+    5:   def index
+    6:     byebug
+=>  7:     @tasks = Task.all
+    8:   end
+    9: 
+   10:   # GET /tasks/1
+   11:   # GET /tasks/1.json
+```
+
+-
+
+next       -- Runs one or more lines of code
+
+
+```
+[23, 32] in /Users/bparanj/projects/blog5/app/controllers/tasks_controller.rb
+   23: 
+   24:   # POST /tasks
+   25:   # POST /tasks.json
+   26:   def create
+   27:         byebug
+=> 28:     @task = Task.new(task_params)
+   29: 
+   30:     respond_to do |format|
+   31:       if @task.save
+   32:         format.html { redirect_to @task, notice: 'Task was successfully created.' }
+(byebug) 
+(byebug) 
+(byebug) task_params
+<ActionController::Parameters {"name"=>"Ruby Debug", "due_date"=>"2016-01-18 21:37:57 UTC"} permitted: true>
+(byebug) n
+
+[25, 34] in /Users/bparanj/projects/blog5/app/controllers/tasks_controller.rb
+   25:   # POST /tasks.json
+   26:   def create
+   27:         byebug
+   28:     @task = Task.new(task_params)
+   29: 
+=> 30:     respond_to do |format|
+   31:       if @task.save
+   32:         format.html { redirect_to @task, notice: 'Task was successfully created.' }
+   33:         format.json { render :show, status: :created, location: @task }
+   34:       else
+(byebug) @task
+#<Task id: nil, name: "Ruby Debug", complete: nil, created_at: nil, updated_at: nil, project_id: nil, priority: nil, due_date: "2016-01-18 21:37:57">
+```
+
+-
+
+```
+ quit
+Really quit? (y/n) y
+```
+-
+[ByeBug](https://github.com/deivid-rodriguez/byebug 'ByeBug')

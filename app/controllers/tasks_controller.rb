@@ -24,6 +24,7 @@ class TasksController < ApplicationController
   # POST /tasks
   # POST /tasks.json
   def create
+        byebug
     @task = Task.new(task_params)
 
     respond_to do |format|
