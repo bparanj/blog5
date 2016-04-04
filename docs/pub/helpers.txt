@@ -1,0 +1,126 @@
+D
+View Helpers in Rails 5
+
+
+## Javascript
+
+Javascript include tag view helpers.
+
+```
+ > helper.javascript_include_tag 'main'
+ => "<script src=\"/javascripts/main.js\"></script>" 
+ > helper.javascript_include_tag 'main', 'columns'
+ => "<script src=\"/javascripts/main.js\"></script>\n<script src=\"/javascripts/columns.js\"></script>" 
+ > helper.javascript_include_tag 'http://example.com/main.js'
+ => "<script src=\"http://example.com/main.js\"></script>" 
+ > helper.javascript_include_tag 'main', '/photos/columns'
+ => "<script src=\"/javascripts/main.js\"></script>\n<script src=\"/photos/columns.js\"></script>" 
+```
+
+## RSS Auto Discovery
+
+RSS autodiscovery is a technique that makes it possible for browsers and other software to automatically find a site's RSS feed. You will see the RSS feed icon in the browser bar.
+
+``` 
+ > helper.auto_discovery_link_tag(:rss, 'http://feeds.soundcloud.com/users/soundcloud:users:133973744/sounds.rss', {title: 'RubyPlus Podcast RSS Feed'})
+ => "<link rel=\"alternate\" type=\"application/rss+xml\" title=\"RubyPlus Podcast RSS Feed\" href=\"http://feeds.soundcloud.com/users/soundcloud:users:133973744/sounds.rss\" />" 
+```
+
+You can install RSS Feed Reader Chrome plugin to verify that auto discovery link tag is working.
+
+## Stylesheets
+
+You can specify stylesheets using `stylesheet_link_tag`.
+
+```
+ > helper.stylesheet_link_tag 'main'
+ => "<link rel=\"stylesheet\" media=\"screen\" href=\"/stylesheets/main.css\" />" 
+```
+
+Multiple stylesheets can be specified.
+
+```
+ > helper.stylesheet_link_tag 'main', 'columns'
+ => "<link rel=\"stylesheet\" media=\"screen\" href=\"/stylesheets/main.css\" />\n<link rel=\"stylesheet\" media=\"screen\" href=\"/stylesheets/columns.css\" />" 
+ > helper.stylesheet_link_tag 'main', 'photos/columns'
+ => "<link rel=\"stylesheet\" media=\"screen\" href=\"/stylesheets/main.css\" />\n<link rel=\"stylesheet\" media=\"screen\" href=\"/stylesheets/photos/columns.css\" />" 
+```
+
+You can point to an URL for the stylesheet.
+
+```
+ > helper.stylesheet_link_tag 'http://example.com/main.css'
+ => "<link rel=\"stylesheet\" media=\"screen\" href=\"http://example.com/main.css\" />" 
+```
+
+You can specify stylesheet to be used for print.
+
+```
+ > helper.stylesheet_link_tag 'main_print',media: 'print' 
+ => "<link rel=\"stylesheet\" media=\"print\" href=\"/stylesheets/main_print.css\" />" 
+```
+
+## Images
+
+You must specify the extension of the image. It will work in development but will break in production.
+
+```
+ > helper.image_tag 'header.png'
+ => "<img src=\"/images/header.png\" alt=\"Header\" />" 
+```
+
+The images in app/assets/icons/delete.gif can be specified like this:
+ 
+```
+ > helper.image_tag 'icons/delete.gif'
+ => "<img src=\"/images/icons/delete.gif\" alt=\"Delete\" />" 
+```
+
+You can specify the height.
+
+```
+ > helper.image_tag 'icons/delete.gif', {height: 45}
+ => "<img height=\"45\" src=\"/images/icons/delete.gif\" alt=\"Delete\" />" 
+```
+
+You can specify the alt tag that displays a string when the image cannot be displayed.
+
+```
+ > helper.image_tag 'home.gif', alt: 'Home'
+ => "<img alt=\"Home\" src=\"/images/home.gif\" />" 
+```
+
+You can specify the size as a dimension.
+
+```
+ > helper.image_tag 'home.gif', size: '50x20'
+ => "<img src=\"/images/home.gif\" alt=\"Home\" width=\"50\" height=\"20\" />" 
+```
+
+You can specify the class.
+
+```
+ > helper.image_tag 'home.gif', alt: 'Go Home', id: 'HomeImage', class: 'nav_bar'
+ => "<img alt=\"Go Home\" id=\"HomeImage\" class=\"nav_bar\" src=\"/images/home.gif\" />"  
+```
+
+The tags for audio and video must have the extension.
+
+``` 
+ > helper.video_tag 'movie.ogg'
+ => "<video src=\"/videos/movie.ogg\"></video>" 
+ > helper.video_tag ['trailer.ogg', 'movie.ogg']
+ => "<video><source src=\"/videos/trailer.ogg\" /><source src=\"/videos/movie.ogg\" /></video>" 
+ > helper.audio_tag 'music.mp3'
+ => "<audio src=\"/audios/music.mp3\"></audio>" 
+ > helper.audio_tag 'music/first_song.mp3'
+ => "<audio src=\"/audios/music/first_song.mp3\"></audio>"
+```
+
+## Summary
+
+In this article, you learned how to use the view helpers in Rails 5 apps.
+
+## Reference
+
+[RSS Board](http://www.rssboard.org/rss-autodiscovery 'RSS Board')
