@@ -1,0 +1,52 @@
+Integrating Google reCAPTCHA with Rails 5 App
+
+-
+
+Why not Akismet? The pricing is not reasonable. If it had Amazon like low pay as you go pricing based on usage, I might consider it. We will only be looking at client side integration. You can refer the documentation for server side integration.
+
+-
+
+[Register](https://www.google.com/recaptcha/admin#list 'Register') your site. You will get site key and secret key. Site key looks like this:
+
+```
+6LchqxwTAAAAAOLMBU4fPhAoLQJ3Y9DaX0qkC8st
+```
+
+This can be viewed in the html. The secret key is used for server side integration and it must be kept secret.
+
+-
+
+For, client side integration, paste this snippet before the closing `</head>` tag on your HTML template:
+
+```html
+<script src='https://www.google.com/recaptcha/api.js'></script>
+```
+
+Add `yield :recaptcha` to application layout file. Add `content_for :recaptcha` in feedback page.
+
+-
+
+Paste this snippet at the end of the `<form>` where you want the reCAPTCHA widget to appear:
+
+```html
+<div class="g-recaptcha" data-sitekey="6LchqxwTAAAAAOLMBU4fPhAoLQJ3Y9DaX0qkC8st"></div>
+```
+
+In our case, we will add it to the feedback form.
+
+-
+
+You can also add this to your user registration page. You can also prevent automated scripts from downloading any files repeatedly. This will prevent wasting money on Amazon S3.
+
+-
+
+## Summary 
+
+In this article, you learned how to integrate Google reCAPTCHA with Rails 5 app to prevent abuse of your web app.
+
+[reCAPTCHA DOCS](https://developers.google.com/recaptcha/docs/verify#api-request 'reCAPTCHA')
+
+-
+
+
+http://railscasts.com/episodes/65-stopping-spam-with-akismet?view=comments

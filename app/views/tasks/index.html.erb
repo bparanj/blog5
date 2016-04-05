@@ -1,5 +1,7 @@
 <h1> Tasks</h1>
 
+<%= jiggle %>
+
 <ul>
 <%= render partial: 'task', collection: @tasks, as: :todo, locals: {title: 'My Honey Do List'} %>	
 </ul>

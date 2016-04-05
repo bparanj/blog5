@@ -1,11 +1,34 @@
 1. Byebug.txt
 2. e63-improved
+3. e64
+4. e65
 
 1. Check if there is an article on tagged logging.
-2. Unsubscribe to Podbean.
+2. Unsubscribe from Podbean.
 3. Unsubscribe from Wistia.
+4. Upload the updated OOD in Ruby book.
+5. Example for using meta-programming to OCP. Paypal mapping object that maps paypal specific fields to application fields.
+
+
+Required Images
+
+1. Channel Level Image
+
+	1400x1400px (minimum)
+	3000x3000px (maximum)
+	Under 500kb
+	Use rGB color space
+	Be a JPG, JPEG, or a PNG file
+
+	Has a title and the url.
 
 
 
-
-
+Rails Pacific: A Ruby Event in Taiwan (May 20-21)
+Rails: Has One Through Polymorphic Relation by Daniel P. Clark
+better_errors is better than web-console by Olivier Lacan
+Building and Installing Cryptographically Signed Gems
+Is Your Rails App Ready for Production? by Akita
+Gracefully Handle Action Cable Client Disconnects 
+Avoid Installing New Gems During an Upgrade
+MySQL’s Default Modes

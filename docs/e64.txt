@@ -1,6 +1,90 @@
+Custom View Helpers in Rails 5
 
-1. Why do we need to declare:
+## Steps
+### Step 1
 
-helper :all in application controller?
+There is no need to declare:
 
-2. Can we use custom helpers we create in helpers directory without any declaration in the view?
+```ruby
+helper :all
+```
+
+in the application controller in Rails 5. 
+
+Search for `helper :all` exact match  `https://github.com/rails/rails/search?utf8=%E2%9C%93&q=%22helper+%3Aall%22&type=Code`. You can see that in `actionpack/lib/action_controller/railties/helpers.rb`.
+
+```
+if klass.superclass == ActionController::Base && ActionController::Base.include_all_helpers
+  klass.helper :all
+end
+```
+
+`helper :all` is included if the `include_all_helpers` is set to true.
+
+### Step 2
+
+We can create custom helpers in helpers directory without any declaration in the controllers to use it. Create a jigolo_helper.rb` in helpers directory.
+
+```ruby
+module JigoloHelper
+  def jiggle
+    'I can jiggle'
+  end
+end
+```
+
+Now you can call this helper in any views. For instance, add this to the task index page.
+
+```rhtml
+<%= jiggle %>
+```
+
+The task index page will display:
+
+```
+I can jiggle
+```
+
+Since Rails 3.1 `include_all_helpers` configuration is available. According to the docs:
+
+> Added `config.action_controller.include_all_helpers`. By default `helper :all` is done in `ActionController::Base`, which includes all the helpers by default. Setting `include_all_helpers` to `false` will result in including only application_helper and the helper corresponding to controller (like foo_helper for foo_controller).
+
+> `config.action_controller.include_all_helpers` configures whether all view helpers are available everywhere or are scoped to the corresponding controller. If set to `false`, `UsersHelper` methods are only available for views rendered as part of `UsersController`. If `true`, `UsersHelper` methods are available everywhere. The default is `true`.
+
+The default is nil and not true. The configuring document is wrong.
+
+### Step 3
+
+Add:
+
+```ruby
+config.action_controller.include_all_helpers = false
+```
+
+to application.rb.
+
+```ruby
+module Blog
+  class Application < Rails::Application
+    config.action_controller.include_all_helpers = false
+  end
+end
+```
+
+Restart the server and go to the tasks index page. You will get the error:
+
+```
+ActionView::Template::Error (undefined local variable or method `jiggle' for #<#<Class:0x00878>):
+    1: <h1> Tasks</h1>
+    2: 
+    3: <%= jiggle %>
+```
+
+If you change the value to true or delete that entire configuration line. It will still work.
+	
+## Summary
+
+In this article, you learned how to use custom helpers in Rails 5.		
+
+
+http://railscasts.com/episodes/64-custom-helper-modules?view=comments
