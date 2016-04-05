@@ -1,0 +1,6 @@
+
+1. Why do we need to declare:
+
+helper :all in application controller?
+
+2. Can we use custom helpers we create in helpers directory without any declaration in the view?

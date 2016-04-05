@@ -1,5 +1,7 @@
+Debugging using ByeBug Gem in Rails 5
 
--
+## Steps
+### Step 1
 
 Byebug is included in Rails 5 project by default. It supports MRI 2.3.0.
 
@@ -10,8 +12,7 @@ group :development, :test do
 end
 ```
 
-
--
+### Step 2
 
 Add byebug to the code anywhere. Let's say tasks controller index action.
 
@@ -22,7 +23,7 @@ def index
 end
 ```
 
--
+### Step 3
 
 Start the rails server.
 
@@ -46,9 +47,11 @@ Browse to `http://localhost:3000/tasks`.
    12:   def show
 ```
 
--
+The debugger drops you into the rails console.
 
-Helps you using byebug.
+### Step 4
+
+Type help to see available byebug commands.
 
 ```
 (byebug) help
@@ -92,9 +95,9 @@ Helps you using byebug.
   where      -- Displays the backtrace
 ```
 
--
+### Step 5
 
-display : Evaluates expressions every time the debugger stops.
+The display command evaluates expressions every time the debugger stops.
 
 ```
 (byebug) info display
@@ -103,9 +106,9 @@ There are no auto-display expressions now.
 Line 8 of "/Users/bparanj/projects/blog5/app/controllers/tasks_controller.rb"
 ```
 
--
+### Step 6
 
-Inspect variable.
+You can inspect variable by printing them.
 
 ```
  p @tasks
@@ -113,10 +116,9 @@ Inspect variable.
 #<ActiveRecord::Relation [#<Task id: 1, name: "Get rich quick", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-24 01:12:25", project_id: 1, priority: 4, due_date: "2016-01-18 21:37:57">, #<Task id: 2, name: "Write a book", complete: true, created_at: "2016-03-18 21:37:57", updated_at: "2016-03-18 21:37:57", project_id: 1, p...
 ```
 
--
+### Step 7
 
-step : Steps into blocks or methods one or more times.
-
+The step command steps into blocks or methods one or more times.
 
 ```
 (byebug) step
@@ -134,18 +136,20 @@ step : Steps into blocks or methods one or more times.
    10:   end
 ```
 
--
+We step into the Rails source code.
 
-eval - One way to print the values of variables.
+### Step 8
+
+The eval command is one way to print the values of variables.
 
 ```
 (byebug) eval performed?
 false
 ```
 
--
+### Step 9
 
-continue : Runs until program ends, hits a breakpoint or reaches a line.
+The continue command runs until program ends, hits a breakpoint or reaches a line.
 
 ```
 (byebug) continue
@@ -154,7 +158,9 @@ continue : Runs until program ends, hits a breakpoint or reaches a line.
 Completed 200 OK in 1860538ms (Views: 48.7ms | ActiveRecord: 2.5ms)
 ```
 
--
+The tasks index action completes the execution and you see the list of tasks in the browser.
+
+### Step 10
 
 ```ruby
 def index
@@ -163,7 +169,94 @@ def index
 end
 ```
 
--
+### Step 11
+
+The up command moves to a higher frame.
+
+```ruby
+(byebug) up
+
+[2, 11] in /Users/bparanj/projects/blog5/app/controllers/tasks_controller.rb
+    2:   
+    3:   # GET /tasks
+    4:   # GET /tasks.json
+    5:   def index
+    6:     byebug
+=>  7:     @tasks = Task.all
+    8:   end
+    9: 
+   10:   # GET /tasks/1
+   11:   # GET /tasks/1.json
+```
+
+This is the step-out function if you have used any GUI debugger.
+
+### Step 12
+
+Let's look at the `task_params`.
+
+```
+[23, 32] in /Users/bparanj/projects/blog5/app/controllers/tasks_controller.rb
+   23: 
+   24:   # POST /tasks
+   25:   # POST /tasks.json
+   26:   def create
+   27:         byebug
+=> 28:     @task = Task.new(task_params)
+   29: 
+   30:     respond_to do |format|
+   31:       if @task.save
+   32:         format.html { redirect_to @task, notice: 'Task was successfully created.' }
+(byebug) 
+(byebug) 
+(byebug) task_params
+<ActionController::Parameters {"name"=>"Ruby Debug", "due_date"=>"2016-01-18 21:37:57 UTC"} permitted: true>
+```
+
+### Step 13
+
+The next command runs one or more lines of code. Type n for the next command.
+
+```
+(byebug) n
+
+[25, 34] in /Users/bparanj/projects/blog5/app/controllers/tasks_controller.rb
+   25:   # POST /tasks.json
+   26:   def create
+   27:         byebug
+   28:     @task = Task.new(task_params)
+   29: 
+=> 30:     respond_to do |format|
+   31:       if @task.save
+   32:         format.html { redirect_to @task, notice: 'Task was successfully created.' }
+   33:         format.json { render :show, status: :created, location: @task }
+   34:       else
+(byebug) @task
+#<Task id: nil, name: "Ruby Debug", complete: nil, created_at: nil, updated_at: nil, project_id: nil, priority: nil, due_date: "2016-01-18 21:37:57">
+```
+
+We go to the next line.
+
+### Step 14
+
+To quit the debugging session, type quit.
+
+```
+ quit
+Really quit? (y/n) y
+```
+
+## Summary
+
+In this article, you learned the basics of using byebug gem to debug your Rails 5 apps.
+
+## Reference
+
+[ByeBug](https://github.com/deivid-rodriguez/byebug 'ByeBug')
+
+
+
+
 
 Step - s.
 
@@ -198,70 +291,3 @@ Processing by TasksController#index as HTML
    28:             default_scoped
    29:           end
 ```
-
--
-
-Move to a higher frame.
-
-```ruby
-(byebug) up
-
-[2, 11] in /Users/bparanj/projects/blog5/app/controllers/tasks_controller.rb
-    2:   
-    3:   # GET /tasks
-    4:   # GET /tasks.json
-    5:   def index
-    6:     byebug
-=>  7:     @tasks = Task.all
-    8:   end
-    9: 
-   10:   # GET /tasks/1
-   11:   # GET /tasks/1.json
-```
-
--
-
-next       -- Runs one or more lines of code
-
-
-```
-[23, 32] in /Users/bparanj/projects/blog5/app/controllers/tasks_controller.rb
-   23: 
-   24:   # POST /tasks
-   25:   # POST /tasks.json
-   26:   def create
-   27:         byebug
-=> 28:     @task = Task.new(task_params)
-   29: 
-   30:     respond_to do |format|
-   31:       if @task.save
-   32:         format.html { redirect_to @task, notice: 'Task was successfully created.' }
-(byebug) 
-(byebug) 
-(byebug) task_params
-<ActionController::Parameters {"name"=>"Ruby Debug", "due_date"=>"2016-01-18 21:37:57 UTC"} permitted: true>
-(byebug) n
-
-[25, 34] in /Users/bparanj/projects/blog5/app/controllers/tasks_controller.rb
-   25:   # POST /tasks.json
-   26:   def create
-   27:         byebug
-   28:     @task = Task.new(task_params)
-   29: 
-=> 30:     respond_to do |format|
-   31:       if @task.save
-   32:         format.html { redirect_to @task, notice: 'Task was successfully created.' }
-   33:         format.json { render :show, status: :created, location: @task }
-   34:       else
-(byebug) @task
-#<Task id: nil, name: "Ruby Debug", complete: nil, created_at: nil, updated_at: nil, project_id: nil, priority: nil, due_date: "2016-01-18 21:37:57">
-```
-
--
-
-```
- quit
-Really quit? (y/n) y
-```
--
-[ByeBug](https://github.com/deivid-rodriguez/byebug 'ByeBug')

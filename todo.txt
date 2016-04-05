@@ -1,8 +1,8 @@
 1. Byebug.txt
-2. e63
+2. e63-improved
 
 1. Check if there is an article on tagged logging.
-2. Subscribe to Podbean.
+2. Unsubscribe to Podbean.
 3. Unsubscribe from Wistia.
 
 
