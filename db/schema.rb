@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160404224549) do
+ActiveRecord::Schema.define(version: 20160325164040) do
 
   create_table "categories", force: :cascade do |t|
     t.string   "name"
@@ -36,7 +36,6 @@ ActiveRecord::Schema.define(version: 20160404224549) do
     t.decimal  "price",      precision: 8, scale: 2
     t.datetime "created_at",                         null: false
     t.datetime "updated_at",                         null: false
-    t.string   "permalink"
   end
 
   create_table "projects", force: :cascade do |t|

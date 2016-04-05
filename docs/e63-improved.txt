@@ -1,0 +1,53 @@
+Model Name in URL
+
+## Steps
+### Step 1
+
+Override `to_param` in product model. In product model.
+
+```ruby
+def to_param
+  "#{id}-#{permalink}"
+end
+
+private
+
+def permalink
+  name.gsub(/[^a-z1-9]+/i, '-')
+end
+```
+
+### Step 2
+
+In seeds.rb.
+
+```ruby
+p = Product.new(name: 'rug', price: 100)
+Product.create(name: 'big bowl', price: 20.95)
+Product.create(name: 'pillow', price: 90)
+Product.create(name: 'light', price: 10.95)
+
+c = Category.create(name: 'Clothes')
+Category.create(name: 'Furniture')
+Category.create(name: 'Groceries')
+Category.create(name: 'Electronics')
+
+p.categories << c
+p.save!
+```
+
+Run rake db:seed.
+
+### Step 3
+
+Browse to `http://localhost:3000/products` and click on show for any product. You will now see product name in the URL.
+
+> Note that you DON'T want to use "_" as the separator between the id and the permalink, if you rely on String#to_i. If you use "_" and the permalink part begins with a number, you could get e.g. "123_456blah", and "123_456blah".to_i is 123456, not the expected 123. This is because "_" can be used in Ruby to make numbers more readable. 
+
+This means you also need to make sure there is underscore character in the product name field for any products.
+
+## Summary
+
+In this article, you learned how easy it is to make the URL search engine friendly in Rails 5.
+
+http://railscasts.com/episodes/63-model-name-in-url?view=comments

@@ -1,3 +1,4 @@
+CRAP SKIP THIS
 Model Name in URL
 
 -
@@ -86,16 +87,32 @@ Note that you DON'T want to use "_" as the separator between the id and the perm
 If you use "_" and the permalink part begins with a number, you could get e.g. "123_456blah", and "123_456blah".to_i is 123456, not the expected 123. This is because "_" can be used in Ruby to make numbers more readable. 
 
 
-You don't have to make a new field in your table, yu could just use this instead:
+You don't have to make a new field in your table, you could just use this instead:
+
 
 def to_param
-    "#{id}-#{name.gsub(/[^a-z1-9]+/i, '-')}"
+  "#{id}-#{permalink}"
 end
 
-replace name with the field you want to slug/permalink.
+private
 
-def to_param
-    "#{id}-#{title.gsub(/[^a-z1-9]+/i, '-')}.html"
-  end
-  
+def permalink
+  name.gsub(/[^a-z1-9]+/i, '-')
+end
+
+replace name with the field you want to slug or permalink.
+
+p = Product.new(name: 'rug', price: 100)
+Product.create(name: 'bowl', price: 20.95)
+Product.create(name: 'pillow', price: 90)
+Product.create(name: 'light', price: 10.95)
+
+c = Category.create(name: 'Clothes')
+Category.create(name: 'Furniture')
+Category.create(name: 'Groceries')
+Category.create(name: 'Electronics')
+
+p.categories << c
+p.save!
+
 http://railscasts.com/episodes/63-model-name-in-url?view=comments
