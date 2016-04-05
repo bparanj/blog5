@@ -1,2 +1,101 @@
 Model Name in URL
 
+-
+
+Add permalink column to products table. This column can be used in the URL. Generate the migration.
+
+```
+rails g migration add_permalink_to_products permalink
+```
+
+Migrate the database.
+
+```
+rails db:migrate
+```
+
+-
+
+The permalink column can be seen in schema.rb.
+
+```ruby
+create_table "products", force: :cascade do |t|
+  t.string   "name"
+  t.decimal  "price",      precision: 8, scale: 2
+  t.datetime "created_at",                         null: false
+  t.datetime "updated_at",                         null: false
+  t.string   "permalink"
+end
+```
+
+-
+
+Override `to_param` in product model.
+
+```ruby
+def to_param
+  "#{id}-#{permalink}"
+end
+```
+
+-
+
+Write a rake task to populate the permalink column with the URL encoded value of the product name. 
+
+```ruby
+desc 'Counter cache for project has many tasks'
+
+task permalink: :environment do
+  products = Product.all
+  products.each do |product|
+    product.permalink = ERB::Util.url_encode(product.name)
+    product.save!
+  end
+end
+```
+
+Searching on url encode on Google did not find a good resource. Searched rails source code `https://github.com/rails/rails/search?utf8=%E2%9C%93&q=url+encode` to find the `ERB::Util.url_encode` method.
+
+-
+
+Run the rake task.
+
+```
+rake permalink
+```
+
+Browse to `http://localhost:3000/products` and view any of the products. The URL will have product name in the title.
+
+-
+
+In product model.
+
+before_save :populate_permalink
+
+private
+
+def populate_permalink
+  self.permalink = ERB::Util.url_encode(product.name)
+end
+
+-
+
+
+Note that you DON'T want to use "_" as the separator between the id and the permalink, if you rely on String#to_i. The screencast uses "-" which is fine.
+
+If you use "_" and the permalink part begins with a number, you could get e.g. "123_456blah", and "123_456blah".to_i is 123456, not the expected 123. This is because "_" can be used in Ruby to make numbers more readable. 
+
+
+You don't have to make a new field in your table, yu could just use this instead:
+
+def to_param
+    "#{id}-#{name.gsub(/[^a-z1-9]+/i, '-')}"
+end
+
+replace name with the field you want to slug/permalink.
+
+def to_param
+    "#{id}-#{title.gsub(/[^a-z1-9]+/i, '-')}.html"
+  end
+  
+http://railscasts.com/episodes/63-model-name-in-url?view=comments

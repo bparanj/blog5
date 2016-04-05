@@ -1,0 +1,49 @@
+
+
+1
+
+[Five More Active Record Features You Should Be Using](http://jakeyesbeck.com/2016/03/27/five-more-active-record-features-you-should-be-using/ 'Five More Active Record Features You Should Be Using')
+
+A follow up to a previously popular post with five more features of the ActiveRecord API that you’ll find useful, including pluck, after_commit and changes.
+
+2
+
+[Rails ActionCable — The good and bad parts](https://blog.ably.io/rails-5-actioncable-the-good-and-bad-parts-1b56c3b31404#.1tw7vrysf 'Rails ActionCable — The good and bad parts')
+
+A look at the strengths and weaknesses of Rails 5’s new ActionCable WebSocket-based pub/sub service.
+
+3
+
+[Bootstrap skin for Active Admin](https://github.com/vinhnglx/active_bootstrap_skin 'Bootstrap skin for Active Admin')
+
+Bootstrap skin for Active Admin.
+
+4
+
+[Full Text Search using ActiveRecord](https://github.com/thredded/db_text_search 'Full Text Search using ActiveRecord')
+
+A unified interface on top of ActiveRecord for case-insensitive string-in-set querying and full-text search on SQLite, MySQL, and PostgreSQL.
+
+5
+
+[Ruby's Module#prepend in 10 Minutes ](https://www.youtube.com/watch?v=yOPdqyXOGFY 'Ruby Module#prepend')
+
+Peter Cooper from CooperPress provides a quick tour of the Module#prepend mechanism in Ruby 2.0 and above. Check out the link to his youtube video on rubyplus.com, he has sexy British accent. 
+
+6
+
+[Active Record gets a few extra query methods](https://github.com/rails/rails/pull/24315 'Active Record query methods')
+
+Ever find yourself writing cumbersome things like User.count.zero?? You can now use the terser User.none?, as well as User.one? and User.empty?, as these three methods just got added.
+
+7
+
+[The default worker pool size for Action Cable just got lowered considerably!](https://github.com/rails/rails/pull/24376 'Worker Pool Size')
+
+The author of this revision put it best: "Whack it down from 100 to 4". This will decrease the number of db connections for most, who probably don't need so many.
+
+8
+
+[Notifications can now hook into Action Cable](https://github.com/rails/rails/pull/23723 'Notifications can now hook into Action Cable')
+
+Just as you can subscribe to Action Controller's #process_action, so you can now with ActionCable::Channel::Base#perform_action after this fine addition. Get notified!
