@@ -1,3 +1,4 @@
+D
 Integrating Google reCAPTCHA with Rails 5 App
 
 ## Introduction
@@ -7,39 +8,69 @@ Why not Akismet? The pricing is not reasonable. If it had Amazon like low pay as
 ## Steps
 ### Step 1
 
-[Register](https://www.google.com/recaptcha/admin#list 'Register') your site. You will get a site key and a secret key. For RubyPlus, site key looks like this:
+[Register](https://www.google.com/recaptcha/admin#list 'Register') your site. You will get a site key and a secret key. Site key looks like this:
 
 ```
-6LchqxwTAAAAAOLMBU4fPhAoLQJ3Y9DaX0qkC8st
+6Lc6BAAAAAAAAChqRbQZcn_yyyyyyyyyyyyyyyyy
 ```
 
-This can be viewed in the html. The secret key is used for server side integration and it must be kept secret.
+This can be viewed in the html. The secret key is used for server side integration and it must be kept secret. For production, I added the public key and private key to the ~/.profile.
+
+```
+export RECAPTCHA_PUBLIC_KEY='6Lc6BAAAAAAAAChqRbQZcn_yyyyyyyyyyyyyyyyy'
+export RECAPTCHA_PRIVATE_KEY='6Lc6BAAAAAAAAKN3DRm6VA_xxxxxxxxxxxxxxxxx'
+```
+
+Note that there should be no space anywhere except the export and the variable name. Otherwise you will get:
+
+```
+No public key specified error.
+```
 
 ### Step 2
 
-For, client side integration, paste this snippet before the closing `</head>` tag in your HTML template:
+Add the recaptcha gem to Gemfile.
 
-```html
-<script src='https://www.google.com/recaptcha/api.js'></script>
+```ruby
+gem "recaptcha", require: "recaptcha/rails"
 ```
 
-Add `yield :recaptcha` to application layout file. Add `content_for :recaptcha` in feedback page.
+Run bundle install.
 
 ### Step 3
 
-Paste this snippet at the end of the `<form>` where you want the reCAPTCHA widget to appear:
+Add:
 
-```html
-<div class="g-recaptcha" data-sitekey="6LchqxwTAAAAAOLMBU4fPhAoLQJ3Y9DaX0qkC8st"></div>
+```rhtml
+<%= recaptcha_tags %> to the form.
 ```
 
-In our case, we will add it to the feedback form. To see this in action go to [RubyPlus Contact Page](https://www.rubyplus.com/contact 'RubyPlus Contact Page') You can also add this to your user registration page. You can also prevent automated scripts from downloading any files repeatedly. This will prevent wasting money on Amazon S3.
+In our case, we will add it to the feedback form. To see this in action go to [RubyPlus Contact Page](https://www.rubyplus.com/contact 'RubyPlus Contact Page'). If you load your form, you will see the CAPCHA.
+
+<img src="https://2.bp.blogspot.com/-yaT_YCsm82o/VwSjbdX7VOI/AAAAAAAABGc/bSGEoPTEJJIZk__tXe5GiB0pyYjyv-JQQ/s1600/Screen%2BShot%2B2016-04-05%2Bat%2B10.48.36%2BPM.png" alt="Ruby Plus" style="border: 1px solid #000; max-width:700px; max-height:600px;"/> 
+
+
+### Step 4
+
+In the controller, you can now verify if the user passed the robot test:
+
+```ruby
+if verify_recaptcha
+  # send feedback email 
+end
+```
+
+You can also add this to your user registration page. You can also prevent automated scripts from downloading any files repeatedly. This will prevent wasting bandwidth and can save you money on Amazon S3.
 
 ## Summary
 
-In this article, you learned how to integrate Google reCAPTCHA with Rails 5 app to prevent abuse of your web app.
+In this article, you learned how to integrate Google reCAPTCHA with Rails 5 app using recaptcha gem to prevent abuse of your web app.
+
+## References
 
 [reCAPTCHA DOCS](https://developers.google.com/recaptcha/docs/verify#api-request 'reCAPTCHA')
-
+[recaptcha gem](https://github.com/ambethia/recaptcha 'recaptcha')
 
 http://railscasts.com/episodes/65-stopping-spam-with-akismet?view=comments
+
+
