@@ -1,0 +1,31 @@
+passing a variable to a rake task
+calling it from a script
+
+Rake::Task['db:migrate'].invoke
+
+rake pick:winner RAILS_ENV=production
+
+rake file a .rb extension instead of .rake will fail
+
+Retrieve a random record from SQLite database.
+
+```
+Product.limit(1).order('RANDOM()')
+```
+For SQLite and Postgresql use RANDOM(). For mysql use RAND().
+
+:environment to load rails environment
+
+namespace
+
+:task1 => [:task2, :task3]
+
+to pick dependent tasks
+
+desc to document
+list using rake -T
+
+
+http://railscasts.com/episodes/66-custom-rake-tasks?view=comments
+
+

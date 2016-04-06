@@ -1,0 +1,21 @@
+OpenID 
+
+Very Old and not user friendly. User has to enter URL of the OpenID provider.
+
+Type OpenID URL to login after authorizing.
+
+ruby-openid gem
+
+open_id_authentication plugin
+
+rake open_id_authentication:create
+
+rake db:migrate
+
+
+
+OpenID Connect Server & Client Library
+https://github.com/nov/openid_connect
+
+
+railscasts.com/episodes/68-openid-authentication?view=comments

@@ -1,12 +1,13 @@
 Integrating Google reCAPTCHA with Rails 5 App
 
--
+## Introduction
 
-Why not Akismet? The pricing is not reasonable. If it had Amazon like low pay as you go pricing based on usage, I might consider it. We will only be looking at client side integration. You can refer the documentation for server side integration.
+Why not Akismet? The pricing is not reasonable. If it had Amazon like low pay as you go pricing based on usage, I might consider it. In this article, we will only be looking at client side integration of Google reCAPTCHA feature. You can refer the documentation for server side integration.
 
--
+## Steps
+### Step 1
 
-[Register](https://www.google.com/recaptcha/admin#list 'Register') your site. You will get site key and secret key. Site key looks like this:
+[Register](https://www.google.com/recaptcha/admin#list 'Register') your site. You will get a site key and a secret key. For RubyPlus, site key looks like this:
 
 ```
 6LchqxwTAAAAAOLMBU4fPhAoLQJ3Y9DaX0qkC8st
@@ -14,9 +15,9 @@ Why not Akismet? The pricing is not reasonable. If it had Amazon like low pay as
 
 This can be viewed in the html. The secret key is used for server side integration and it must be kept secret.
 
--
+### Step 2
 
-For, client side integration, paste this snippet before the closing `</head>` tag on your HTML template:
+For, client side integration, paste this snippet before the closing `</head>` tag in your HTML template:
 
 ```html
 <script src='https://www.google.com/recaptcha/api.js'></script>
@@ -24,7 +25,7 @@ For, client side integration, paste this snippet before the closing `</head>` ta
 
 Add `yield :recaptcha` to application layout file. Add `content_for :recaptcha` in feedback page.
 
--
+### Step 3
 
 Paste this snippet at the end of the `<form>` where you want the reCAPTCHA widget to appear:
 
@@ -32,21 +33,13 @@ Paste this snippet at the end of the `<form>` where you want the reCAPTCHA widge
 <div class="g-recaptcha" data-sitekey="6LchqxwTAAAAAOLMBU4fPhAoLQJ3Y9DaX0qkC8st"></div>
 ```
 
-In our case, we will add it to the feedback form.
+In our case, we will add it to the feedback form. To see this in action go to [RubyPlus Contact Page](https://www.rubyplus.com/contact 'RubyPlus Contact Page') You can also add this to your user registration page. You can also prevent automated scripts from downloading any files repeatedly. This will prevent wasting money on Amazon S3.
 
--
-
-You can also add this to your user registration page. You can also prevent automated scripts from downloading any files repeatedly. This will prevent wasting money on Amazon S3.
-
--
-
-## Summary 
+## Summary
 
 In this article, you learned how to integrate Google reCAPTCHA with Rails 5 app to prevent abuse of your web app.
 
 [reCAPTCHA DOCS](https://developers.google.com/recaptcha/docs/verify#api-request 'reCAPTCHA')
-
--
 
 
 http://railscasts.com/episodes/65-stopping-spam-with-akismet?view=comments

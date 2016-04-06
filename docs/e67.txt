@@ -1,0 +1,3 @@
+RESTful authentication. Skipping it.
+
+http://railscasts.com/episodes/67-restful-authentication?view=comments

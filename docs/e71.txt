@@ -1,0 +1,4 @@
+Pick the Rails Testing Basic with RSpec article to create a new video.
+
+
+http://railscasts.com/episodes/71-testing-controllers-with-rspec?view=comments

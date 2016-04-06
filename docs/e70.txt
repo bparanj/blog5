@@ -1,0 +1,13 @@
+Create a new article with the latest routes syntax. Refer rails guides.
+
+
+http://railscasts.com/episodes/70-custom-routes?view=comments
+
+Allow year, month to be entered in the URL to retrieve the articles for that year and month.
+
+
+get 'articles/:year' => 'artilces#index'
+
+by_date method is missing in the video.
+
+There is no good reason why you need to allow the users to enter year, month and day in the URL.

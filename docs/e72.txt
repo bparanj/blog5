@@ -1,0 +1,5 @@
+Nothing to improve. Skip it.
+
+Create staging section in database.yml
+Create staging.rb in environments folder
+Customize the Bundler groups in application.rb to load whatever group you define in Gemfile to be loaded in any environment you would like.

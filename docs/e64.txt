@@ -13,17 +13,17 @@ in the application controller in Rails 5.
 
 Search for `helper :all` exact match  `https://github.com/rails/rails/search?utf8=%E2%9C%93&q=%22helper+%3Aall%22&type=Code`. You can see that in `actionpack/lib/action_controller/railties/helpers.rb`.
 
-```
+```ruby
 if klass.superclass == ActionController::Base && ActionController::Base.include_all_helpers
   klass.helper :all
 end
 ```
 
-`helper :all` is included if the `include_all_helpers` is set to true.
+`helper :all` is included if the `include_all_helpers` flag is set to true.
 
 ### Step 2
 
-We can create custom helpers in helpers directory without any declaration in the controllers to use it. Create a jigolo_helper.rb` in helpers directory.
+We can create custom helpers in helpers directory without any declaration in the controllers to use it. Create a `jigolo_helper.rb` in helpers directory.
 
 ```ruby
 module JigoloHelper
@@ -39,13 +39,13 @@ Now you can call this helper in any views. For instance, add this to the task in
 <%= jiggle %>
 ```
 
-The task index page will display:
+The task index page will now display:
 
 ```
 I can jiggle
 ```
 
-Since Rails 3.1 `include_all_helpers` configuration is available. According to the docs:
+Since Rails 3.1 `include_all_helpers` configuration is available to customize how helpers are included. According to the docs:
 
 > Added `config.action_controller.include_all_helpers`. By default `helper :all` is done in `ActionController::Base`, which includes all the helpers by default. Setting `include_all_helpers` to `false` will result in including only application_helper and the helper corresponding to controller (like foo_helper for foo_controller).
 
@@ -61,7 +61,7 @@ Add:
 config.action_controller.include_all_helpers = false
 ```
 
-to application.rb.
+to application.rb. It will look something like this:
 
 ```ruby
 module Blog
@@ -80,7 +80,7 @@ ActionView::Template::Error (undefined local variable or method `jiggle' for #<#
     3: <%= jiggle %>
 ```
 
-If you change the value to true or delete that entire configuration line. It will still work.
+If you change the value to true or delete that entire configuration line,  it will work.
 	
 ## Summary
 

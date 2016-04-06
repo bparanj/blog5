@@ -1,3 +1,4 @@
+
 1. Byebug.txt
 2. e63-improved
 3. e64
@@ -8,7 +9,9 @@
 3. Unsubscribe from Wistia.
 4. Upload the updated OOD in Ruby book.
 5. Example for using meta-programming to OCP. Paypal mapping object that maps paypal specific fields to application fields.
-
+6. Call 18007557597 to get more details about sound engineer.
+7. One click db backup from Admin dashboard.
+8. Delete unncessary files in S3.
 
 Required Images
 
@@ -32,3 +35,7 @@ Is Your Rails App Ready for Production? by Akita
 Gracefully Handle Action Cable Client Disconnects 
 Avoid Installing New Gems During an Upgrade
 MySQL’s Default Modes
+
+
+Elastic Transcoding 
+https://github.com/fsschmitt/aws-elastic-transcoder-test
