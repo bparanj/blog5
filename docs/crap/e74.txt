@@ -1,0 +1,1 @@
+RJS is removed from Rails 5. Skipping this.

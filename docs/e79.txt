@@ -1,0 +1,3 @@
+Generate Named Routes
+
+Update this using new syntax for Rails 5.

@@ -1,0 +1,441 @@
+Complex Forms in Rails 5
+
+In this article, you will learn how to create a project and a few tasks for the project at the same time.
+
+## Steps
+### Step 1
+
+Create a new Rails 5 project and projects controller with index, new and create actions.
+
+```
+rails new todoist
+rails g controller projects index new create
+```
+
+Define the project resource in routes.rb.
+
+```ruby
+Rails.application.routes.draw do
+  resources :projects
+end
+```
+
+### Step 2
+
+The projects controller looks familiar:
+
+```ruby
+class ProjectsController < ApplicationController
+  def index
+    @projects = Project.all
+  end
+
+  def new
+    @project = Project.new
+  end
+
+  def create
+    @project = Project.new(allowed_params)
+    if @project.save
+      flash[:notice] = 'Successfully created project.'
+      
+      redirect_to projects_path
+    else
+      render :new
+    end
+  end
+  
+  private
+  
+  def allowed_params
+    params.require(:project).permit(:name)
+  end
+end
+```
+
+### Step 3
+
+Generate a project model with name attribute.
+
+```
+rails g model project name
+```
+
+### Step 4
+
+Declare the `has_many` tasks relationship in the project model.
+
+```ruby
+class Project < ApplicationRecord
+  has_many :tasks
+end
+```
+
+Declare the `belongs_to` relationship in the task model.
+
+```ruby
+class Task < ApplicationRecord
+  belongs_to :project
+end
+```
+
+### Step 5
+
+The form to create a new project looks like this:
+
+```rhtml
+<h1>New Project</h1>
+<%= form_for @project do |f| %>
+  <p> 
+    Name: <%= f.text_field :name %>
+  </p>
+  <p>
+	<%= f.submit 'Create Project' %>
+  </p>
+<% end %>
+```
+
+### Step 6
+
+Generate task model with name attribute and `project_id` foreign key.
+
+```
+rails g model task name project_id:integer
+```
+
+### Step 7
+
+The projects index page lists all the projects.
+
+```rhtml
+<h1>Projects</h1>
+
+<% for project in @projects %>
+<%= project.name %>
+<% end %>
+```
+
+You can now create a project.
+
+### Step 8
+
+Add:
+
+```ruby
+accepts_nested_attributes_for :tasks
+```
+
+to the project model.
+
+```ruby
+class Project < ApplicationRecord
+  has_many :tasks
+  
+  accepts_nested_attributes_for :tasks
+end
+```
+
+When you create a project with some tasks, you will get the error:
+
+```
+error : must exist accepts_nested_attributes_for
+```
+
+### Step 9
+
+Add the `inverse_of` to the task model.
+
+```ruby
+class Task < ApplicationRecord
+  belongs_to :project, inverse_of: :tasks
+end
+```
+
+Add the `inverse_of` to the project model.
+
+```ruby
+class Project < ApplicationRecord
+  has_many :tasks, inverse_of: :project
+  
+  accepts_nested_attributes_for :tasks
+end
+```
+
+Read the Rails API to learn about `inverse_of`. 
+
+### Step 10
+
+You can now create a project with many tasks. The log file shows that the records were inserted for projects and the tasks.
+
+```
+Started POST "/projects" for ::1 at 2016-04-06 21:02:26 -0700
+Processing by ProjectsController#create as HTML
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"FjkO/a1o3=", "project"=>{"name"=>"Sqare", "tasks_attributes"=>{"0"=>{"name"=>"10"}, "1"=>{"name"=>"20"}, "2"=>{"name"=>"30"}}}, "commit"=>"Create Project"}
+   (0.1ms)  begin transaction
+  SQL (0.4ms)  INSERT INTO "projects" ("name", "created_at", "updated_at") VALUES (?, ?, ?)  [["name", "Sqare"], ["created_at", 2016-04-06 23:02:26 UTC], ["updated_at", 2016-04-06 23:02:26 UTC]]
+  SQL (0.1ms)  INSERT INTO "tasks" ("name", "project_id", "created_at", "updated_at") VALUES (?, ?, ?, ?)  [["name", "10"], ["project_id", 6], ["created_at", 2016-04-06 23:02:26 UTC], ["updated_at", 2016-04-06 23:02:26 UTC]]
+  SQL (0.0ms)  INSERT INTO "tasks" ("name", "project_id", "created_at", "updated_at") VALUES (?, ?, ?, ?)  [["name", "20"], ["project_id", 6], ["created_at", 2016-04-06 23:02:26 UTC], ["updated_at", 2016-04-06 23:02:26 UTC]]
+  SQL (0.0ms)  INSERT INTO "tasks" ("name", "project_id", "created_at", "updated_at") VALUES (?, ?, ?, ?)  [["name", "30"], ["project_id", 6], ["created_at", 2016-04-06 23:02:26 UTC], ["updated_at", 2016-04-06 23:02:26 UTC]]
+   (0.4ms)  commit transaction
+Redirected to http://localhost:3000/projects
+Completed 302 Found in 11ms (ActiveRecord: 1.1ms)
+```
+
+### Step 11
+
+The form will save tasks with empty value for the task name. Let's fix that now. Add:
+
+```ruby
+reject_if
+```
+
+to the project model.
+
+```ruby
+class Project < ApplicationRecord
+  has_many :tasks, inverse_of: :project
+  
+  accepts_nested_attributes_for :tasks, reject_if: proc { |attributes| attributes[:name].blank? }
+end
+```
+
+### Step 12
+
+Display all tasks for a given project in the project index page.
+
+```rhtml
+<h1>Projects</h1>
+
+<% for project in @projects %>
+  <%= project.name %>
+  <% for task in project.tasks %>
+    <%= task.name %>
+  <% end %>
+<% end %>
+```
+
+When you edit an existing project with tasks, you will get the error:
+
+```
+Unpermitted parameter: task_attributes
+```
+
+### Step 13
+
+You must allow id and `_destroy` to delete tasks.
+
+```ruby
+params.require(:project).permit(:name, tasks_attributes: [:id, :name, :_destroy])
+```
+
+The projects update action looks like this:
+
+```ruby
+def update
+  @project = Project.find(params[:id])  
+  if @project.update_attributes(allowed_params)
+    redirect_to @project, notice: 'Successfully updated survey'
+  else
+    render :edit
+  end
+end
+```
+
+### Step 14
+
+We should also add:
+
+```ruby
+allow_destroy: true
+```
+
+to the project model. It now looks like this:
+
+```ruby
+class Project < ApplicationRecord
+  has_many :tasks, inverse_of: :project, dependent: :destroy
+  
+  accepts_nested_attributes_for :tasks, reject_if: proc { |attributes| attributes[:name].blank? }, allow_destroy: true
+end
+```
+
+### Step 15
+
+The project show looks like this:
+
+```rhtml
+<%= @project.name %>
+<% for task in @project.tasks %>
+<%= task.name %>
+<% end %>
+```
+
+The new project page looks like this:
+
+```rhtml
+<h1>New Project</h1>
+<%= form_for @project do |f| %>
+  <p>
+	Name: <%= f.text_field :name %>
+  </p>
+  <%= f.fields_for :tasks do |task_form| %>
+  	<p>
+  		Task: <%= task_form.text_field :name %>
+  	</p>
+  <% end %>
+  <p>
+	<%= f.submit 'Create Project' %>
+  </p>
+<% end %>
+```
+
+### Step 16
+
+The project edit page looks like this:
+
+```rhtml
+<h1>Edit Project</h1>
+<%= form_for @project do |f| %>
+  <p>
+	Name: <%= f.text_field :name %>
+  </p>
+  <%= f.fields_for :tasks do |task_form| %>
+  	<p>
+  	  Task: <%= task_form.text_field :name %>
+	  <%= task_form.check_box :_destroy %>
+	  <%= task_form.label :_destroy, "Remove Question" %>
+  	</p>
+  <% end %>
+  <p>
+	<%= f.submit 'Update Project' %>
+  </p>
+<% end %>
+```
+
+You will now be able to delete tasks for a given project by going to the project edit page.
+
+## Summary
+
+In this article, you learned how to save form fields that is persisted in different tables by using fields_for and nested_attributes_for in Rails 5 apps.
+
+## Resources
+
+[Cocoon](https://github.com/nathanvda/cocoon 'Cocoon')
+[Covert Coffeescript to Javascript](http://js2.coffee/ 'Covert Coffeescript to Javascript')
+
+
+
+http://railscasts.com/episodes/73-complex-forms-part-1?view=comments
+http://railscasts.com/episodes/196-nested-model-form-revised?view=comments
+
+-
+
+Display Project Name with a list of tasks under the project. New Project link.
+
+Managing mulitple models in a form.
+
+todoist
+
+-
+
+New Project
+
+Name : 
+
+Task 
+Task
+Task 
+
+Create Project
+
+-
+
+Project has many tasks
+
+-
+
+Projects controller new
+
+3.times project.tasks.build
+
+-
+
+new.html.erb
+
+for task in @project.tasks
+
+fields_for ".", task do |task_form|
+
+
+Obsolete. Check 196. 196 is also abosolete. 
+
+196 Nested Model form part 1
+ - Remove tasks for a given project
+ - Create tasks for a new project
+
+def task_attributes=(task_attributes)
+  task_attributes.build(attributes)
+end
+
+
+```rhtml
+<h1>New Project</h1>
+
+<%= form_for @project do |f| %>
+  <p>
+	Name: <%= f.text_field :name %>
+  </p>
+  <% for task in @project.tasks %>
+    <%= fields_for '...', task do |task_form| %>
+    	<p>
+    		Task: <%= task_form.text_field :name %>
+    	</p>
+    <% end %>
+  <% end %>
+  <p>
+	<%= f.submit 'Create Project' %>
+  </p>
+<% end %>
+```
+
+```
+<p>Name: <input type="text" name="project[name]" id="project_name" /></p>
+<p>Task: <input type="text" name="...[name]" id="..._name" /></p>
+<p>Task: <input type="text" name="...[name]" id="..._name" /></p>
+<p>Task: <input type="text" name="...[name]" id="..._name" /></p>
+```
+
+```rhtml
+<%= fields_for 'project[task_attributes][]', task do |task_form| %>
+```
+
+Create a project with three tasks.
+
+
+```rhtml
+<p>
+	Name: <input type="text" name="project[name]" id="project_name" />
+</p>
+    
+<p>
+	Task: <input type="text" name="project[tasks][name]" id="project_tasks_name" />
+</p>
+
+<p>
+	Task: <input type="text" name="project[tasks][name]" id="project_tasks_name" />
+</p>
+
+<p>
+	Task: <input type="text" name="project[tasks][name]" id="project_tasks_name" />
+</p>
+```	
+
+Started GET "/projects" for ::1 at 2016-04-06 16:02:26 -0700
+Processing by ProjectsController#index as HTML
+  Project Load (0.1ms)  SELECT "projects".* FROM "projects"
+  Rendered projects/index.html.erb within layouts/application (0.8ms)
+Completed 200 OK in 21ms (Views: 18.9ms | ActiveRecord: 0.1ms)
+
+********************************************************************************
+<ActionController::Parameters {"name"=>"Sqare", "tasks_attributes"=><ActionController::Parameters {"0"=><ActionController::Parameters {"name"=>"10"} permitted: true>, "1"=><ActionController::Parameters {"name"=>"20"} permitted: true>, "2"=><ActionController::Parameters {"name"=>"30"} permitted: true>} permitted: true>} permitted: true>
+********************************************************************************

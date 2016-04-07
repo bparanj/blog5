@@ -1,0 +1,1 @@
+Delete if javascript is disabled. Outdated. Skipping it.

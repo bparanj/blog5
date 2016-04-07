@@ -1,0 +1,3 @@
+
+PDF::Writer gem has not been updated for almost 10 years. Check if it can revised using HTMLDOC.
+Is this still upto date? : Extremely Simple PDF Generation in Rails using HTMLDOC
