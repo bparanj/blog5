@@ -1,0 +1,24 @@
+
+
+
+Generating RSS feed for articles is a waste of time. Generating a RSS feed for iTunes submission of a podcast is a good idea.
+
+Download feed icons from http://www.feedicons.com/.
+
+
+In application.html.erb:
+
+<%= yield :head %>
+
+
+
+<% content_for :head, auto_discovery_link_tag(:atom, articles_url(format: "atom")) %>
+
+<%= link_to image_tag("feed-icon-28x28.png"), articles_url(format: "atom") %>
+
+index.rss.builder
+
+Refer source of railscasts website.
+
+http://railscasts.com/episodes/87-generating-rss-feeds?view=comments
+http://railscasts.com/episodes/87-generating-rss-feeds-revised?view=comments

@@ -1,0 +1,3 @@
+http://railscasts.com/episodes/95-more-on-activeresource?view=comments
+
+

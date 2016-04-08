@@ -1,3 +1,5 @@
+1. e88
+
 1. ADD Digg to linkbuilding list
 
 MyLogger = ActiveSupport::BufferedLogger.new(Rails.root.join('log/my_tagged.log'))

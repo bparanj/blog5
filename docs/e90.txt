@@ -1,0 +1,8 @@
+Fragment Caching
+
+https://github.com/zendesk/kasket
+http://www.charliemassry.com/posts/52-caching-rails-views
+http://edgeguides.rubyonrails.org/caching_with_rails.html
+
+http://railscasts.com/episodes/90-fragment-caching-revised?view=comments
+

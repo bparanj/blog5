@@ -1,0 +1,71 @@
+YAML Configuration File
+
+
+
+Justin Weiss Gist:
+
+require 'yaml'
+require 'erb'
+require 'ostruct'
+
+class Settings < OpenStruct
+
+  # Settings.new(:google_analytics)
+  def initialize(config_file_base_name)
+    super(YAML.load(ERB.new(File.read(Rails.root.join("config", "#{config_file_base_name}.yml"))).result)[Rails.env])
+  end
+end
+
+
+require 'settings'
+
+GoogleAnalyticsSettings = Settings.new(:google_analytics)
+GoogleAnalyticsSettings.google_analytics_id # => "UA-XXXXXXX-1"
+
+Store the configuration in config directory. In this case, it will be config/google_analytics.yml
+
+-
+
+http://railscasts.com/episodes/85-yaml-configuration-file?view=comments
+http://railscasts.com/episodes/85-yaml-configuration-revised?view=comments
+
+
+
+
+
+
+
+-
+config/initializers/load_config.rb
+
+APP_CONFIG = YAML.load_file("#{RAILS_ROOT}/config/config.yml")[RAILS_ENV]
+
+
+
+def authenticate
+  if APP_CONFIG['perform_authentication']
+    authenticate_or_request_with_http_basic do |username, password|
+      username == APP_CONFIG['username'] && password == APP_CONFIG['password']
+    end
+  end
+end
+
+-
+
+config/config.yml
+
+
+
+development:
+  perform_authentication: false
+
+test:
+  perform_authentication: false
+
+production:
+  perform_authentication: true
+  username: admin
+  password: secret
+
+
+-

@@ -1,0 +1,10 @@
+The `div_for` and `content_tag_for` has been removed from Rails 5. Use record_tag_helper gem if you need those helpers.
+
+DHH says: 
+
+> I remember adding RecordTagHelper as an experiment, but never felt happy with its use in real life. Let's kick it out in a gem and remove it from core.
+
+## Resources
+
+[RecordTagHelper Gem](https://github.com/rails/record_tag_helper 'RecordTagHelper Gem')
+[Split RecordTagHelper into a gem and remove from Rails](https://github.com/rails/rails/issues/18337# 'Split RecordTagHelper into a gem and remove from Rails')
