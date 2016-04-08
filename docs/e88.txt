@@ -1,18 +1,34 @@
 Dynamic Select Menus in Rails 5
 
 
-$ rails g controller people new
+## Steps
+### Step 1
 
-  def new
-    @person = Person.new
-  end
+Generate the people controller and person, country and state models.
 
-new.html.erb
+```
+rails g controller people new
+rails g model state name country_id:integer
+rails g model country name 
+rails g model person name country_id:integer state_id:integer
+```
 
+### Step 2
+
+The people controller new action initializes the person variable.
+
+```ruby
+def new
+  @person = Person.new
+end
+```
+
+### Step 3
+
+The form to create a new person `views/people/new.html.erb` looks like this:
+
+```rhtml
 <h1>New Person</h1>
-
-<h1>New Person</h1>
-
 <%= form_for @person do |f| %>
   <div class="field">
     <%= f.label :name %><br />
@@ -28,15 +44,13 @@ new.html.erb
   </div>
   <div class="actions"><%= f.submit %></div>
 <% end %>
+```
 
+### Step 4
 
-rails g model state name country_id:integer
-rails g model country name 
-rails g model person name country_id:integer state_id:integer
-Copy the countries.csv and states.csv to the root of the project.
- 
-seeds.rb
+Copy the countries.csv and states.csv to the root of your project. Populate the countries and states tables from csv files in seeds.rb
 
+```ruby
 require 'csv'
 
 puts "Importing countries..."
@@ -54,40 +68,61 @@ CSV.foreach(Rails.root.join("states.csv"), headers: true) do |row|
     state.country_id = row[2]
   end
 end
+```
  
-Populate the countries and states tables.
+Run the seed script.
 
+```
 rails db:seed
+```
 
+### Step 5
+
+Define the routes.
+
+```ruby
 Rails.application.routes.draw do
   root to: 'people#new'
   
   resources :people
 end
+```
 
+### Step 6
+
+Declare the associations for the models.
+
+```ruby
 class State < ApplicationRecord
   belongs_to :country
   has_many :people
 end
+```
 
+```ruby
 class Person < ApplicationRecord
   belongs_to :country
   belongs_to :state
 end
+```
 
+```ruby
 class Country < ApplicationRecord
   has_many :states
   has_many :people
 end
+```
 
+### Step 7
 
 Go to the home page, you will now see the country and state dropdown.
 
+### Step 8
 
 Let's group the states by country.
 
+```rhtml
 <h1>New Person</h1>
-
 <%= form_for @person do |f| %>
   <div class="field">
     <%= f.label :name %><br />
@@ -103,10 +138,13 @@ Let's group the states by country.
   </div>
   <div class="actions"><%= f.submit %></div>
 <% end %>
+```
 
+### Step 9
 
 Create people.js in app/assets/javascripts directory.
 
+```javascript
 jQuery(function() {
   var states;
   states = $('#person_state_id').html();
@@ -123,11 +161,17 @@ jQuery(function() {
     }
   });
 });
+```
 
-Delete the people.js.coffee. Reload the page. You will the drop down boxes in the javascript console. Selecting a country will not populate the states only for that country in the state dropdown.
+### Step 10
+
+Delete the people.js.coffee. Reload the page. You will see the drop down boxes in the javascript console. Selecting a country will now populate the states only for that country in the state dropdown.
+
+### Step 11
 
 Escape any special characters in the drop down values to avoid problems.
 
+```
 jQuery(function() {
   var states;
   $('#person_state_id').parent().hide();
@@ -148,30 +192,22 @@ jQuery(function() {
     }
   });
 });
+```
 
-If you use:
+**Note**: If you use:
 
-<h1>New Person</h1>
+```rhtml
+    <%= f.collection_select :country_id, Country.order(:name), :id, :name, include_blank: true     <%= f.collection_select :state_id, State.order(:name), :states, :name, :id, :name, include_blank: true %>
+```
 
-<%= form_for @person do |f| %>
-  <div class="field">
-    <%= f.label :name %><br />
-    <%= f.text_field :name %>
-  </div>
-  <div class="field">
-    <%= f.label :country_id %><br />
-    <%= f.collection_select :country_id, Country.order(:name), :id, :name, include_blank: true %>
-  </div>
-  <div class="field">
-    <%= f.label :state_id, "State or Province" %><br />
-    <%= f.collection_select :state_id, State.order(:name), :states, :name, :id, :name, include_blank: true %>
-  </div>
-  <div class="actions"><%= f.submit %></div>
-<% end %>
+You will get the error: 
 
+```
+undefined method `merge' for :name:Symbol.
+```
 
-You will get the error: undefined method `merge' for :name:Symbol.
+## Summary
 
-
+In this article, you learned how to populate dropdown values based on selection of another dropdown in Rails 5.
 
 http://railscasts.com/episodes/88-dynamic-select-menus-revised?view=comments
