@@ -1,81 +1,44 @@
-
-
-1
-
-[Five More Active Record Features You Should Be Using](http://jakeyesbeck.com/2016/03/27/five-more-active-record-features-you-should-be-using/ 'Five More Active Record Features You Should Be Using')
+[Five More Active Record Features You Should Be Using](http://jakeyesbeck.com/2016/03/27/five-more-active-record-features-you-should-be-using/ 'Five More Active Record Features You Should Be Using') by Jake Yesbeck
 
 A follow up to a previously popular post with five more features of the ActiveRecord API that you’ll find useful, including pluck, after_commit and changes.
 
-by Jake Yesbeck
 
-2
-
-[Rails ActionCable — The good and bad parts](https://blog.ably.io/rails-5-actioncable-the-good-and-bad-parts-1b56c3b31404#.1tw7vrysf 'Rails ActionCable — The good and bad parts')
+[Rails ActionCable — The good and bad parts](https://blog.ably.io/rails-5-actioncable-the-good-and-bad-parts-1b56c3b31404#.1tw7vrysf 'Rails ActionCable — The good and bad parts') by Matthew O'Riordan
 
 A look at the strengths and weaknesses of Rails 5’s new ActionCable WebSocket-based pub/sub service.
-
-by Matthew O'Riordan
-
-3
 
 [Bootstrap skin for Active Admin](https://github.com/vinhnglx/active_bootstrap_skin 'Bootstrap skin for Active Admin')
 
 Bootstrap skin for Active Admin by Vinh Nguyen Le.
 
-4
-
-[Full Text Search using ActiveRecord](https://github.com/thredded/db_text_search 'Full Text Search using ActiveRecord')
+[Full Text Search using ActiveRecord](https://github.com/thredded/db_text_search 'Full Text Search using ActiveRecord') by Gleb Mazovetskiy.
 
 A unified interface on top of ActiveRecord for case-insensitive string-in-set querying and full-text search on SQLite, MySQL, and PostgreSQL.
 
-by Gleb Mazovetskiy.
-
-5
-
-[Ruby's Module#prepend in 10 Minutes ](https://www.youtube.com/watch?v=yOPdqyXOGFY 'Ruby Module#prepend')
+[Ruby's Module#prepend in 10 Minutes ](https://www.youtube.com/watch?v=yOPdqyXOGFY 'Ruby Module#prepend') 
 
 Peter Cooper from CooperPress provides a quick tour of the Module#prepend mechanism in Ruby 2.0 and above. Check out the link to his youtube video on rubyplus.com, he has sexy British accent. 
 
-6
-
-[Active Record gets a few extra query methods](https://github.com/rails/rails/pull/24315 'Active Record query methods')
+[Active Record gets a few extra query methods](https://github.com/rails/rails/pull/24315 'Active Record query methods') by Kenta.
 
 Ever find yourself writing cumbersome things like User.count.zero?? You can now use the terser User.none?, as well as User.one? and User.empty?, as these three methods just got added.
 
-by Kenta.
-
-7
-
-[The default worker pool size for Action Cable just got lowered considerably!](https://github.com/rails/rails/pull/24376 'Worker Pool Size')
+[The default worker pool size for Action Cable just got lowered considerably!](https://github.com/rails/rails/pull/24376 'Worker Pool Size') by Jeremy Daer
 
 The author of this revision put it best: "Whack it down from 100 to 4". This will decrease the number of db connections for most, who probably don't need so many.
 
-by Jeremy Daer
-
-8
-
-[Notifications can now hook into Action Cable](https://github.com/rails/rails/pull/23723 'Notifications can now hook into Action Cable')
+[Notifications can now hook into Action Cable](https://github.com/rails/rails/pull/23723 'Notifications can now hook into Action Cable') by Matthew Wear
 
 Just as you can subscribe to Action Controller's #process_action, so you can now with ActionCable::Channel::Base#perform_action after this fine addition. Get notified!
 
-by Matthew Wear
-
-
-
-Prepared statements to have a cache separate from unprepared statements by Sean Griffin
-https://github.com/rails/rails/commit/3af40b71f34c70a274e261cd6e6468c613de648e
-
+[Prepared statements to have a cache separate from unprepared statements by Sean Griffin](https://github.com/rails/rails/commit/3af40b71f34c70a274e261cd6e6468c613de648e 'Prepared Statements')
 
 This subtle bug was fixed this week, wherein a connection that was established with prepared statements enabled could fail if a query that had been previously run was run again with prepared statements disabled. This was because it was hitting the same cache as the prepared statements-enabled query. Prepared statements now have their own cache, which solves the problem. Hurrah!
 
-rails runner now shows the correct command name when run with Spring by Yuuji Yaginuma
-https://github.com/rails/rails/pull/24325
+[rails runner now shows the correct command name when run with Spring by Yuuji Yaginuma] (https://github.com/rails/rails/pull/24325 'rails runner')
 
 Running rails runner with no arguments or with the --help flag shows you some information on how to use the runner as a shebang line. Unfortunately, if you were using Spring, it would get the path wrong because Spring changes a variable that relates to the command that was run (bin/rails). That just got fixed in this revision!
 
-Using rails restart with Puma now works! by Prathamesh Sonpatki
-https://github.com/rails/rails/pull/24331
+[Using rails restart with Puma now works! by Prathamesh Sonpatki](https://github.com/rails/rails/pull/24331 'Rails Restart')
 
 Previously, when issuing rails restart with Puma running, it would fail to bring it up again since Puma was trying to inspect ARGV to decide how to go about it. The fix involved changing Puma to allow its configuration options to be overridden by Rails. Great job!
-
-
