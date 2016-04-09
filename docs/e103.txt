@@ -1,0 +1,3 @@
+Use one of the javascript libraries here http://bparanj.blogspot.com/2016/04/simple-notification-for-rails-5-using.html to integrate Rails 5 with notification.
+
+http://railscasts.com/episodes/103-site-wide-announcements-revised?view=comments
