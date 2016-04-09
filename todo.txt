@@ -6,43 +6,14 @@ MyLogger = ActiveSupport::BufferedLogger.new(Rails.root.join('log/my_tagged.log'
 MyTaggedLogger.tagged("PAY") { MyTaggedLogger.info "Hello I am working!" }
 
 1. Check if there is an article on tagged logging.
-2. Unsubscribe from Podbean.
-3. Unsubscribe from Wistia.
-4. Upload the updated OOD in Ruby book.
-5. Example for using meta-programming to OCP. Paypal mapping object that maps paypal specific fields to application fields.
-6. Call 18007557597 to get more details about sound engineer.
-7. One click db backup from Admin dashboard.
-8. Delete unncessary files in S3.
-
-Required Images
-
-1. Channel Level Image for iTunes submission.
-
-	1400x1400px (minimum)
-	3000x3000px (maximum)
-	Under 500kb
-	Use rGB color space
-	Be a JPG, JPEG, or a PNG file
-
-	Has a title and the url.
-
-2. Introduction image for all episodes
-
-   Include the logo image in the 1280x720 px image.
-   Center Text : Screencasts
-   Bottom left : Email icon feedback@rubyplus.com
-   Bottom right : Twitter icon with @ruby_plus
+2. Unsubscribe from Wistia.
+3. Upload the updated OOD in Ruby book.
+4. Example for using meta-programming to OCP. Paypal mapping object that maps paypal specific fields to application fields.
+5. One click db backup from Admin dashboard.
+6. Delete unncessary files in S3.
 
 Elastic Transcoding 
 https://github.com/fsschmitt/aws-elastic-transcoder-test
 
 
-Rails Pacific: A Ruby Event in Taiwan (May 20-21)
-Rails: Has One Through Polymorphic Relation by Daniel P. Clark
-better_errors is better than web-console by Olivier Lacan
-Building and Installing Cryptographically Signed Gems
-Is Your Rails App Ready for Production? by Akita
-Gracefully Handle Action Cable Client Disconnects 
-Avoid Installing New Gems During an Upgrade
-MySQL’s Default Modes
 

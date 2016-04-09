@@ -1,0 +1,18 @@
+Required Images
+
+1. Channel Level Image for iTunes submission.
+
+	1400x1400px (minimum)
+	3000x3000px (maximum)
+	Under 500kb
+	Use rGB color space
+	Be a JPG, JPEG, or a PNG file
+
+	Has a title and the url.
+
+2. Introduction image for all episodes
+
+   Include the logo image in the 1280x720 px image.
+   Center Text : Screencasts
+   Bottom left : Email icon feedback@rubyplus.com
+   Bottom right : Twitter icon with @ruby_plus

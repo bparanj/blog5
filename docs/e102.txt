@@ -1,0 +1,601 @@
+Auto-Complete Association in Rails 5
+
+## Steps
+### Step 1
+
+Generate a new Rails 5 project and products controller.
+
+```
+rails new auto
+rails g controller products
+```
+
+### Step 2
+
+The products controller looks like this:
+
+```ruby
+class ProductsController < ApplicationController
+  def index
+    @products = Product.all
+  end
+
+  def show
+    @product = Product.find(params[:id])
+  end
+
+  def new
+    @product = Product.new
+  end
+
+  def create
+    @product = Product.new(allowed_params)
+    if @product.save
+      redirect_to products_url, notice: "Successfully created product."
+    else
+      render :new
+    end
+  end
+
+  def edit
+    @product = Product.find(params[:id])
+  end
+
+  def update
+    @product = Product.find(params[:id])
+    if @product.update_attributes(allowed_params)
+      redirect_to products_url, notice: "Successfully created product."
+    else
+      render :edit
+    end
+  end
+
+  def destroy
+    @product = Product.find(params[:id])
+    @product.destroy
+    redirect_to products_url, notice: "Successfully destroyed product."
+  end
+  
+  private
+  
+  def allowed_params
+    params.require(:product).permit!
+  end
+end
+```
+
+### Step 3
+
+Generate the category model and product model.
+
+```
+rails g model category name
+rails g model product name price:decimal category_id:integer
+rails g model product name price:decimal category:references
+```
+
+You can see Rails 5 added a foreign key for category_id.
+
+```ruby
+class CreateProducts < ActiveRecord::Migration[5.0]
+  def change
+    create_table :products do |t|
+      t.string :name
+      t.decimal :price
+      t.references :category, foreign_key: true
+
+      t.timestamps
+    end
+  end
+end
+```
+
+Run the migration.
+
+```
+rails db:migrate
+```
+
+You can see the generated tables in schema.rb. It shows the index for the category_id foreign key.
+
+```ruby
+ActiveRecord::Schema.define(version: 20160408204755) do
+  create_table "categories", force: :cascade do |t|
+    t.string   "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "products", force: :cascade do |t|
+    t.string   "name"
+    t.decimal  "price"
+    t.integer  "category_id"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+  end
+
+  add_index "products", ["category_id"], name: "index_products_on_category_id"
+end
+```
+
+### Step 4
+
+Let's add some records to play with in the seeds.rb:
+
+```ruby
+Category.create!(name: "Beverages")
+Category.create!(name: "Books")
+Category.create!(name: "Breads")
+Category.create!(name: "Canned Foods")
+Category.create!(name: "Clothes")
+Category.create!(name: "Computers")
+Category.create!(name: "Dry Foods")
+Category.create!(name: "Frozen Foods")
+Category.create!(name: "Furniture")
+Category.create!(name: "Headphones")
+Category.create!(name: "Magazines")
+Category.create!(name: "Music")
+Category.create!(name: "Other Electronics")
+Category.create!(name: "Pastas")
+Category.create!(name: "Portable Devices")
+Category.create!(name: "Produce")
+Category.create!(name: "Snacks")
+Category.create!(name: "Software")
+Category.create!(name: "Televisions")
+Category.create!(name: "Toys")
+Category.create!(name: "Video Games")
+Category.create!(name: "Video Players")
+Category.create!(name: "Videos")
+
+Product.create!(name: "Tasty Baklava", price: 3.99, category: Category.find_by(name: "Dry Foods"))
+Product.create!(name: "Flux Capacitor", price: 19.55, category: Category.find_by(name: "Other Electronics"))
+Product.create!(name: "Technodrome", price: 12.49, category: Category.find_by(name: "Toys"))
+Product.create!(name: "TextMate 2", price: 74.99, category: Category.find_by(name: "Software"))
+```
+
+Populate the database:
+
+```
+rails db:seed
+```
+
+### Step 5
+
+Here is the new.html.erb:
+
+```rhtml
+<h1>New Product</h1>
+
+<%= render 'form' %>
+```
+
+Here is the `_form.html.erb`:
+
+```rhtml
+<%= form_for(@product) do |f| %>
+  <div class="field">
+    <%= f.label :name %><br />
+    <%= f.text_field :name %>
+  </div>
+  <div class="field">
+    <%= f.label :price %><br />
+    <%= f.text_field :price %>
+  </div>
+  <div class="field">
+    <%= f.label :category_id %><br />
+    <%= f.collection_select :category_id, Category.order(:name), :id, :name, include_blank: true %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>
+```
+
+### Step 6
+
+In app/assets/stylesheets/application.css, add the following css:
+
+```css
+/*
+ * This is a manifest file that'll be compiled into application.css, which will include all the files
+ * listed below.
+ *
+ * Any CSS and SCSS file within this directory, lib/assets/stylesheets, vendor/assets/stylesheets,
+ * or any plugin's vendor/assets/stylesheets directory can be referenced here using a relative path.
+ *
+ * You're free to add application-wide styles to this file and they'll appear at the bottom of the
+ * compiled file so the styles you add here take precedence over styles defined in any other CSS/SCSS
+ * files in this directory. Styles in this file should be added after the last require_* statement.
+ * It is generally better to create a new file per style scope.
+ *
+ *= require_tree .
+ *= require_self
+ */
+
+body {
+  background-color: #4B7399;
+  font-family: Verdana, Helvetica, Arial;
+  font-size: 14px;
+}
+
+a img {
+  border: none;
+}
+
+a {
+  color: #0000FF;
+}
+
+.clear {
+  clear: both;
+  height: 0;
+  overflow: hidden;
+}
+
+#container {
+  width: 75%;
+  margin: 0 auto;
+  background-color: #FFF;
+  padding: 20px 40px;
+  border: solid 1px black;
+  margin-top: 20px;
+}
+
+#flash_notice, #flash_error, #flash_alert {
+  padding: 5px 8px;
+  margin: 10px 0;
+}
+
+#flash_notice {
+  background-color: #CFC;
+  border: solid 1px #6C6;
+}
+
+#flash_error, #flash_alert {
+  background-color: #FCC;
+  border: solid 1px #C66;
+}
+
+.fieldWithErrors {
+  display: inline;
+}
+
+.error_messages {
+  width: 400px;
+  border: 2px solid #CF0000;
+  padding: 0px;
+  padding-bottom: 12px;
+  margin-bottom: 20px;
+  background-color: #f0f0f0;
+  font-size: 12px;
+}
+
+.error_messages h2 {
+  text-align: left;
+  font-weight: bold;
+  padding: 5px 10px;
+  font-size: 12px;
+  margin: 0;
+  background-color: #c00;
+  color: #fff;
+}
+
+.error_messages p {
+  margin: 8px 10px;
+}
+
+.error_messages ul {
+  margin: 0;
+}
+
+form .field, form .actions {
+  margin: 12px 0;
+}
+
+.product h2 {
+  font-size: 16px;
+  margin-bottom: 2px;
+}
+```
+
+### Step 7
+
+The index.html.erb looks like this:
+
+```rhtml
+<h1>Products</h1>
+<div id="products">
+<% @products.each do |product| %>
+  <div class="product">
+    <h2><%= link_to product.name, product %></h2>
+    <div class="details">
+      <%= number_to_currency(product.price) %>
+      <% if product.category %>
+        | Category: <%= product.category.name %>
+      <% end %>
+      | <%= link_to "Edit", edit_product_path(product) %>
+    </div>
+  </div>
+<% end %>
+</div>
+
+<p><%= link_to "New Product", new_product_path %></p>
+```
+
+The application layout file looks like this:
+
+```rhtml
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Auto</title>
+    <%= csrf_meta_tags %>
+    <%= action_cable_meta_tag %>
+
+    <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => 'reload' %>
+    <%= javascript_include_tag 'application', 'data-turbolinks-track' => 'reload' %>
+  </head>
+
+  <body>
+    <div id="container">
+      <% flash.each do |name, msg| %>
+        <%= content_tag :div, msg, :id => "flash_#{name}" %>
+      <% end %>
+      <%= yield %>
+    </div>
+  </body>
+  
+</html>
+```
+
+You can now see the list of products.
+
+### Step 8
+
+Here is the show.html.erb
+
+```rhtml
+<p>
+  <b>Name:</b>
+  <%= @product.name %>
+</p>
+
+<p>
+  <b>Price:</b>
+  <%= @product.price %>
+</p>
+
+<p>
+  <b>Category:</b>
+  <%= @product.category && @product.category.name %>
+</p>
+
+<%= link_to 'Edit', edit_product_path(@product) %> |
+<%= link_to 'Back', products_path %>
+```
+
+Here is the edit.html.erb.
+
+```rhtml
+<h1>Editing product</h1>
+
+<%= render 'form' %>
+```
+
+### Step 
+
+Change for product form partial:
+
+```rhtml
+<%= f.collection_select :category_id, Category.order(:name), :id, :name, include_blank: true %>
+```
+
+to 
+
+```rhtml
+<%= f.text_field :category_name %>
+```
+
+### Step 9
+
+Reload the new product page. You will get the error:
+
+```
+undefined method `category_name' for #<Product:0x007fbd8f81b588>
+Did you mean?  category
+               category_id
+               category_id_change
+               category=
+               category_id=
+               category_id?
+```
+
+### Step 10
+
+Add
+
+```ruby
+def category_name
+  category.try(:name)
+end
+
+def category_name=(name)
+  self.category = Category.find_by(name: name) if name.present?
+end
+```
+
+to product model.
+
+### Step 11
+
+Reload the new product page. Create a new product by filling out the product name, price and the category in the text field. You will see the product is created. Let's allow user to create a new category if the category does not exist when they create a new product. Change the `category_name` setter:
+
+```ruby
+def category_name=(name)
+  self.category = Category.find_or_create_by(name: name) if name.present?
+end
+```
+
+### Step 12
+
+Edit an existing product and change the name to something that does not exist in the database. Update the product. We can now add a new category.
+
+### Step 13
+
+In application.js, add:
+
+```
+//= require jquery-ui
+```
+
+It will look like this:
+
+```
+//= require jquery
+//= require jquery-ui	
+//= require jquery_ujs
+//= require turbolinks
+//= require_tree .
+```
+
+### Step 14
+
+Reload the new product page. You will get the error:
+
+```
+Couldn't find file 'jquery-ui'
+```
+
+Add 
+
+```ruby
+gem 'jquery-ui-rails'
+```
+
+to Gemfile and bundle.
+
+### Step 15
+
+Add:
+
+```javascript
+jQuery(function() {
+  return $('#product_category_name').autocomplete({
+    source: ['apple', 'apricot', 'avocado']
+  });
+});
+```
+
+to products.js. Delete products.coffee
+
+### Step 16
+
+Reload the new product page and enter 'a' for the category name, you see the drop down values for the autocomplete. It looks ugly. Let's fix that. Change the products.css.scss:
+
+```css
+// Place all the styles related to the products controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+ul.ui-autocomplete {
+  position: absolute;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: solid 1px #999;
+  cursor: default;
+  li {
+    background-color: #FFF;
+    border-top: solid 1px #DDD;
+    margin: 0;
+    padding: 0;
+    a {
+      color: #000;
+      display: block;
+      padding: 3px;
+    }
+    a.ui-state-hover, a.ui-state-active {
+      background-color: #FFFCB2;
+    }
+  }
+}
+```
+
+### Step 17
+
+Reload the new product page. You can see the styling for the auto dropdown box. Change product form:
+
+```rhtml
+<%= f.text_field :category_name, data: { autocomplete_source: Category.order(:name).map(&:name)} %>
+```
+
+to provide the data source.
+
+Go to the new product page and view page source.
+
+```
+ <input data-autocomplete-source="[&quot;Beverages&quot;,&quot;Board Games&quot;,&quot;Books&quot;,&quot;Breads&quot;,&quot;Canned Foods&quot;,&quot;Clothes&quot;,&quot;Computers&quot;,&quot;Dry Foods&quot;,&quot;Frozen Foods&quot;,&quot;Furniture&quot;,&quot;Headphones&quot;,&quot;Magazines&quot;,&quot;Music&quot;,&quot;Other Electronics&quot;,&quot;Pastas&quot;,&quot;Portable Devices&quot;,&quot;Produce&quot;,&quot;Snacks&quot;,&quot;Software&quot;,&quot;Televisions&quot;,&quot;Toys&quot;,&quot;Video Games&quot;,&quot;Video Players&quot;,&quot;Videos&quot;]" type="text" name="product[category_name]" id="product_category_name" />
+```
+
+### Step 18
+
+Provide the backend for the autocomplete datasource in the products.js.
+
+```javascript
+jQuery(function() {
+  return $('#product_category_name').autocomplete({
+    source: $('#product_category_name').data('autocomplete-source')
+  });
+});
+```
+
+Reload the new product form and enter b. You will see 5 values in the autocomplete dropdown box.
+
+### Step 19
+
+Let's remove the hard-coded autocomplete source and provide a data source as an URL. Create a categories controller.
+
+```
+rails g controller categories
+```
+
+Define the categories resources.
+
+```ruby
+resources :categories
+```
+
+Categories controller looks like this:
+
+```ruby
+class CategoriesController < ApplicationController
+  def index
+    @categories = Category.order(:name).where("name like ?", "%#{params[:term]}%")
+    render json: @categories.map(&:name)
+  end
+end
+```
+
+### Step 20
+
+Change the product form:
+
+```rhtml
+<%= f.text_field :category_name, data: { autocomplete_source: categories_path} %>
+```
+
+Reload the new product page and enter b for the category name.
+
+
+## Summary
+
+In this article, you learned how to implement auto-complete of text field using jquery plugin in Rails 5.
+
+https://github.com/joliss/jquery-ui-rails
+
+
+## Resources
+
+[jQuery AutoComplete](https://jqueryui.com/autocomplete/ 'jQuery AutoComplete')
+
+
+http://railscasts.com/episodes/102-auto-complete-association-revised?view=comments

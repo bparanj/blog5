@@ -1,0 +1,8 @@
+Rails Pacific: A Ruby Event in Taiwan (May 20-21)
+Rails: Has One Through Polymorphic Relation by Daniel P. Clark
+better_errors is better than web-console by Olivier Lacan
+Building and Installing Cryptographically Signed Gems
+Is Your Rails App Ready for Production? by Akita
+Gracefully Handle Action Cable Client Disconnects 
+Avoid Installing New Gems During an Upgrade
+MySQL’s Default Modes

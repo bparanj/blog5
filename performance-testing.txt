@@ -1,0 +1,12 @@
+http://ccaloha.cc/blog/2015/07/14/howto-performance-test-in-rails-4/
+https://github.com/rails/rails-perftest
+
+staging.rb
+
+script/performance/request
+gem install ruby-prof
+
+create products_index_profiler.rb
+
+get '/products'
+
