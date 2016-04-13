@@ -1,0 +1,105 @@
+Advanced Search Form in Rails 5
+
+Create a new rails project, model and controllers.
+
+```
+rails new searchly
+rails g model product name category:references price:decimal released_at:date
+rails g model category name
+rails g model search keywords category:references min_price:decimal max_price:decimal
+rails g controller products index
+rails g controller searches
+```
+
+Migrate and populate the database. 
+
+```
+rails db:migrate
+rails db:seed
+```
+
+The syntax in Rails 5 for seed has been changed.
+
+```ruby
+Category.find_or_create_by(name: 'Toys')
+```
+
+instead of:
+
+```ruby
+Category.find_or_create_by_name('Toys')
+```
+
+```ruby
+Product.create!(category: Category.find_or_create_by(name: "Toys & Games"), name: "Settlers of Catan", price: 34.99, released_at: "2011-07-15")
+```
+
+The searches controller has a private method that allows all the search attributes to be submitted.
+
+```ruby
+def allowed_params
+  params.require(:search).permit!
+end
+```
+
+You don't need `||=` in product method in search model because of Rails SQL caching.
+
+```ruby
+def products
+  @products = find_products
+end
+```
+
+Creating the search model using the command shown in the beginning generates the foreign key automatically.
+
+```ruby
+class CreateSearches < ActiveRecord::Migration[5.0]
+  def change
+    create_table :searches do |t|
+      t.string :keywords
+      t.references :category, foreign_key: true
+      t.decimal :min_price
+      t.decimal :max_price
+
+      t.timestamps
+    end
+  end
+end
+```
+
+```ruby
+ActiveRecord::Schema.define(version: 20160413001116) do
+  create_table "categories", force: :cascade do |t|
+    t.string   "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "products", force: :cascade do |t|
+    t.string   "name"
+    t.integer  "category_id"
+    t.decimal  "price"
+    t.date     "released_at"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+  end
+  add_index "products", ["category_id"], name: "index_products_on_category_id"
+
+  create_table "searches", force: :cascade do |t|
+    t.string   "keywords"
+    t.integer  "category_id"
+    t.decimal  "min_price"
+    t.decimal  "max_price"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+  end
+  add_index "searches", ["category_id"], name: "index_searches_on_category_id"
+end
+```
+
+You can download the code for this project from ` `.
+
+## Summary
+
+In this article, you learned how to implement an advanced search form in Rails 5.
+

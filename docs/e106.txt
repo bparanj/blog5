@@ -1,0 +1,476 @@
+106
+
+rake -T time
+
+rake time:zones:local
+
+environment.rb
+
+set default time zone
+
+config.time_zone = 'Pacific Time (US & Cananda)
+
+Create a product with released_at date.
+
+Product.first.released_at
+Product.first.released_at_before_type_cast
+
+users has time_zone string column
+allow time_zone column to be set from form 
+time_zone_select :time_zone, TimeZone.us_zones
+
+Time.zone = current_user.time_zone if logged_in?
+
+
+
+
+
+$ rails c
+Loading development environment (Rails 5.0.0.beta3)
+> Time.zone
+ => #<ActiveSupport::TimeZone:0x007f92f88 @name="UTC", @utc_offset=nil, @tzinfo=#<TZInfo::DataTimezone: Etc/UTC>, @current_period=nil>
+> Time.zone.to_s
+ => "(GMT+00:00) UTC"
+ 
+ 
+rake -T time
+ 
+rake time:zones:all  # Displays all time zones, also available: time:zones:us, time:zones:local -- filter with OFFSET parameter, e.g., OFFSET=-6
+ 
+
+rake time:zones:all
+ * UTC -11:00 *
+ American Samoa
+ International Date Line West
+ Midway Island
+
+ * UTC -10:00 *
+ Hawaii
+
+ * UTC -09:00 *
+ Alaska
+
+ * UTC -08:00 *
+ Pacific Time (US & Canada)
+ Tijuana
+
+ * UTC -07:00 *
+ Arizona
+ Chihuahua
+ Mazatlan
+ Mountain Time (US & Canada)
+
+ * UTC -06:00 *
+ Central America
+ Central Time (US & Canada)
+ Guadalajara
+ Mexico City
+ Monterrey
+ Saskatchewan
+
+ * UTC -05:00 *
+ Bogota
+ Eastern Time (US & Canada)
+ Indiana (East)
+ Lima
+ Quito
+
+ * UTC -04:30 *
+ Caracas
+
+ * UTC -04:00 *
+ Atlantic Time (Canada)
+ Georgetown
+ La Paz
+
+ * UTC -03:30 *
+ Newfoundland
+
+ * UTC -03:00 *
+ Brasilia
+ Buenos Aires
+ Greenland
+ Montevideo
+ Santiago
+
+ * UTC -02:00 *
+ Mid-Atlantic
+
+ * UTC -01:00 *
+ Azores
+ Cape Verde Is.
+
+ * UTC +00:00 *
+ Casablanca
+ Dublin
+ Edinburgh
+ Lisbon
+ London
+ Monrovia
+ UTC
+
+ * UTC +01:00 *
+ Amsterdam
+ Belgrade
+ Berlin
+ Bern
+ Bratislava
+ Brussels
+ Budapest
+ Copenhagen
+ Ljubljana
+ Madrid
+ Paris
+ Prague
+ Rome
+ Sarajevo
+ Skopje
+ Stockholm
+ Vienna
+ Warsaw
+ West Central Africa
+ Zagreb
+ Zurich
+
+ * UTC +02:00 *
+ Athens
+ Bucharest
+ Cairo
+ Harare
+ Helsinki
+ Istanbul
+ Jerusalem
+ Kaliningrad
+ Kyiv
+ Pretoria
+ Riga
+ Sofia
+ Tallinn
+ Vilnius
+
+ * UTC +03:00 *
+ Baghdad
+ Kuwait
+ Minsk
+ Moscow
+ Nairobi
+ Riyadh
+ St. Petersburg
+ Volgograd
+
+ * UTC +03:30 *
+ Tehran
+
+ * UTC +04:00 *
+ Abu Dhabi
+ Baku
+ Muscat
+ Samara
+ Tbilisi
+ Yerevan
+
+ * UTC +04:30 *
+ Kabul
+
+ * UTC +05:00 *
+ Ekaterinburg
+ Islamabad
+ Karachi
+ Tashkent
+
+ * UTC +05:30 *
+ Chennai
+ Kolkata
+ Mumbai
+ New Delhi
+ Sri Jayawardenepura
+
+ * UTC +05:45 *
+ Kathmandu
+
+ * UTC +06:00 *
+ Almaty
+ Astana
+ Dhaka
+ Novosibirsk
+ Urumqi
+
+ * UTC +06:30 *
+ Rangoon
+
+ * UTC +07:00 *
+ Bangkok
+ Hanoi
+ Jakarta
+ Krasnoyarsk
+
+ * UTC +08:00 *
+ Beijing
+ Chongqing
+ Hong Kong
+ Irkutsk
+ Kuala Lumpur
+ Perth
+ Singapore
+ Taipei
+ Ulaanbaatar
+
+ * UTC +09:00 *
+ Osaka
+ Sapporo
+ Seoul
+ Tokyo
+ Yakutsk
+
+ * UTC +09:30 *
+ Adelaide
+ Darwin
+
+ * UTC +10:00 *
+ Brisbane
+ Canberra
+ Guam
+ Hobart
+ Magadan
+ Melbourne
+ Port Moresby
+ Sydney
+ Vladivostok
+
+ * UTC +11:00 *
+ New Caledonia
+ Solomon Is.
+ Srednekolymsk
+
+ * UTC +12:00 *
+ Auckland
+ Fiji
+ Kamchatka
+ Marshall Is.
+ Wellington
+
+ * UTC +12:45 *
+ Chatham Is.
+
+ * UTC +13:00 *
+ Nuku'alofa
+ Samoa
+ Tokelau Is.
+
+> Time.zone
+ => #<ActiveSupport::TimeZone:0x007f847ad648f8 @name="UTC", @utc_offset=nil, @tzinfo=#<TZInfo::DataTimezone: Etc/UTC>, @current_period=nil>
+> Time.zone.name
+ => "UTC"
+> Time.zone.now
+ => Tue, 12 Apr 2016 18:43:13 UTC +00:00
+> Time.zone.class
+ => ActiveSupport::TimeZone
+> ActiveSupport::TimeZone.us_zones
+ => [#<ActiveSupport::TimeZone:0x007f847aa95348 @name="Hawaii", @utc_offset=nil, @tzinfo=#<TZInfo::DataTimezone: Pacific/Honolulu>, @current_period=#<TZInfo::TimezonePeriod: #<TZInfo::TimezoneTransitionDefinition: #<TZInfo::TimeOrDateTime: -712150200>,#<TZInfo::TimezoneOffset: -36000,0,HST>>,nil>>, #<ActiveSupport::TimeZone:0x007f847aaf7f98 @name="Alaska", @utc_offset=nil, @tzinfo=#<TZInfo::DataTimezone: America/Juneau>, @current_period=#<TZInfo::TimezonePeriod: #<TZInfo::TimezoneTransitionDefinition: #<TZInfo::TimeOrDateTime: 1457866800>,#<TZInfo::TimezoneOffset: -32400,3600,AKDT>>,#<TZInfo::TimezoneTransitionDefinition: #<TZInfo::TimeOrDateTime: 1478426400>,#<TZInfo::TimezoneOffset: -32400,0,AKST>>>>, #<ActiveSupport::TimeZone:0x007f847c2a6f40 @name="Pacific Time (US & Canada)", @utc_offset=nil, @tzinfo=#<TZInfo::DataTimezone: America/Los_Angeles>, @current_period=#<TZInfo::TimezonePeriod: #<TZInfo::TimezoneTransitionDefinition: #<TZInfo::TimeOrDateTime: 1457863200>,#<TZInfo::TimezoneOffset: -28800,3600,PDT>>,#<TZInfo::TimezoneTransitionDefinition: #<TZInfo::TimeOrDateTime: 1478422800>,#<TZInfo::TimezoneOffset: -28800,0,PST>>>>, #<ActiveSupport::TimeZone:0x007f847c3d6b18 @name="Arizona", @utc_offset=nil, @tzinfo=#<TZInfo::DataTimezone: America/Phoenix>, @current_period=#<TZInfo::TimezonePeriod: #<TZInfo::TimezoneTransitionDefinition: #<TZInfo::TimeOrDateTime: -68659200>,#<TZInfo::TimezoneOffset: -25200,0,MST>>,nil>>, #<ActiveSupport::TimeZone:0x007f847b2777f0 @name="Mountain Time (US & Canada)", @utc_offset=nil, @tzinfo=#<TZInfo::DataTimezone: America/Denver>, @current_period=#<TZInfo::TimezonePeriod: #<TZInfo::TimezoneTransitionDefinition: #<TZInfo::TimeOrDateTime: 1457859600>,#<TZInfo::TimezoneOffset: -25200,3600,MDT>>,#<TZInfo::TimezoneTransitionDefinition: #<TZInfo::TimeOrDateTime: 1478419200>,#<TZInfo::TimezoneOffset: -25200,0,MST>>>>, #<ActiveSupport::TimeZone:0x007f847b2fca68 @name="Central Time (US & Canada)", @utc_offset=nil, @tzinfo=#<TZInfo::DataTimezone: America/Chicago>, @current_period=#<TZInfo::TimezonePeriod: #<TZInfo::TimezoneTransitionDefinition: #<TZInfo::TimeOrDateTime: 1457856000>,#<TZInfo::TimezoneOffset: -21600,3600,CDT>>,#<TZInfo::TimezoneTransitionDefinition: #<TZInfo::TimeOrDateTime: 1478415600>,#<TZInfo::TimezoneOffset: -21600,0,CST>>>>, #<ActiveSupport::TimeZone:0x007f847c4d46c8 @name="Eastern Time (US & Canada)", @utc_offset=nil, @tzinfo=#<TZInfo::DataTimezone: America/New_York>, @current_period=#<TZInfo::TimezonePeriod: #<TZInfo::TimezoneTransitionDefinition: #<TZInfo::TimeOrDateTime: 1457852400>,#<TZInfo::TimezoneOffset: -18000,3600,EDT>>,#<TZInfo::TimezoneTransitionDefinition: #<TZInfo::TimeOrDateTime: 1478412000>,#<TZInfo::TimezoneOffset: -18000,0,EST>>>>, #<ActiveSupport::TimeZone:0x007f847b42cf28 @name="Indiana (East)", @utc_offset=nil, @tzinfo=#<TZInfo::DataTimezone: America/Indiana/Indianapolis>, @current_period=#<TZInfo::TimezonePeriod: #<TZInfo::TimezoneTransitionDefinition: #<TZInfo::TimeOrDateTime: 1457852400>,#<TZInfo::TimezoneOffset: -18000,3600,EDT>>,#<TZInfo::TimezoneTransitionDefinition: #<TZInfo::TimeOrDateTime: 1478412000>,#<TZInfo::TimezoneOffset: -18000,0,EST>>>>]
+
+> Time.zone.today
+ => Tue, 12 Apr 2016
+> Time.zone.tomorrow
+ => Wed, 13 Apr 2016
+> Time.zone.yesterday
+ => Mon, 11 Apr 2016
+> Time.zone = 'Hawaii'
+ => "Hawaii"
+> Time.zone.now
+ => Tue, 12 Apr 2016 08:48:14 HST -10:00
+> helper.time_zone_select :time_zone, ActiveSupport::TimeZone.us_zones
+ => "<select name=\"time_zone[[#&lt;ActiveSupport::TimeZone:0x007f847aa95348 @name=&quot;Hawaii&quot;, @utc_offset=nil, @tzinfo=#&lt;TZInfo::DataTimezone: Pacific/Honolulu&gt;, @current_period=#&lt;TZInfo::TimezonePeriod: #&lt;TZInfo::TimezoneTransitionDefinition: #&lt;TZInfo::TimeOrDateTime: -712150200&gt
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+ By default the time zone is UTC.
+
+ $rails c
+ Loading development environment (Rails 5.0.0.beta3)
+ > Rails.application.config.time_zone
+  => "UTC"
+
+ You can change it in application.rb.
+
+ module Tzone
+   class Application < Rails::Application
+     # Settings in config/environments/* take precedence over those specified here.
+     # Application configuration should go into files in config/initializers
+     # -- all .rb files in that directory are automatically loaded.
+    
+     config.time_zone = 'Hawaii'
+   end
+ end
+
+
+ $ rails c
+ Running via Spring preloader in process 27462
+ Loading development environment (Rails 5.0.0.beta3)
+ > Rails.application.config.time_zone
+  => "Hawaii"
+
+  rails g model product name released_at:datetime
+  rails g controller products
+  products controller has standard RESTful stuff.
+ 
+  rails db:migrate
+ 
+  routes.rb
+  resources :products
+ 
+  Create a new product
+ 
+  > Product.first.released_at
+    Product Load (0.1ms)  SELECT  "products".* FROM "products" ORDER BY "products"."id" ASC LIMIT ?  [["LIMIT", 1]]
+   => Tue, 12 Apr 2016 09:12:00 HST -10:00
+  >
+ 
+  # config.time_zone = 'Hawaii'
+ 
+  exit and go to rails c
+ 
+  > Product.first.released_at
+    Product Load (0.1ms)  SELECT  "products".* FROM "products" ORDER BY "products"."id" ASC LIMIT ?  [["LIMIT", 1]]
+   => Tue, 12 Apr 2016 19:12:00 UTC +00:00
+ 
+ 
+   config.time_zone = 'Hawaii'
+  
+   > Product.first.released_at
+     Product Load (0.1ms)  SELECT  "products".* FROM "products" ORDER BY "products"."id" ASC LIMIT ?  [["LIMIT", 1]]
+    => Tue, 12 Apr 2016 09:12:00 HST -10:00
+   > Product.first.released_at_before_type_cast
+     Product Load (0.2ms)  SELECT  "products".* FROM "products" ORDER BY "products"."id" ASC LIMIT ?  [["LIMIT", 1]]
+    => "2016-04-12 19:12:00"
+
+  
+ rails g model user login email crypted_password salt time_zone
+
+ rails db:migrate
+
+
+ <h1> Registration </h1> 
+
+ <%= form_for :user, :url => users_path do |f| %>
+   <p>
+     <%= f.label :email %><br/>
+     <%= f.text_field :email %>
+   </p>
+   <p>
+     <%= f.label :password %><br/>
+     <%= f.password_field :password %>
+   </p>
+   <p>
+     <%= f.label :time_zone %><br />
+     <%= f.time_zone_select :time_zone, ActiveSupport::TimeZone.us_zones %>
+   </p>
+   <p><%= f.submit "Sign up" %></p>
+ <% end %>
+
+
+ Rails.application.routes.draw do
+   resources :products, :users
+ end
+
+
+ http://localhost:3000/users/new
+
+ class ApplicationController < ActionController::Base
+   # Prevent CSRF attacks by raising an exception.
+   # For APIs, you may want to use :null_session instead.
+   protect_from_forgery with: :exception
+  
+   before_filter :set_user_time_zone
+  
+   protected
+  
+   def set_user_time_zone
+     Time.zone = current_user.time_zone if logged_in?
+   end
+  
+   def current_user
+     User.find(session[:user_id])  
+   end
+  
+   def logged_in?
+     !session[:user_id].blank?
+   end
+ end
+
+
+ class User < ApplicationRecord
+   def password=(text)
+     # You must store encrypted password. 
+     self.crypted_password = text
+   end
+ end
+
+
+ class UsersController < ApplicationController
+   def new
+   end
+
+   def create
+     @user = User.new(allowed_params)
+     if @user.save
+       session[:user_id] = @user.id
+       flash[:notice] = "Thanks for signing up!"
+      
+       redirect_to :back
+     else
+       render :new
+     end
+   end
+  
+   private
+  
+   def allowed_params
+     params.require(:user).permit(:login, :password, :time_zone)  
+   end
+ end
+
+
+ DEPRECATION WARNING: before_filter is deprecated and will be removed in Rails 5.1. Use before_action instead. (called from <class:ApplicationController> at /Users/bparanj/projects/tzone/app/controllers/application_controller.rb:6)
+
+ before_action :set_user_time_zone
+
+ def new
+   logger.info Time.zone
+ end
+
+
+ (GMT-07:00) Arizona
+
+
+ If you don't set any time zone in application.rb, Rails will default to UTC. When you sign up with a Mountain Time zone, you can reload the users new page and see in the log file that the current  user's time zone is Mountain Time zone.
+  
+  
+How to reset the timezone after handling a request. 
+
+around_filter :set_time_zone
+
+Brian Morearty's suggestion:
+
+Use around_filter instead of before_filter to set the time zone in a Rails action. That way the thread-local time zone will be reset on the way out of handling this request.
+
+You might be tempted to combine the first two lines of set_time_zone into one line with the comma assignment syntax and add "if logged_in?" to the one line in the ensure clause. Don't do it. If you did that, the user's time zone would leak out to the next request when the user logs out.
+  
+	 
+def set_time_zone
+  old_time_zone = Time.zone
+  Time.zone = current_user.time_zone if logged_in?
+  yield
+ensure
+  Time.zone = old_time_zone
+end
+
+http://railscasts.com/episodes/106-time-zones-in-rails-2-1?view=comments
+ 
+ 
+ 
+ 

@@ -1,0 +1,141 @@
+Tracking Attribute Changes in Rails 5
+
+
+Let's load the first product in the rails console.
+
+```
+$ rails c
+Loading development environment (Rails 5.0.0.beta3)
+> p = Product.first
+  Product Load (0.4ms)  SELECT  "products".* FROM "products" ORDER BY "products"."id" ASC LIMIT ?  [["LIMIT", 1]]
+ => #<Product id: 1, name: "Big Bowl", price: #<BigDecimal:7f8b33d6dbf0,'0.2095E2',18(27)>, created_at: "2016-04-05 00:57:35", updated_at: "2016-04-05 00:58:47">
+```
+
+We have not made any changes to this product, so if we check:
+
+``` 
+> p.changed?
+ => false
+```
+
+The result is false. Let's change the product name.
+
+```
+> p.name = 'Scissors'
+ => "Scissors"
+> p.changed?
+ => true
+```
+
+We now get true as the result if we check the product was changed. We can check if the product name attribute was changed.
+
+```
+> p.name_changed?
+ => true
+```
+
+We can get the previous name using `attribute_was`.
+
+```
+> p.name_was
+ => "Big Bowl"
+```
+
+We can list the old name and the new name for the product.
+
+```
+> p.name_change
+ => ["Big Bowl", "Scissors"]
+```
+
+We can query for the name of the attribute that changed.
+
+```
+> p.changed
+ => ["name"]
+```
+
+In this case, it is product name. We can get the old name and new name as a hash.
+
+```
+> p.changes
+ => {"name"=>["Big Bowl", "Scissors"]}
+```
+
+Let's save the product with the new name.
+
+```
+> p.save
+   (0.1ms)  begin transaction
+  SQL (2.6ms)  UPDATE "products" SET "name" = ?, "updated_at" = ? WHERE "products"."id" = ?  [["name", "Scissors"], ["updated_at", 2016-04-12 23:14:44 UTC], ["id", 1]]
+   (0.6ms)  commit transaction
+ => true
+```
+
+The generated SQL shows only the name and `updated_at` columns are updated. We no longer need to enable partial updates in Rails 5. After saving the product record, if we check again: 
+
+```
+> p.changed?
+ => false
+```
+
+We get false because we have not made any changes to the product after you saved it in the database. We can list all the attributes of a product.
+
+```
+> p.attributes
+ => {"id"=>1, "name"=>"Scissors", "price"=>#<BigDecimal:7f8b34b7d8d0,'0.2095E2',18(27)>, "created_at"=>Tue, 05 Apr 2016 00:57:35 UTC +00:00, "updated_at"=>Tue, 12 Apr 2016 23:14:44 UTC +00:00}
+```
+
+In older version of Rails you had to enable partial update. In Rails 5, it will give you an error:
+
+```
+> ActiveRecord::Base.partial_updates
+NoMethodError: undefined method `partial_updates' for ActiveRecord::Base:Class
+Did you mean?  partial_writes
+```
+
+`ActiveRecord::Base.partial_updates` was deprecated and removed in Rails 4.1. Gotcha is fixed in Rails 5. If we change it:
+
+```
+> p.name
+ => "Scissors"
+> p.name = 'Scissors'
+ => "Scissors"
+> p.changed?
+ => false
+```
+
+We will get the false as the result. If we bypass the Rails generated setters to change the attribute:
+
+```
+> p.name.upcase!
+ => "SCISSORS"
+> p.name_changed?
+ => true
+```
+
+Rails 5 knows that it has been changed. This was a gotcha in older version of Rails. Let's save the changes:
+
+```
+> p.save
+   (0.1ms)  begin transaction
+  SQL (2.7ms)  UPDATE "products" SET "name" = ?, "updated_at" = ? WHERE "products"."id" = ?  [["name", "SCISSORS"], ["updated_at", 2016-04-12 23:20:46 UTC], ["id", 1]]
+   (0.5ms)  commit transaction
+ => true
+```
+
+You can see only the name and `updated_at` gets updated in the database. After saving:
+
+```
+> p.changes
+ => {}
+```
+
+There is no changes for this product.
+
+## Summary
+
+In this article, you learned how to track attribute changes in Rails 5. There is no need to enable partial update in Rails 5. Rails 5 updates only the columns that are changed.
+
+
+http://railscasts.com/episodes/109-tracking-attribute-changes?view=comments
