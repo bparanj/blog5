@@ -91,6 +91,7 @@ GEM
     nio4r (1.2.1)
     nokogiri (1.6.7.2)
       mini_portile2 (~> 2.0.0.rc2)
+    pnotify-rails (3.0.0)
     puma (3.1.0)
     rack (2.0.0.alpha)
       json
@@ -176,6 +177,7 @@ DEPENDENCIES
   jquery-rails
   kaminari!
   listen (~> 3.0.5)
+  pnotify-rails
   puma
   rails (>= 5.0.0.beta3, < 5.1)
   rails-footnotes (~> 4.0)

@@ -25,6 +25,8 @@ gem 'jbuilder', '~> 2.0'
 gem 'validates_timeliness', '~> 4.0'
 gem 'date_validator'
 
+gem 'pnotify-rails'
+
 gem 'kaminari', :git => "git://github.com/amatsuda/kaminari.git", :branch => 'master'
 
 group :development, :test do
