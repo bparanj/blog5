@@ -1,0 +1,54 @@
+Semi Static Pages in Rails 5
+
+Create a new Rails 5 project.
+
+```
+rails new static
+```
+
+Copy the seeeds.rb to your project. Create the product and page models.
+
+```
+rails g model product name price:decimal released_on:date
+rails g model page name permalink content:text 
+```
+
+Change the generated migration file to define an index for permalink:
+
+```ruby
+add_index :pages, :permalink
+```
+
+Generate a pages controller.
+
+```
+rails g controller pages index show new edit create update destroy
+```
+
+Copy the views for pages controller, `_form.html.erb`, edit.html.erb, index.html.erb, new.html.erb and show.html.erb. Generate a info controller with about, privacy and license actions.
+
+```
+rails g controller info about privacy license
+```
+
+The info/about.html.erb has static content. Migrate and populate the database.
+
+```
+rails db:migrate
+rails db:seed
+```
+
+Generate the products controller with index and show actions.
+
+```
+rails g controller products index show
+```
+
+You can browse the solution 1 by checking out the hash  and solution 2 by checking out the hash .
+
+## Summary
+
+In this article, you learned how to implement semi static pages in Rails 5.
+
+
+http://railscasts.com/episodes/117-semi-static-pages-revised?view=comments

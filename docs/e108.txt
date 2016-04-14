@@ -1,3 +1,23 @@
 named_scope is not in Rails 5. Use scope.
 
 http://guides.rubyonrails.org/active_record_querying.html#scopes
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

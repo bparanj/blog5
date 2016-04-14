@@ -1,0 +1,4 @@
+
+The `named_scope` in an Active Record class was deprecated and has been renamed to just `scope` in Rails 3.0.
+ 
+`scope` - (previously `named_scope`) return relations and can be chained together with the other relation methods.

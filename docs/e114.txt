@@ -1,0 +1,39 @@
+Endless Page in Rails 5
+
+Create a new Rails 5 project, product model and products controller.
+
+```
+rails new eles
+rails g model product name price:decimal released_at:datetime
+rails g controller products index new show edit
+```
+
+Migrate and populate the database.
+
+```
+rails db:migrate
+rails db:seed
+```
+
+Copy the sample data in seeds.rb from the source code repo for this article. Follow the [will_paginate](https://rubyplus.com/articles/3471 'will_paginate') tutorial to use `will_paginate` gem with Rails 5. Let's experiment in the rails console.
+
+```
+> Product.count
+   (0.1ms)  SELECT COUNT(*) FROM "products"
+ => 34
+```
+
+We have 34 products. Let's play with the `will_paginate` api.
+
+``` 
+> products = Product.order(:name).page(1).per_page(10)
+  Product Load (0.5ms)  SELECT  "products".* FROM "products" ORDER BY "products"."name" ASC LIMIT ? OFFSET ?  [["LIMIT", 10], ["OFFSET", 0]]
+ => #<ActiveRecord::Relation [#<Product id: 27, name: "1000 Piece Jigsaw Puzzle", price: #<BigDecimal:7fbd7ab1dde0,'0.1499E2',18(36)>, released_at: "2011-09-17 00:00:00", created_at: "2016-04-13 18:47:26", updated_at: "2016-04-13 18:47:26">, #<Product id: 22, name: "7 Wonders", price: #<BigDecimal:7fbd7ab1c8f0,'0.2875E2',18(36)>, released_at: "2011-09-03 00:00:00", created_at: "2016-04-13 18:47:26", updated_at: "2016-04-13 18:47:26">, #<Product id: 18, name: "Acoustic Guitar", price: #<BigDecimal:7fbd7bd3b6d0,'0.1025E4',9(27)>, released_at: "2011-08-23 00:00:00", created_at: "2016-04-13 18:47:26", updated_at: "2016-04-13 18:47:26">, #<Product id: 20, name: "Agricola", price: #<BigDecimal:7fbd7bd3a230,'0.4599E2',18(36)>, released_at: "2011-08-28 00:00:00", created_at: "2016-04-13 18:47:26", updated_at: "2016-04-13 18:47:26">, #<Product id: 24, name: "Answer to Everything", price: #<BigDecimal:7fbd7bd38ca0,'0.42E2',9(27)>, released_at: "2011-09-08 00:00:00", created_at: "2016-04-13 18:47:26", updated_at: "2016-04-13 18:47:26">, #<Product id: 4, name: "Black Leather Couch", price: #<BigDecimal:7fbd7c3e3668,'0.39999E3',18(36)>, released_at: "2011-07-27 00:00:00", created_at: "2016-04-13 18:47:26", updated_at: "2016-04-13 18:47:26">, #<Product id: 29, name: "Bowling Ball", price: #<BigDecimal:7fbd7c3e22e0,'0.127E3',9(27)>, released_at: "2011-09-23 00:00:00", created_at: "2016-04-13 18:47:26", updated_at: "2016-04-13 18:47:26">, #<Product id: 25, name: "Box Kite", price: #<BigDecimal:7fbd7c3e0ee0,'0.63E2',9(27)>, released_at: "2011-09-10 00:00:00", created_at: "2016-04-13 18:47:26", updated_at: "2016-04-13 18:47:26">, #<Product id: 34, name: "CanCan Music Record", price: #<BigDecimal:7fbd7c3d3ee8,'0.299E1',18(36)>, released_at: "2011-10-04 00:00:00", created_at: "2016-04-13 18:47:26", updated_at: "2016-04-13 18:47:26">, #<Product id: 16, name: "Chocolate Pie", price: #<BigDecimal:7fbd7c3d2520,'0.314E1',18(36)>, released_at: "2011-03-14 00:00:00", created_at: "2016-04-13 18:47:26", updated_at: "2016-04-13 18:47:26">]>
+```
+
+You can see the we have 10 results. The parameter to page method specifies the current page number. Go to the products index page. You will be able to scroll down to see more products displayed till all the products are displayed on the screen. Install Toggle Javascript Chrome Plugin to turn off javascript and test that the app degrades gracefully and the pagination works instead of endless scroll. You can download the source code for this article from [ales](https://github.com/bparanj/eles 'eles').
+
+## Summary
+
+In this article, we saw how to get endless scroll to work in Rails 5 app.
+

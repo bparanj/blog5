@@ -1,0 +1,3 @@
+http://railscasts.com/episodes/115-model-caching-revised?view=asciicast
+
+Try on laptop.

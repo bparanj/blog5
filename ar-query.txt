@@ -1,0 +1,230 @@
+
+
+```
+> Product.count
+   (0.3ms)  SELECT COUNT(*) FROM "products"
+ => 4
+```
+
+``` 
+> product = Product.find 100
+  Product Load (0.4ms)  SELECT  "products".* FROM "products" WHERE "products"."id" = ? LIMIT ?  [["id", 100], ["LIMIT", 1]]
+ActiveRecord::RecordNotFound: Couldn't find Product with 'id'=100
+```
+
+```
+> product = Product.find 1
+  Product Load (0.1ms)  SELECT  "products".* FROM "products" WHERE "products"."id" = ? LIMIT ?  [["id", 1], ["LIMIT", 1]]
+ => #<Product id: 1, name: "SCISSORS", price: #<BigDecimal:7fcc31c3da98,'0.2095E2',18(27)>, created_at: "2016-04-05 00:57:35", updated_at: "2016-04-12 23:20:46">
+```
+
+``` 
+> first = Product.take
+  Product Load (0.2ms)  SELECT  "products".* FROM "products" LIMIT ?  [["LIMIT", 1]]
+ => #<Product id: 1, name: "SCISSORS", price: #<BigDecimal:7fcc38082c88,'0.2095E2',18(27)>, created_at: "2016-04-05 00:57:35", updated_at: "2016-04-12 23:20:46">
+```
+
+``` 
+> products = Product.take 2
+  Product Load (0.3ms)  SELECT  "products".* FROM "products" LIMIT ?  [["LIMIT", 2]]
+ => [#<Product id: 1, name: "SCISSORS", price: #<BigDecimal:7fcc38092570,'0.2095E2',18(27)>, created_at: "2016-04-05 00:57:35", updated_at: "2016-04-12 23:20:46">, #<Product id: 2, name: "pillow", price: #<BigDecimal:7fcc380917b0,'0.9E2',9(18)>, created_at: "2016-04-05 00:57:35", updated_at: "2016-04-05 00:57:35">]
+```
+
+``` 
+> p = Product.first
+  Product Load (0.3ms)  SELECT  "products".* FROM "products" ORDER BY "products"."id" ASC LIMIT ?  [["LIMIT", 1]]
+ => #<Product id: 1, name: "SCISSORS", price: #<BigDecimal:7fcc380b0778,'0.2095E2',18(27)>, created_at: "2016-04-05 00:57:35", updated_at: "2016-04-12 23:20:46">
+```
+
+```
+> products = Product.first 3
+  Product Load (0.1ms)  SELECT  "products".* FROM "products" ORDER BY "products"."id" ASC LIMIT ?  [["LIMIT", 3]]
+ => [#<Product id: 1, name: "SCISSORS", price: #<BigDecimal:7fcc380c15f0,'0.2095E2',18(27)>, created_at: "2016-04-05 00:57:35", updated_at: "2016-04-12 23:20:46">, #<Product id: 2, name: "pillow", price: #<BigDecimal:7fcc380c07b8,'0.9E2',9(18)>, created_at: "2016-04-05 00:57:35", updated_at: "2016-04-05 00:57:35">, #<Product id: 3, name: "light", price: #<BigDecimal:7fcc380eb288,'0.1095E2',18(27)>, created_at: "2016-04-05 00:57:35", updated_at: "2016-04-05 00:57:35">]
+```
+
+``` 
+> Product.last
+  Product Load (0.2ms)  SELECT  "products".* FROM "products" ORDER BY "products"."id" DESC LIMIT ?  [["LIMIT", 1]]
+ => #<Product id: 4, name: "rug", price: #<BigDecimal:7fcc32af4258,'0.1E3',9(18)>, created_at: "2016-04-05 00:57:35", updated_at: "2016-04-05 00:57:35">
+```
+
+```
+> Product.last 3
+  Product Load (0.1ms)  SELECT  "products".* FROM "products" ORDER BY "products"."id" DESC LIMIT ?  [["LIMIT", 3]]
+ => [#<Product id: 2, name: "pillow", price: #<BigDecimal:7fcc380f84b0,'0.9E2',9(18)>, created_at: "2016-04-05 00:57:35", updated_at: "2016-04-05 00:57:35">, #<Product id: 3, name: "light", price: #<BigDecimal:7fcc3810bbf0,'0.1095E2',18(27)>, created_at: "2016-04-05 00:57:35", updated_at: "2016-04-05 00:57:35">, #<Product id: 4, name: "rug", price: #<BigDecimal:7fcc38109710,'0.1E3',9(18)>, created_at: "2016-04-05 00:57:35", updated_at: "2016-04-05 00:57:35">]
+```
+
+```
+> Product.find_by(name: 'pillow')
+  Product Load (0.2ms)  SELECT  "products".* FROM "products" WHERE "products"."name" = ? LIMIT ?  [["name", "pillow"], ["LIMIT", 1]]
+ => #<Product id: 2, name: "pillow", price: #<BigDecimal:7fcc3811ab50,'0.9E2',9(18)>, created_at: "2016-04-05 00:57:35", updated_at: "2016-04-05 00:57:35">
+```
+
+```
+> Product.find_by(name: 'spoon')
+  Product Load (0.1ms)  SELECT  "products".* FROM "products" WHERE "products"."name" = ? LIMIT ?  [["name", "spoon"], ["LIMIT", 1]]
+ => nil
+```
+
+```
+> Product.find_by(name: 'pillow').take
+  Product Load (0.2ms)  SELECT  "products".* FROM "products" WHERE "products"."name" = ? LIMIT ?  [["name", "pillow"], ["LIMIT", 1]]
+NoMethodError: undefined method `take' for #<Product:0x007fcc3815af98>
+```
+
+```
+> Product.where(name: 'pillow').take
+  Product Load (0.1ms)  SELECT  "products".* FROM "products" WHERE "products"."name" = ? LIMIT ?  [["name", "pillow"], ["LIMIT", 1]]
+ => #<Product id: 2, name: "pillow", price: #<BigDecimal:7fcc32b3d750,'0.9E2',9(18)>, created_at: "2016-04-05 00:57:35", updated_at: "2016-04-05 00:57:35">
+```
+
+``` 
+> Product.where(name: 'pillow')
+  Product Load (0.2ms)  SELECT "products".* FROM "products" WHERE "products"."name" = ?  [["name", "pillow"]]
+ => #<ActiveRecord::Relation [#<Product id: 2, name: "pillow", price: #<BigDecimal:7fcc32b4f568,'0.9E2',9(18)>, created_at: "2016-04-05 00:57:35", updated_at: "2016-04-05 00:57:35">]>
+```
+
+```
+> p.class
+ => Product::ActiveRecord_Relation
+```
+
+``` 
+> Product.where(name: 'pillow').take.class
+  Product Load (0.1ms)  SELECT  "products".* FROM "products" WHERE "products"."name" = ? LIMIT ?  [["name", "pillow"], ["LIMIT", 1]]
+ => Product(id: integer, name: string, price: decimal, created_at: datetime, updated_at: datetime)
+```
+
+```
+> Product.find_by!(name: 'spoon')
+  Product Load (0.1ms)  SELECT  "products".* FROM "products" WHERE "products"."name" = ? LIMIT ?  [["name", "spoon"], ["LIMIT", 1]]
+ActiveRecord::RecordNotFound: Couldn't find Product
+```
+
+```
+> Product.where(name: 'spoon').take!
+  Product Load (0.1ms)  SELECT  "products".* FROM "products" WHERE "products"."name" = ? LIMIT ?  [["name", "spoon"], ["LIMIT", 1]]
+ActiveRecord::RecordNotFound: Couldn't find Product with [WHERE "products"."name" = ?]
+```
+
+
+```
+> Product.order(:created_at)
+  Product Load (0.3ms)  SELECT "products".* FROM "products" ORDER BY "products"."created_at" ASC
+ => #<ActiveRecord::Relation [#<Product id: 1, name: "SCISSORS", price: #<BigDecimal:7fcc3826b810,'0.2095E2',18(27)>, created_at: "2016-04-05 00:57:35", updated_at: "2016-04-12 23:20:46">, #<Product id: 2, name: "pillow", price: #<BigDecimal:7fcc3826a8e8,'0.9E2',9(18)>, created_at: "2016-04-05 00:57:35", updated_at: "2016-04-05 00:57:35">, #<Product id: 3, name: "light", price: #<BigDecimal:7fcc38269830,'0.1095E2',18(27)>, created_at: "2016-04-05 00:57:35", updated_at: "2016-04-05 00:57:35">, #<Product id: 4, name: "rug", price: #<BigDecimal:7fcc38268980,'0.1E3',9(18)>, created_at: "2016-04-05 00:57:35", updated_at: "2016-04-05 00:57:35">]>
+```
+
+``` 
+> Product.order('created_at')
+  Product Load (0.2ms)  SELECT "products".* FROM "products" ORDER BY created_at
+ => #<ActiveRecord::Relation [#<Product id: 1, name: "SCISSORS", price: #<BigDecimal:7fcc3828bb10,'0.2095E2',18(27)>, created_at: "2016-04-05 00:57:35", updated_at: "2016-04-12 23:20:46">, #<Product id: 2, name: "pillow", price: #<BigDecimal:7fcc38289568,'0.9E2',9(18)>, created_at: "2016-04-05 00:57:35", updated_at: "2016-04-05 00:57:35">, #<Product id: 3, name: "light", price: #<BigDecimal:7fcc3827a748,'0.1095E2',18(27)>, created_at: "2016-04-05 00:57:35", updated_at: "2016-04-05 00:57:35">, #<Product id: 4, name: "rug", price: #<BigDecimal:7fcc38279500,'0.1E3',9(18)>, created_at: "2016-04-05 00:57:35", updated_at: "2016-04-05 00:57:35">]>
+```
+
+
+
+``` 
+> Product.order(created_at: :desc)
+  Product Load (0.2ms)  SELECT "products".* FROM "products" ORDER BY "products"."created_at" DESC
+ => #<ActiveRecord::Relation [#<Product id: 4, name: "rug", price: #<BigDecimal:7fcc334d4a48,'0.1E3',9(18)>, created_at: "2016-04-05 00:57:35", updated_at: "2016-04-05 00:57:35">, #<Product id: 3, name: "light", price: #<BigDecimal:7fcc382c3a38,'0.1095E2',18(27)>, created_at: "2016-04-05 00:57:35", updated_at: "2016-04-05 00:57:35">, #<Product id: 2, name: "pillow", price: #<BigDecimal:7fcc382c2bb0,'0.9E2',9(18)>, created_at: "2016-04-05 00:57:35", updated_at: "2016-04-05 00:57:35">, #<Product id: 1, name: "SCISSORS", price: #<BigDecimal:7fcc382c17b0,'0.2095E2',18(27)>, created_at: "2016-04-05 00:57:35", updated_at: "2016-04-12 23:20:46">]>
+```
+
+
+
+```
+> Product.select('id, name')
+  Product Load (0.1ms)  SELECT id, name FROM "products"
+ => #<ActiveRecord::Relation [#<Product id: 1, name: "SCISSORS">, #<Product id: 2, name: "pillow">, #<Product id: 3, name: "light">, #<Product id: 4, name: "rug">]>
+```
+
+```
+> Product.select(:name).distinct
+  Product Load (0.3ms)  SELECT DISTINCT "products"."name" FROM "products"
+ => #<ActiveRecord::Relation [#<Product id: nil, name: "SCISSORS">, #<Product id: nil, name: "pillow">, #<Product id: nil, name: "light">, #<Product id: nil, name: "rug">]>
+```
+
+
+
+```
+> Product.limit(2)
+  Product Load (0.2ms)  SELECT  "products".* FROM "products" LIMIT ?  [["LIMIT", 2]]
+ => #<ActiveRecord::Relation [#<Product id: 1, name: "SCISSORS", price: #<BigDecimal:7fcc38313d30,'0.2095E2',18(27)>, created_at: "2016-04-05 00:57:35", updated_at: "2016-04-12 23:20:46">, #<Product id: 2, name: "pillow", price: #<BigDecimal:7fcc38312d90,'0.9E2',9(18)>, created_at: "2016-04-05 00:57:35", updated_at: "2016-04-05 00:57:35">]>
+```
+
+``` 
+> Product.limit(2).offset(1)
+  Product Load (0.2ms)  SELECT  "products".* FROM "products" LIMIT ? OFFSET ?  [["LIMIT", 2], ["OFFSET", 1]]
+ => #<ActiveRecord::Relation [#<Product id: 2, name: "pillow", price: #<BigDecimal:7fcc322d6af8,'0.9E2',9(18)>, created_at: "2016-04-05 00:57:35", updated_at: "2016-04-05 00:57:35">, #<Product id: 3, name: "light", price: #<BigDecimal:7fcc322d5b80,'0.1095E2',18(27)>, created_at: "2016-04-05 00:57:35", updated_at: "2016-04-05 00:57:35">]>
+```
+
+```
+> Product.none
+ => #<ActiveRecord::Relation []>
+```
+
+
+
+```
+> p = Product.readonly.first
+  Product Load (0.2ms)  SELECT  "products".* FROM "products" ORDER BY "products"."id" ASC LIMIT ?  [["LIMIT", 1]]
+ => #<Product id: 1, name: "SCISSORS", price: #<BigDecimal:7fcc38360770,'0.2095E2',18(27)>, created_at: "2016-04-05 00:57:35", updated_at: "2016-04-12 23:20:46">
+```
+
+```
+> p.name
+ => "SCISSORS"
+```
+
+```
+> p.name = 'scissors'
+ => "scissors"
+> p.save
+   (0.1ms)  begin transaction
+   (0.1ms)  rollback transaction
+ActiveRecord::ReadOnlyRecord: Product is marked as readonly
+```
+
+```    
+p1 = Product.find 1
+  Product Load (0.1ms)  SELECT  "products".* FROM "products" WHERE "products"."id" = ? LIMIT ?  [["id", 1], ["LIMIT", 1]]
+ => #<Product id: 1, name: "SCISSORS", price: #<BigDecimal:7fcc32b759e8,'0.2095E2',18(27)>, created_at: "2016-04-05 00:57:35", updated_at: "2016-04-12 23:20:46">
+```
+
+```
+> p2 = Product.find 1
+  Product Load (0.1ms)  SELECT  "products".* FROM "products" WHERE "products"."id" = ? LIMIT ?  [["id", 1], ["LIMIT", 1]]
+ => #<Product id: 1, name: "SCISSORS", price: #<BigDecimal:7fcc38358e80,'0.2095E2',18(27)>, created_at: "2016-04-05 00:57:35", updated_at: "2016-04-12 23:20:46">
+> p1.name = 'test optimistic lock'
+ => "test optimistic lock"
+> p1.save
+   (0.1ms)  begin transaction
+  SQL (0.8ms)  UPDATE "products" SET "name" = ?, "updated_at" = ? WHERE "products"."id" = ?  [["name", "test optimistic lock"], ["updated_at", 2016-04-13 18:29:25 UTC], ["id", 1]]
+   (0.4ms)  commit transaction
+ => true
+```
+
+``` 
+> p2.name
+ => "SCISSORS"
+> p2.name = 'should fail'
+ => "should fail"
+> p2.save
+   (0.1ms)  begin transaction
+  SQL (0.4ms)  UPDATE "products" SET "name" = ?, "updated_at" = ? WHERE "products"."id" = ?  [["name", "should fail"], ["updated_at", 2016-04-13 18:29:42 UTC], ["id", 1]]
+   (2.2ms)  commit transaction
+ => true
+```
+
+```
+> Product.select(:name).first
+  Product Load (0.3ms)  SELECT  "products"."name" FROM "products" ORDER BY "products"."id" ASC LIMIT ?  [["LIMIT", 1]]
+ => #<Product id: nil, name: "should fail">
+> ActiveRecord::Base.lock_optimistically
+ => true
+```
+
+```
+> Product.find 1
+  Product Load (0.1ms)  SELECT  "products".* FROM "products" WHERE "products"."id" = ? LIMIT ?  [["id", 1], ["LIMIT", 1]]
+ => #<Product id: 1, name: "should fail", price: #<BigDecimal:7fcc380697b0,'0.2095E2',18(27)>, created_at: "2016-04-05 00:57:35", updated_at: "2016-04-13 18:29:42">
+```
+
