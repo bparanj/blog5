@@ -37,3 +37,4 @@ You can see the we have 10 results. The parameter to page method specifies the c
 
 In this article, we saw how to get endless scroll to work in Rails 5 app.
 
+http://railscasts.com/episodes/114-endless-page?view=comments
