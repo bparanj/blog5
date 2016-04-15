@@ -1,0 +1,355 @@
+Liquid Template in Rails 5
+
+
+Add the gem to the Gemfile. 
+
+```ruby
+gem 'liquid'
+```
+
+Run bundle. We will be using the liquid version 3.0.6. Let's experiment with the liquid gem in the rails console. We can parse text with the name place holder like this: 
+
+```
+> template = Liquid::Template.parse("Hi {{name}}")
+ => #<Liquid::Template:0x007f97a @resource_limits={}, @options={}, @profiling=nil, @line_numbers=nil, @root=#<Liquid::Document:0x007ffa8 @tag_name=nil, @markup=nil, @options={:locale=>#<Liquid::I18n:0x007f97 @path="/Users/bparanj/.rvm/gems/ruby-2.3.0@rails5/gems/liquid-3.0.6/lib/liquid/locales/en.yml">}, @blank=false, @nodelist=["Hi ", #<Liquid::Variable:0x007d8 @markup="name", @name=#<Liquid::VariableLookup:0x007f97a59f9ec8 @name="name", @lookups=[], @command_flags=0>, @options={:locale=>#<Liquid::I18n:0x007f088 @path="/Users/bparanj/.rvm/gems/ruby-2.3.0@rails5/gems/liquid-3.0.6/lib/liquid/locales/en.yml">}, @filters=[]>]>, @warnings=nil>
+```
+
+and render using the liquid template as follows:
+ 
+``` 
+> template.render('name' => 'Bugs')
+ => "Hi Bugs"
+```
+
+This binds the name placeholder in the previous step to the value provided in the above step. Let's now look at filters feature in liquid. Add RedCloth gem to the Gemfile.
+
+```ruby
+gem 'RedCloth'
+```
+
+Run bundle. We will be using RedCloth gem version 4.2.9. Let's define textilize method that will apply textilize syntax to a given text.
+
+```ruby
+> module TextFilter
+    def textilize(input)
+      RedCloth.new(input).to_html
+    end
+  end
+ => :textilize
+```
+
+We can now use the pipeline, | to use the filter feature of liquid.
+
+```
+> template = Liquid::Template.parse(" {{ '*hi*' | textilize }}")
+ => #<Liquid::Template:0x007ff86cb42ed8 @resource_limits={}, @options={}, @profiling=nil, @line_numbers=nil, @root=#<Liquid::Document:0x007ff86cb42cd0 @tag_name=nil, @markup=nil, @options={:locale=>#<Liquid::I18n:0x007ff86bb04508 @path="/Users/bparanj/.rvm/gems/ruby-2.3.0@rails5/gems/liquid-3.0.6/lib/liquid/locales/en.yml">}, @blank=false, @nodelist=[" ", #<Liquid::Variable:0x007ff86cb42ac8 @markup=" '*hi*' | textilize ", @name="*hi*", @options={:locale=>#<Liquid::I18n:0x007ff86bb04508 @path="/Users/bparanj/.rvm/gems/ruby-2.3.0@rails5/gems/liquid-3.0.6/lib/liquid/locales/en.yml">}, @filters=[["textilize", []]]>]>, @warnings=nil>
+```
+
+This creates a template for the given string passed through the textilize filter. We can now use the TextFilter module that implements the textilize function. 
+ 
+``` 
+> template.render({}, filters: [TextFilter])
+ => " <p><strong>hi</strong></p>"
+```
+
+This converts the textilize syntax to the corresponding html. In this case, a strong paragraph containing the string 'hi'. We have learned enough about the liquid API to integrate it with a Rails 5 app. Change the pages controller edit action in the static  app we created in the previous article. 
+
+```ruby
+def edit
+  @page = Page.find(params[:id])
+end
+```
+
+Create category model with name attribute.
+
+```
+rails g model category name
+```
+
+Generate the migration for adding the `category_id` foreign key to the products table.
+
+```
+rails g migration add_category_id_to_products category_id:integer
+```
+
+Declare the associations in the product and category models.
+
+```ruby
+class Product < ApplicationRecord
+  belongs_to :category
+end
+```
+
+```ruby
+class Category < ApplicationRecord
+  has_many :products
+end
+```
+
+Open the products migration file and change `released_on` to `released_at`. Nuke the database and create it from scratch.
+
+```
+rails db:drop
+rails db:migrate
+```
+
+Copy the seeds.rb file to your project. Populate the database.
+
+```
+rails db:seed
+```
+
+Let's experiment in the rails console. Retrieve the first category in the database.
+
+```
+> c = Category.first
+  Category Load (0.2ms)  SELECT  "categories".* FROM "categories" ORDER BY "categories"."id" ASC LIMIT ?  [["LIMIT", 1]]
+ => #<Category id: 1, name: "Toys & Games", created_at: "2016-04-14 20:29:58", updated_at: "2016-04-14 20:29:58">
+```
+
+We can now use the category name in the template.
+
+```
+> template = Liquid::Template.parse("Hi {{category.name}}")
+ => #<Liquid::Template:0x007ff86d1fac80 @resource_limits={}, @options={}, @profiling=nil, @line_numbers=nil, @root=#<Liquid::Document:0x007ff86d1fa730 @tag_name=nil, @markup=nil, @options={:locale=>#<Liquid::I18n:0x007ff86bb04508 @path="/Users/bparanj/.rvm/gems/ruby-2.3.0@rails5/gems/liquid-3.0.6/lib/liquid/locales/en.yml">}, @blank=false, @nodelist=["Hi ", #<Liquid::Variable:0x007ff86d1fa2f8 @markup="category.name", @name=#<Liquid::VariableLookup:0x007ff86d1f9ad8 @name="category", @lookups=["name"], @command_flags=0>, @options={:locale=>#<Liquid::I18n:0x007ff86bb04508 @path="/Users/bparanj/.rvm/gems/ruby-2.3.0@rails5/gems/liquid-3.0.6/lib/liquid/locales/en.yml">}, @filters=[]>]>, @warnings=nil>
+```
+
+We can bind the category we found earlier to the template.
+
+``` 
+> template.render('category' => c)
+ => "Hi Toys & Games"
+```
+
+It works. Change the pages controller show action.
+
+```ruby
+def show
+  @page = Page.find_by!(permalink: params[:id])
+rescue
+  # This is a hack. Do not use exception handling to handle application logic. 
+  @page = Page.find(params[:id])
+end
+```
+
+Since we want to focus on liquid, we are committing a sin in the rescue clause. Define `liquid_methods` in the page model.
+
+
+```ruby
+class Page < ApplicationRecord
+  liquid_methods :products
+  
+  def products
+    Product.all
+  end
+end
+```
+
+Define `liquid_methods` for the product model.
+
+```ruby
+class Product < ApplicationRecord
+  belongs_to :category
+  liquid_methods :name, :price, :category
+end
+```
+
+We can define a helper that wraps the given content with the liquid template and uses RedCloth to convert the liquid syntax to html.
+
+```ruby
+module ApplicationHelper
+  def liquidize(content, arguments)
+    RedCloth.new(Liquid::Template.parse(content).render(arguments, :filters => [LiquidFilter])).to_html
+  end
+end
+```
+
+To format the product price, we can use the `number_to_currency` Rails view helper. Define LiquidFilter in lib folder.
+
+```ruby
+module LiquidFilter
+  include ActionView::Helpers::NumberHelper
+  
+  def currency(price)
+    number_to_currency(price)
+  end
+end
+```
+
+In application.rb, add the lib folder to the `autoload_paths`.
+
+```ruby
+module Static
+  class Application < Rails::Application
+    # Settings in config/environments/* take precedence over those specified here.
+    # Application configuration should go into files in config/initializers
+    # -- all .rb files in that directory are automatically loaded.
+    config.autoload_paths << Rails.root.join('lib')
+  end
+end
+```
+
+Restart the server. Go to the home page and click on the 'About Us' link. You will get the error.
+
+```
+Liquid error: undefined method `to_liquid&#8217;
+```
+
+This happens because ActiveRecord::Relation object does not have the `to_liquid` method, the `to_liquid` method is available in ActiveRecord object. So, change the products method in the page model.
+
+```ruby
+class Page < ApplicationRecord
+  liquid_methods :products
+  
+  def products
+    Product.all.to_a
+  end
+end
+```
+
+Now the products method will return a collection of ActiveRecord objects.
+
+```ruby
+module ApplicationHelper
+  def liquidize(content, arguments)
+    squid = Liquid::Template.parse(content).render(arguments, :filters => [LiquidFilter])
+    (RedCloth.new(squid).to_html).html_safe
+  end
+end
+```
+
+Go to the home page and click on the 'About Us' link. If you see something like this in the browser:
+
+```
+Settlers of Catan Product::LiquidDropClass
+Category: Toys & Games
+```
+
+Make sure there is no space between the product and .price. Instead of:
+
+```
+product .price
+```
+
+it should be:
+
+```
+product.price
+```
+
+In the products show page, we can now use the liquidize view helper.
+
+```rhtml
+<%= liquidize @page.content, 'page' => @page %>
+```
+
+If you don't use the pipe symbol for the product.price, you will not see the price attribute formatted. Make sure it looks like this:
+
+```
+*{{ product.name }}* {{ product.price | currency}}
+```
+
+You need the pipe followed by the helper name. You can download the source code for this article using the hash be28d7fff75aef263128c2e7e64205309f64044c from `https://github.com/bparanj/static`.
+
+
+## Refactored Solution
+
+While looking for a solution for the error [Liquid error: undefined method `to_liquid`](https://github.com/Shopify/liquid/issues/470 'Liquid error: undefined method `to_liquid`'), I came across the suggestion:
+
+ 
+> Don't expose your objects to Liquid directly, encapsulate them in Liquid::Drop subclasses and whitelist only the attributes that you intend to be used within the template.
+
+Define a `to_liquid` method in category model.
+
+```ruby
+class Category < ApplicationRecord
+  has_many :products
+  
+  def to_liquid
+    CategoryLiquidDrop.new(self)
+  end
+end
+```
+
+It delegates the implementation of liquid related functionality to CategoryLiquidDrop class. Create CategoryLiquidDrop class in the lib folder with the contents:
+
+```ruby
+class CategoryLiquidDrop < Liquid::Drop
+  def initialize(category)
+    @category = category
+  end
+  
+  def name
+    @category.name
+  end
+end
+```
+
+It will work. You can download the refactored version of the source from `https://github.com/bparanj/static` using the hash a18866dfe5330ed8c54e6d4098adb3d305b2100e.
+
+## Summary
+
+In this article, you learned how to use liquid gem with Rails 5 apps to allow users to enter dynamic content that can be evaluated on the server safely.
+
+## References
+
+[Liquid Template in Ruby Done Right] (http://ruby-journal.com/liquid-template-in-ruby-done-right/ 'Liquid Template in Ruby Done Right')
+
+http://railscasts.com/episodes/118-liquid?view=comments
+
+
+
+
+
+
+
+
+
+
+The pipe symbol, | is used for the filter functionality. 
+
+
+```
+template = Liquid::Template.parse(" {{ '*hi*' | textilize }}")
+```
+
+This passes the `*hi*` string through the textilize method to make the string `hi` bold.
+
+```
+> template = Liquid::Template.parse(" {{ '*hi*' | textilize }}")
+ => #<Liquid::Template:0x007ff86c380678 @resource_limits={}, @options={}, @profiling=nil, @line_numbers=nil, @root=#<Liquid::Document:0x007ff86c380420 @tag_name=nil, @markup=nil, @options={:locale=>#<Liquid::I18n:0x007ff86bb04508 @path="/Users/bparanj/.rvm/gems/ruby-2.3.0@rails5/gems/liquid-3.0.6/lib/liquid/locales/en.yml">}, @blank=false, @nodelist=[" ", #<Liquid::Variable:0x007ff86c380100 @markup=" '*hi*' | textilize ", @name="*hi*", @options={:locale=>#<Liquid::I18n:0x007ff86bb04508 @path="/Users/bparanj/.rvm/gems/ruby-2.3.0@rails5/gems/liquid-3.0.6/lib/liquid/locales/en.yml">}, @filters=[["textilize", []]]>]>, @warnings=nil>
+> template.render
+ => " *hi*"
+
+
+Browse to `http://localhost:3000/pages/1/edit`.
+
+```
+$ rails c
+> include LiquidFilter
+ => Object
+> currency(10)
+ => "$10.00"
+```
+
+There was a space between product and .price
+
+$ not displayed for this:
+
+```ruby
+module ApplicationHelper
+  def liquidize(content, arguments)
+    template = Liquid::Template.parse(content)
+    merge = template.render(arguments, :filters => [LiquidFilter])
+    (RedCloth.new(merge).to_html).html_safe
+  end
+end
+```
+
+```
+ template = Liquid::Template.parse(" {{ 50 | currency }} ")
+ => #<Liquid::Template:0x007ff8714e5608 @resource_limits={}, @options={}, @profiling=nil, @line_numbers=nil, @root=#<Liquid::Document:0x007ff8714e53b0 @tag_name=nil, @markup=nil, @options={:locale=>#<Liquid::I18n:0x007ff8719ed2e0 @path="/Users/bparanj/.rvm/gems/ruby-2.3.0@rails5/gems/liquid-3.0.6/lib/liquid/locales/en.yml">}, @blank=false, @nodelist=[" ", #<Liquid::Variable:0x007ff8714e51a8 @markup=" 50 | currency ", @name=50, @options={:locale=>#<Liquid::I18n:0x007ff8719ed2e0 @path="/Users/bparanj/.rvm/gems/ruby-2.3.0@rails5/gems/liquid-3.0.6/lib/liquid/locales/en.yml">}, @filters=[["currency", []]]>, " "]>, @warnings=nil>
+> template.render({}, :filters => [LiquidFilter])
+ => " $50.00 "
+``` 
+
