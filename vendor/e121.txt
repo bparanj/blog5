@@ -1,0 +1,96 @@
+
+Tableless Model in Rails 5
+
+In this article, I will go over the changes that is required to make the original railscast on Non ActiveRecord Model to work with Rails 5. Create a new Rails 5 project, controllers and the models.
+
+```
+rails new tles
+rails g controller letters index show
+rails g controller products index show new create edit update destroy
+rails g controller categories index show new create edit update destroy
+rails g model category name
+rails g model product name price:decimal description:text category:references
+```
+
+Define the routes.
+
+```ruby
+Rails.application.routes.draw do
+  resources :products, :categories
+  
+  get 'letters/:id' => 'letters#show', as: :letters
+  get 'alphabets'     => 'letters#index'
+  
+  root 'products#index'
+end
+```
+
+Add the following script to seeds.rb.
+
+```ruby
+['Electronics', 'Office Supplies', 'Toys', 'Clothing', 'Groceries'].each do |name|
+  Category.create!(name: name)
+end
+categories = Category.all
+words = File.readlines("/usr/share/dict/words")
+lorem = "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+350.times do
+  Product.create!(name: words.sample.titleize, 
+                  category: categories.sample, 
+                  description: lorem, 
+                  price: [4.99, 9.99, 14.99, 19.99, 29.99].sample)
+end
+```
+
+Migrate and populate the database.
+
+```
+rails db:migrate
+rails db:seed
+```
+
+The tableless model letter is shown below:
+
+```ruby
+class Letter
+  extend ActiveModel::Naming
+  attr_reader :char
+  
+  def initialize(char)
+    @char = char
+  end
+  
+  def self.all
+    ('A'..'Z').map { |c| new(c) }
+  end
+  
+  def self.find(param)
+    all.detect { |l| l.char == param } 
+  end
+    
+  # This method is not required because we are not using letter resource
+  # def to_param
+  #   @char.downcase
+  # end
+  
+  def products
+    Product.where("name LIKE ?", @char + '%').order("name")
+  end
+  
+  def to_model
+    # You will get to_model error, if you don't have this dummy method
+  end
+  # You need this otherwise you get an error
+  def persisted?
+    false
+  end
+end
+```
+
+You can download the code for this article from `https://github.com/bparanj/tles` with hash 9062df5bf4a0ecb552fc43b6f315875252600d39.
+
+## Summary
+
+In this article, you learned how to use a tableless model in a Rails 5 app.
+
+http://railscasts.com/episodes/121-non-active-record-model?view=comments
