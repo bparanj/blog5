@@ -1,8 +1,8 @@
-
+D
 Helpers Outside Views in Rails 5
 -
 
-In products controller.
+In this article, we will the changes required to get the original railscast on using helpers outside views working in Rails 5. Here is the create action in products controller:
 
 ```ruby
   def create
@@ -16,7 +16,7 @@ In products controller.
   end
 ```
 
-Use html_safe in the application.html.erb.
+Use `html_safe` in the application.html.erb.
 
 ```rhtml
 <%- flash.each do |name, msg| -%>
@@ -24,4 +24,5 @@ Use html_safe in the application.html.erb.
 <%- end -%>
 ```
 
-https://github.com/bparanj/sto.re
+You will now see the linke to the product in the flash message. You can download the source code from `https://github.com/bparanj/sto.re`.
+
