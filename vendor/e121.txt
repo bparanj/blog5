@@ -1,4 +1,4 @@
-
+D
 Tableless Model in Rails 5
 
 In this article, I will go over the changes that is required to make the original railscast on Non ActiveRecord Model to work with Rails 5. Create a new Rails 5 project, controllers and the models.

@@ -1,0 +1,13 @@
+Notes from the Video
+
+Automatic Inline Exposure
+
+The answer to: Why do you need this data? is answered when you go to a specific field as inline help.
+
+Why do you need my email? 
+We will never spam you. Period.
+
+User-activated Section Exposure
+
+Automatic Section Exposure
+

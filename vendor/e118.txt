@@ -1,3 +1,4 @@
+D
 Liquid Template in Rails 5
 
 

@@ -1,0 +1,28 @@
+https://www.udacity.com/me#!/
+
+rack mini profiler
+
+https://www.nateberkopec.com/2015/07/15/the-complete-guide-to-rails-caching.html
+
+https://bibwild.wordpress.com/2012/11/21/speed-up-your-rails-apps-page-load/
+
+_setSiteSpeedSampleRate, 100 for Google Analytics
+
+webpagetest.org
+
+PageSpeed Online
+
+PageSpeed Online API
+
+mod_pagespeed
+
+ModPagespeed on
+
+Open Source Apache module that automatically optimizes web pages and associated resources
+
+
+https://www.igvita.com/slides/2012/railsconf-making-the-web-faster/index.pdf
+
+
+http://hectorperezarenas.com/2015/12/26/rails-5-tutorial-how-to-create-a-chat-with-action-cable/
+http://ruby-doc.org/core-2.2.0/Signal.html

@@ -1,3 +1,85 @@
 
 Thinking Sphinx 
 Install on laptop.
+
+
+rails new tnx
+
+
+brew update
+
+$ brew update
+error: Your local changes to the following files would be overwritten by merge:
+	README.md
+Please, commit your changes or stash them before you can merge.
+error: The following untracked working tree files would be overwritten by merge:
+	Library/Formula/allegro.rb
+	Library/Formula/haxe.rb
+	Library/Formula/htop.rb
+	Library/Formula/log4shib.rb
+	Library/Formula/omega.rb
+	Library/Formula/opensaml.rb
+	Library/Formula/platypus.rb
+	Library/Formula/rats.rb
+	Library/Formula/spim.rb
+	Library/Formula/woof.rb
+	Library/Formula/xml-security-c.rb
+	Library/Formula/xml-tooling-c.rb
+Please move or remove them before you can merge.
+Aborting
+Error: Failure while executing: git pull -q origin refs/heads/master:refs/remotes/origin/master
+
+
+Compile from Source
+
+1 Download
+http://sphinxsearch.com/downloads/sphinx-2.2.10-release.tar.gz
+
+2 Extract
+
+cd to extracted directory
+
+./configure 
+make
+sudo make install
+
+
+
+gem 'thinking-sphinx', '~> 3.1.4'
+gem 'mysql2', :require => 'thinking_sphinx'
+
+bundle
+
+
+mysql2 required, otherwise you get the error:
+
+rails d/Users/zepho/.rvm/gems/ruby-2.3.0@rails5/gems/thinking-sphinx-3.1.4/lib/thinking_sphinx.rb:6:in `require': cannot load such file -- mysql2 (LoadError)
+
+rails g scaffold article title content:text
+
+
+database.yml
+
+development:
+  adapter: mysql2
+  encoding: utf8
+  reconnect: false
+  database: tnx_development
+  pool: 5
+  username: root
+  password:
+  host: localhost
+  port: 3306
+
+Start MySQL on Mac :
+
+sudo /usr/local/mysql/support-files/mysql.server start
+
+ERROR! The server quit without updating PID file
+
+Create an empty file /usr/local/mysql/data/zepho-mac-pro.local.pid
+
+
+rails db:migrate
+
+https://github.com/pat/thinking-sphinx
