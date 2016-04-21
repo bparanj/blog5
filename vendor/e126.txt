@@ -1,21 +1,25 @@
-https://github.com/stympy/faker
 
-Product, Category, Person
+D
+Populating a Database
 
+In this article, we will the changes required to get the railscast episode on Populating a Database to work with Rails 5. Create the models.
 
+```
 rails g model category name
-
 rails g model person name company phone country state city zip street email
-
 rails g model product name price:decimal category:references description:text 
+```
 
+Migrate the database. Add the faker and populator gems to Gemfile.
+
+```ruby
 gem 'faker'
 gem 'populator'
+```
 
+Run bundle. Here is the seeds.rb:
 
-seeds.rb
-
-    
+```ruby    
 [Category, Product, Person].each(&:delete_all)
 
 Category.populate 20 do |category|
@@ -39,28 +43,42 @@ Person.populate 100 do |person|
   person.state   = Faker::Address.state_abbr
   person.zip     = Faker::Address.zip_code
 end
+```
 
+Populate the database.
+
+```
 rails db:seed
+```
 
+Generate the controllers.
+
+```
 rails g controller categories index show new create edit update destroy
-
 rails g controller products index show new create edit update destroy
 rails g controller people index
+```
 
-https://github.com/bparanj/meg
+Form tag should have:
 
-Form for should have
-
+```
 <%= instead of <%.
+```
 
-Controllers should use strong parameters.
+Controllers should use strong parameters. Here is the routes.
 
+```ruby
 Rails.application.routes.draw do
-
   resources :categories, :products, :people
   
   root 'products#index'
 end
+```
 
+You can download the source code for this article from `https://github.com/bparanj/meg`.
+
+## Reference
+
+[Faker Gem](https://github.com/stympy/faker 'Faker Gem')
 
 http://railscasts.com/episodes/126-populating-a-database?view=comments

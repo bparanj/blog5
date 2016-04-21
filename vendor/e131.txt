@@ -1,6 +1,7 @@
+D
+Going Back in Rails 5
 
-
-Create the models.
+In this article, we will see the changes required to get the original railscasts Going Back to work on Rails 5. Create the models.
  
 ```
 rails g model product name category:references price:decimal description:text
@@ -9,13 +10,13 @@ rails g model cart token
 rails g model cart_item product:references cart:references quantity:integer
 ```
 
+Change the migration for `create_cart_times`:
+
 ```ruby
 t.integer :quantity, default: 1 
 ```
 
-in `create_cart_times` migration.
-
-This eliminates the private method:
+Since we make the quantity default to one, we can delete the following private method:
 
 ```ruby
 private
@@ -25,7 +26,7 @@ def default_quantity_to_one
 end
 ```
 
-in `cart_item` model.
+in `cart_item` model. Generate the controllers.
 
 ```
 rails g controller cart_items create
@@ -34,6 +35,4 @@ rails g controller categories
 rails g controller products
 ```
 
-Remember to delete session[:last_product_page] once the checkout is complete. 
-
-https://github.com/bparanj/sto.re
+You can download the source code for this article from `https://github.com/bparanj/sto.re`. **Note**: Remember to delete session[:last_product_page] once the checkout is complete.  
