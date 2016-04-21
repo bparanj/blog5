@@ -1,0 +1,39 @@
+
+
+Create the models.
+ 
+```
+rails g model product name category:references price:decimal description:text
+rails g model category name
+rails g model cart token
+rails g model cart_item product:references cart:references quantity:integer
+```
+
+```ruby
+t.integer :quantity, default: 1 
+```
+
+in `create_cart_times` migration.
+
+This eliminates the private method:
+
+```ruby
+private
+
+def default_quantity_to_one
+  self.quantity ||= 1
+end
+```
+
+in `cart_item` model.
+
+```
+rails g controller cart_items create
+rails g controller carts show
+rails g controller categories
+rails g controller products
+```
+
+Remember to delete session[:last_product_page] once the checkout is complete. 
+
+https://github.com/bparanj/sto.re

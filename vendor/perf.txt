@@ -1,0 +1,42 @@
+
+
+String Interpolation vs to_s Performance in MRI Ruby 2.3.0
+
+
+Use benchmark-ips gem to compare the performance of string interpolation vs to_s method.
+
+```ruby
+require 'benchmark/ips'
+
+Benchmark.ips do |x|
+  x.report("to_s") { (1+2).to_s }
+  x.report("String interpolation") { "#{1+2}"}
+  # Compare the iterations per second of the various reports!
+  x.compare!
+end
+```
+
+Run the benchmark.
+
+```
+ruby tos.rb
+```
+
+We see that the string interpolation is 1.72x times slower.
+
+```
+Warming up --------------------------------------
+                to_s   151.852k i/100ms
+String interpolation   130.251k i/100ms
+Calculating -------------------------------------
+                to_s      7.028M (± 5.0%) i/s -     35.078M
+String interpolation      4.094M (± 3.8%) i/s -     20.449M
+
+Comparison:
+                to_s:  7028500.0 i/s
+String interpolation:  4094177.4 i/s - 1.72x slower
+```
+
+## Summary
+
+In this artilce, you learned that string interpolation is much slower than to_s method.

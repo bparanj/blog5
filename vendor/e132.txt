@@ -1,0 +1,27 @@
+
+Helpers Outside Views in Rails 5
+-
+
+In products controller.
+
+```ruby
+  def create
+    @product = Product.new(allowed_params)
+    if @product.save
+      flash[:notice] = "Successfully created product #{view_context.link_to('product', @product)}."
+      redirect_to @product
+    else
+      render :new
+    end
+  end
+```
+
+Use html_safe in the application.html.erb.
+
+```rhtml
+<%- flash.each do |name, msg| -%>
+  <%= content_tag :div, msg.html_safe, :id => "flash_#{name}" %>
+<%- end -%>
+```
+
+https://github.com/bparanj/sto.re
