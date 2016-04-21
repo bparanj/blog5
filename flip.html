@@ -1,0 +1,67 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+	<meta charset="UTF-8">
+	<meta name="robots" content="noindex, nofollow" />
+	<title>jQuery Flip example</title>
+	<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+	<script src="https://cdn.rawgit.com/nnattawat/flip/v1.0.20/dist/jquery.flip.min.js"></script>
+	<script>
+    $(function(){
+    	$(".flip-horizontal").flip({
+  			trigger: 'hover'
+		});
+    });
+  	</script>
+	
+    <link href="style.css" rel="stylesheet" media="all">
+</head>
+<body>
+  <h1> Mindset Mastery</h1>
+  <div class="aqua pull-left">
+  	<div id="flip-this" class="flip-horizontal"> 
+    		<div class="front"> 
+      		<h3>High Performance / Low Stress</h3>
+    		</div> 
+    		<div class="back">
+      		<h3>Absorb the feelings!</h3>
+    		</div> 
+  	</div>    	
+  </div>
+
+  <div class="blue pull-right" >
+  	<div id="flip-this" class="flip-horizontal"> 
+    		<div class="front"> 
+      		<h3>High Performance / High Stress</h3>
+    		</div> 
+    		<div class="back">
+      		<h3>Expect the challenges!</h3>
+    		</div> 
+  	</div>
+  </div>
+
+  <div class="green pull-left bottom">
+    <div id="flip-this" class="flip-horizontal"> 
+  	<div class="front"> 
+  		<h3>Low Performance / Low Stress</h3>
+  	</div> 
+  	<div class="back">
+  		<h3>Invest in yourself</h3>
+  	</div> 
+  </div>
+  
+  </div>
+
+  <div class="tan pull-right bottom">
+  	<div id="flip-this" class="flip-horizontal"> 
+    		<div class="front"> 
+      		<h3>Low Performance / High Stress</h3>
+    		</div> 
+    		<div class="back">
+      		<h3>Develop unshakeable belief in yourself</h3>
+    		</div> 
+  	</div>
+  </div>
+	
+</body>
+</html>
