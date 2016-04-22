@@ -1,26 +1,128 @@
 File Uploads using Paperclip in Rails 5
 
-Pre-requisite imagemagick.
 
-Create controllers:
-categories, products
+In this article, we will get the paperclip to work with Rails 5. Install imagemagick, for Mac download the [installer](http://cactuslab.com/imagemagick/ 'ImageMagick installer')
 
-Create models:
-category, product
 
-category has many products
-product belongs to category
-  has_attached_file :photo, :styles => { :small => "150x150>" },
-                    :url  => "/assets/products/:id/:style/:basename.:extension",
-                    :path => ":rails_root/public/assets/products/:id/:style/:basename.:extension"
-  
-  validates_attachment_presence :photo
-  validates_attachment_size :photo, :less_than => 5.megabytes
-  validates_attachment_content_type :photo, :content_type => ['image/jpeg', 'image/png']
+Create controllers for categories and products.
 
-Create views.
-category views are same, layout is same. Product form partial:
+```
+rails g controller categories
+rails g controller products
+```
 
+Create category and product models.
+
+```
+rails g model category name
+rails g model product name price:decimal category:references description:text
+```
+
+Declare the associations. Category has many products and product belongs to category. Copy the script to populate sample data to seeds.rb. Migrate the database and populate the database.
+
+```
+rails db:migrate
+rails db:seed
+```
+
+Add paperclip gem to the Gemfile.
+
+```ruby
+gem "paperclip", "~> 5.0.0.beta1"
+```
+
+Run bundle.
+
+Use the paperclip in the product model.
+
+```ruby
+has_attached_file :photo
+```
+
+Run the migration generator for paperclip related fields in the product model.  
+
+```
+rails g paperclip product photo
+```
+
+This generates the following migration file.
+
+```ruby
+class AddAttachmentPhotoToProducts < ActiveRecord::Migration
+  def self.up
+    change_table :products do |t|
+      t.attachment :photo
+    end
+  end
+
+  def self.down
+    remove_attachment :products, :photo
+  end
+end
+```
+
+Migrate the database. Look at the schema.rb to see the new columns for the products table.
+
+```ruby
+t.string   "photo_file_name"
+t.string   "photo_content_type"
+t.integer  "photo_file_size"
+t.datetime "photo_updated_at"
+```
+
+Add the multipart to the product form partial.
+
+```rhtml
+<%= form_for @product, html: { multipart: true } do |f| %>
+...
+  <p>
+  	<%= f.file_field :photo %>
+  </p>
+  <p><%= f.submit "Submit" %></p>
+<% end %>
+```
+
+You will get the error:
+
+```
+Paperclip::Errors::MissingRequiredValidatorError 
+```
+
+To fix this, add validation to product model:
+
+```ruby
+validates_attachment_content_type :photo, :content_type => ["image/jpg", "image/jpeg", "image/png", "image/gif"]
+```
+
+If you get the error:
+
+```
+Could not run the `identify` command. Please install ImageMagick.
+```
+
+Open a new terminal if you are using the terminal that was started before you installed ImageMagick. Now, you can upload a new image for a product in the edit form. Add:
+
+```rhtml
+<%= image_tag @product.photo.url %>
+```
+
+to product show page. You can now view the image in the product show page.
+
+You can change the size of the image by passing in :thumb or :medium.
+
+```rhtml
+<%= image_tag @product.photo.url(:thumb) %>
+```
+
+Reload to see the thumbnail size image.
+
+```rhtml
+<%= image_tag @product.photo.url(:medium) %>
+```
+
+The thumb and medium size works because it is declared in `has_attached_file` in the product model. You can copy the views for category, layout and products for the code repository for this article. Product form partial looks like this:
+
+```rhtml
 <%= form_for @product, :html => { :multipart => true } do |f| %>
   
   same as before.
@@ -30,28 +132,21 @@ category views are same, layout is same. Product form partial:
   </p>
   <p><%= f.submit "Submit" %></p>
 <% end %>
+```
 
-product show page:
+The product show page looks like this:
 
+```rhtml
 <%= image_tag @product.photo.url(:small) %>
+```
 
-other views are same as before.
+For more customization options, read the docs at `https://github.com/thoughtbot/paperclip`.
 
-seeds.rb is same as before.
+## Summary
 
-  create_table "categories", :force => true do |t|
-    t.string   "name"
-  end
+In this article, you learned how to use paperclip with Rails 5 apps.
 
-  create_table "products", :force => true do |t|
-    t.integer  "category_id"
-    t.string   "name"
-    t.decimal  "price"
-    t.text     "description"
-
-    t.string   "photo_file_name"
-    t.string   "photo_content_type"
-    t.integer  "photo_file_size"
-    t.datetime "photo_updated_at"
-  end
+http://railscasts.com/episodes/134-paperclip?view=comments
   
+Rouge supports 77 languages, see the dropdown for the list at : http://rouge.jneen.net/
+
