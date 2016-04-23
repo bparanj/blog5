@@ -14,5 +14,3 @@ MyTaggedLogger.tagged("PAY") { MyTaggedLogger.info "Hello I am working!" }
 Elastic Transcoding 
 https://github.com/fsschmitt/aws-elastic-transcoder-test
 
-
-

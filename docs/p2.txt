@@ -2,7 +2,6 @@
 
 A follow up to a previously popular post with five more features of the ActiveRecord API that you’ll find useful, including pluck, after_commit and changes.
 
-
 [Rails ActionCable — The good and bad parts](https://blog.ably.io/rails-5-actioncable-the-good-and-bad-parts-1b56c3b31404#.1tw7vrysf 'Rails ActionCable — The good and bad parts') by Matthew O'Riordan
 
 A look at the strengths and weaknesses of Rails 5’s new ActionCable WebSocket-based pub/sub service.
