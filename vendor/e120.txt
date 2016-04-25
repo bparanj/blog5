@@ -1,9 +1,317 @@
-
+D
 Thinking Sphinx 
-Install on laptop.
 
 
+## Installation
+
+To compile from Source. Download [Sphinx](http://sphinxsearch.com/downloads/sphinx-2.2.10-release.tar.gz 'Sphinx'). Extract the compressed file. Go to the extracted directory and run:
+
+```
+./configure 
+make
+sudo make install
+```
+
+You can check the version of Sphinx by running:
+
+```
+$ searchd --help
+Sphinx 2.2.10-id64-release (2c212e0)
+Copyright (c) 2001-2015, Andrew Aksyonoff
+Copyright (c) 2008-2015, Sphinx Technologies Inc (http://sphinxsearch.com)
+```
+
+## Rails 5 App Before Sphinx
+
+Create the project called tnx.
+
+```
 rails new tnx
+```
+
+Create the author, article and comment models.
+
+```
+rails g model author first_name last_name
+rails g model article name content:text author:references published_at:datetime 
+rails g model comment name content:text article:references
+```
+
+Migrate the database.
+
+```
+rails db:migrate
+```
+
+Look at the schema.rb. Rails 5 uses InnoDB engine for MySQL. It uses btree algorithm for the indexes.
+
+```ruby
+ActiveRecord::Schema.define(version: 20160424025639) do
+  create_table "articles", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string   "name"
+    t.text     "content",      limit: 65535
+    t.integer  "author_id"
+    t.datetime "published_at"
+    t.datetime "created_at",                 null: false
+    t.datetime "updated_at",                 null: false
+  end
+
+  add_index "articles", ["author_id"], name: "index_articles_on_author_id", using: :btree
+
+  create_table "authors", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string   "first_name"
+    t.string   "last_name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "comments", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string   "name"
+    t.text     "content",    limit: 65535
+    t.integer  "article_id"
+    t.datetime "created_at",               null: false
+    t.datetime "updated_at",               null: false
+  end
+
+  add_index "comments", ["article_id"], name: "index_comments_on_article_id", using: :btree
+
+  add_foreign_key "articles", "authors"
+  add_foreign_key "comments", "articles"
+end
+```
+
+Declare the associations in the models.
+
+```ruby
+class Comment < ApplicationRecord
+  belongs_to :article
+end
+```
+
+```ruby
+class Article < ActiveRecord::Base
+  belongs_to :author
+  has_many :comments
+end
+```
+
+Copy the seeds.rb from first commit of `https://github.com/bparanj/sph.ix` to your project. Run:
+
+```
+rails db:seed
+```
+
+## Rails 5 App with Sphinx
+
+Add the following gems to the Gemfile.
+
+```
+gem 'thinking-sphinx', '~> 3.1.4'
+gem 'mysql2', :require => 'thinking_sphinx'
+```
+
+Run bundle. The mysql2 gem is required, otherwise you will get the error:
+
+```
+rails d/Users/zepho/.rvm/gems/ruby-2.3.0@rails5/gems/thinking-sphinx-3.1.4/lib/thinking_sphinx.rb:6:in `require': cannot load such file -- mysql2 (LoadError)
+```
+
+Generate the Sphinx configuration file and process all indices.
+
+```
+rake ts:index
+Generating configuration to /Users/zepho/temp/tnx/config/development.sphinx.conf
+Sphinx 2.2.10-id64-release (2c212e0)
+Copyright (c) 2001-2015, Andrew Aksyonoff
+Copyright (c) 2008-2015, Sphinx Technologies Inc (http://sphinxsearch.com)
+
+using config file '/Users/zepho/tnx/config/development.sphinx.conf'...
+FATAL: no indexes found in config file '/Users/zepho/tnx/config/development.sphinx.conf'
+```
+
+Let's fix this error. Create app/indices/article_index.rb.
+
+
+```ruby
+ThinkingSphinx::Index.define :article, :with => :active_record do
+  # fields
+  indexes name, :sortable => true
+  indexes content
+  indexes [author.first_name, author.last_name], as: :author_name
+
+  # attributes
+  has author_id, published_at
+end
+```
+
+Run the rake task again.
+
+```
+$ rake ts:index
+Generating configuration to /Users/zepho/temp/tnx/config/development.sphinx.conf
+Sphinx 2.2.10-id64-release (2c212e0)
+Copyright (c) 2001-2015, Andrew Aksyonoff
+Copyright (c) 2008-2015, Sphinx Technologies Inc (http://sphinxsearch.com)
+
+using config file '/Users/zepho/temp/tnx/config/development.sphinx.conf'...
+indexing index 'article_core'...
+collected 3 docs, 0.0 MB
+sorted 0.0 Mhits, 100.0% done
+total 3 docs, 1476 bytes
+total 0.165 sec, 8905 bytes/sec, 18.10 docs/sec
+skipping non-plain index 'article'...
+total 9 reads, 0.016 sec, 0.4 kb/call avg, 1.8 msec/call avg
+total 12 writes, 0.000 sec, 0.5 kb/call avg, 0.0 msec/call avg
+```
+
+You can now search using Thinking Sphinx. Let's experiment with Thinking Sphinx in rails console.
+
+```
+ > Article.search 'fictional'
+  Sphinx Query (31.4ms)  SELECT * FROM `article_core` WHERE MATCH('fictional') AND `sphinx_deleted` = 0 LIMIT 0, 20
+  Sphinx  Found 3 results
+  Article Load (0.4ms)  SELECT `articles`.* FROM `articles` WHERE `articles`.`id` IN (1, 2, 3)
+ => [#<Article id: 1, name: "Batman", content: "Batman is a fictional character created by the art...", author_id: 2, published_at: "2016-04-10 03:01:03", created_at: "2016-04-24 03:01:03", updated_at: "2016-04-24 03:01:03">, #<Article id: 2, name: "Superman", content: "Superman is a fictional comic book superhero appea...", author_id: 1, published_at: "2016-04-03 03:01:03", created_at: "2016-04-24 03:01:03", updated_at: "2016-04-24 03:01:03">, #<Article id: 3, name: "Krypton", content: "Krypton is a fictional planet in the DC Comics uni...", author_id: 1, published_at: "2016-03-20 03:01:03", created_at: "2016-04-24 03:01:03", updated_at: "2016-04-24 03:01:03">] 
+```
+
+Here we search for the term `fictional` that is in the content field of the articles table. You can use conditions to filter the results.
+
+```
+ Article.search conditions: {name: 'Batman'}
+  Sphinx Query (1.3ms)  SELECT * FROM `article_core` WHERE MATCH('@name Batman') AND `sphinx_deleted` = 0 LIMIT 0, 20
+  Sphinx  Found 1 results
+  Article Load (0.4ms)  SELECT `articles`.* FROM `articles` WHERE `articles`.`id` = 1
+ => [#<Article id: 1, name: "Batman", content: "Batman is a fictional character created by the art...", author_id: 2, published_at: "2016-04-10 03:01:03", created_at: "2016-04-24 03:01:03", updated_at: "2016-04-24 03:01:03">] 
+```
+
+For more options read the [quick start guide](http://freelancing-gods.com/thinking-sphinx/quickstart.html 'Thinking Sphnix'). Add the search form to the articles index page. Remove the spring related gems from Gemfile.
+
+```
+gem 'spring'
+gem 'spring-watcher-listen', '~> 2.0.0'
+```
+
+It causes headache. Search for the term 'Batman'. It will work. You can use the order clause.
+
+```
+Article.search('Superman', order: :name)
+  Sphinx Query (1.2ms)  SELECT * FROM `article_core` WHERE MATCH('Superman') AND `sphinx_deleted` = 0 ORDER BY `name` ASC LIMIT 0, 20
+  Sphinx  Found 2 results
+  Article Load (0.5ms)  SELECT `articles`.* FROM `articles` WHERE `articles`.`id` IN (3, 2)
+ => [#<Article id: 3, name: "Krypton", content: "Krypton is a fictional planet in the DC Comics uni...", author_id: 1, published_at: "2016-03-20 03:01:03", created_at: "2016-04-24 03:01:03", updated_at: "2016-04-24 03:01:03">, #<Article id: 2, name: "Superman", content: "Superman is a fictional comic book superhero appea...", author_id: 1, published_at: "2016-04-03 03:01:03", created_at: "2016-04-24 03:01:03", updated_at: "2016-04-24 03:01:03">] 
+```
+ 
+You can also use page and `per_page` options if you are using pagination for the search results.
+
+``` 
+> Article.search('Superman', page: 1, per_page: 20)
+  Sphinx Query (0.8ms)  SELECT * FROM `article_core` WHERE MATCH('Superman') AND `sphinx_deleted` = 0 LIMIT 0, 20
+  Sphinx  Found 2 results
+  Article Load (0.5ms)  SELECT `articles`.* FROM `articles` WHERE `articles`.`id` IN (2, 3)
+ => [#<Article id: 2, name: "Superman", content: "Superman is a fictional comic book superhero appea...", author_id: 1, published_at: "2016-04-03 03:01:03", created_at: "2016-04-24 03:01:03", updated_at: "2016-04-24 03:01:03">, #<Article id: 3, name: "Krypton", content: "Krypton is a fictional planet in the DC Comics uni...", author_id: 1, published_at: "2016-03-20 03:01:03", created_at: "2016-04-24 03:01:03", updated_at: "2016-04-24 03:01:03">] 
+```
+
+You can provide conditions with the column name and it's value.
+
+``` 
+> Article.search('comics', conditions: { name: 'Batman'})
+  Sphinx Query (0.9ms)  SELECT * FROM `article_core` WHERE MATCH('comics @name Batman') AND `sphinx_deleted` = 0 LIMIT 0, 20
+  Sphinx  Found 1 results
+  Article Load (0.5ms)  SELECT `articles`.* FROM `articles` WHERE `articles`.`id` = 1
+ => [#<Article id: 1, name: "Batman", content: "Batman is a fictional character created by the art...", author_id: 2, published_at: "2016-04-10 03:01:03", created_at: "2016-04-24 03:01:03", updated_at: "2016-04-24 03:01:03">] 
+```
+
+You can provide a range for the datetime field.
+
+```
+> Article.search('Batman', with: { published_at: 3.weeks.ago..Time.zone.now })
+  Sphinx Query (0.8ms)  SELECT * FROM `article_core` WHERE MATCH('Batman') AND `published_at` BETWEEN 1459656037 AND 1461470437 AND `sphinx_deleted` = 0 LIMIT 0, 20
+  Sphinx  Found 1 results
+  Article Load (0.5ms)  SELECT `articles`.* FROM `articles` WHERE `articles`.`id` = 1
+ => [#<Article id: 1, name: "Batman", content: "Batman is a fictional character created by the art...", author_id: 2, published_at: "2016-04-10 03:01:03", created_at: "2016-04-24 03:01:03", updated_at: "2016-04-24 03:01:03">] 
+```
+
+You can also provide weights to specify which columns are important.
+
+```
+> Article.search('Batman', field_weights: { name: 20, content: 10, author_name: 5  })
+  Sphinx Query (0.8ms)  SELECT * FROM `article_core` WHERE MATCH('Batman') AND `sphinx_deleted` = 0 LIMIT 0, 20 OPTION field_weights=(name=20, content=10, author_name=5)
+  Sphinx  Found 1 results
+  Article Load (0.5ms)  SELECT `articles`.* FROM `articles` WHERE `articles`.`id` = 1
+ => [#<Article id: 1, name: "Batman", content: "Batman is a fictional character created by the art...", author_id: 2, published_at: "2016-04-10 03:01:03", created_at: "2016-04-24 03:01:03", updated_at: "2016-04-24 03:01:03">] 
+```
+ 
+Search for: Batman | Krypton. You will get the resulting of `or` of the two search terms.
+
+
+## Summary
+
+In this article, we used Thinking Sphinx to search in Rails 5 apps.
+
+
+
+
+
+
+
+database.yml
+
+development:
+  adapter: mysql2
+  encoding: utf8
+  reconnect: false
+  database: tnx_development
+  pool: 5
+  username: root
+  password:
+  host: localhost
+  port: 3306
+
+
+rails db:migrate
+
+https://github.com/pat/thinking-sphinx
+
+
+mysql -h 127.0.0.1 -P 3306 -u root -p
+
+
+ rails db:create
+#<Mysql2::Error: Can't connect to local MySQL server through socket '/tmp/mysql.sock' (2)>
+Couldn't create database for {"adapter"=>"mysql2", "encoding"=>"utf8", "reconnect"=>false, "database"=>"tnx_development", "pool"=>5, "username"=>"root", "password"=>nil, "host"=>"localhost", "port"=>3306, "socket"=>"/tmp/mysql.sock"}, {:charset=>"utf8"}
+(If you set the charset manually, make sure you have a matching collation)
+
+Resolution:   
+
+host: 127.0.0.1
+
+
+
+Restart the server. This made the rails db:create db:migrate work.
+
+
+
+
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'127.0.0.1' WITH GRANT OPTION;
+
+
+mysqladmin variables | grep socket
+mysqladmin: connect to server at 'localhost' failed
+error: 'Can't connect to local MySQL server through socket '/tmp/mysql.sock' (2)'
+Check that mysqld is running and that the socket: '/tmp/mysql.sock' exists!
+
+
+
+
+
+Start MySQL on Mac :
+
+sudo /usr/local/mysql/support-files/mysql.server start
+
+ERROR! The server quit without updating PID file
+
+Create an empty file /usr/local/mysql/data/zepho-mac-pro.local.pid
+
 
 
 brew update
@@ -28,58 +336,3 @@ error: The following untracked working tree files would be overwritten by merge:
 Please move or remove them before you can merge.
 Aborting
 Error: Failure while executing: git pull -q origin refs/heads/master:refs/remotes/origin/master
-
-
-Compile from Source
-
-1 Download
-http://sphinxsearch.com/downloads/sphinx-2.2.10-release.tar.gz
-
-2 Extract
-
-cd to extracted directory
-
-./configure 
-make
-sudo make install
-
-
-
-gem 'thinking-sphinx', '~> 3.1.4'
-gem 'mysql2', :require => 'thinking_sphinx'
-
-bundle
-
-
-mysql2 required, otherwise you get the error:
-
-rails d/Users/zepho/.rvm/gems/ruby-2.3.0@rails5/gems/thinking-sphinx-3.1.4/lib/thinking_sphinx.rb:6:in `require': cannot load such file -- mysql2 (LoadError)
-
-rails g scaffold article title content:text
-
-
-database.yml
-
-development:
-  adapter: mysql2
-  encoding: utf8
-  reconnect: false
-  database: tnx_development
-  pool: 5
-  username: root
-  password:
-  host: localhost
-  port: 3306
-
-Start MySQL on Mac :
-
-sudo /usr/local/mysql/support-files/mysql.server start
-
-ERROR! The server quit without updating PID file
-
-Create an empty file /usr/local/mysql/data/zepho-mac-pro.local.pid
-
-
-rails db:migrate
-
-https://github.com/pat/thinking-sphinx

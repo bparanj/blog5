@@ -1,0 +1,345 @@
+
+Ruby 2.3.0
+Rails 5
+
+bundle gem image_zoomer
+
+Create a Rails 5 app outside the gem folder.
+
+rails new image_zoomer_app
+
+rails g controller site index
+
+Add:
+
+gem 'image_zoomer', '0.0.1', path: '/Users/zepho/temp/image_zoomer'
+
+to the image_zoomer Gemfile. Add:
+
+<%= ImageZoomer::VERSION %>
+
+to site/index.html.erb.
+
+Start the server and browse to site/index.
+
+uninitialized constant ActionView::CompiledTemplates::ImageZoomer
+
+bundle console
+
+[!] There was an error parsing `Gemfile`: You cannot specify the same gem twice with different version requirements.
+You specified: image_zoomer (>= 0) and image_zoomer (= 0.0.1). Bundler cannot continue.
+
+ #  from /Users/zepho/temp/image_zoomer/Gemfile:6
+ #  -------------------------------------------
+ #  
+ >  gem 'image_zoomer', '0.0.1', path: '/Users/zepho/temp/image_zoomer'
+ #  -------------------------------------------
+
+
+gem 'image_zoomer', path: '/Users/zepho/temp/image_zoomer'
+
+
+bundle console
+Your Gemfile lists the gem image_zoomer (>= 0) more than once.
+You should probably keep only one of them.
+While it's not a problem now, it could cause errors if you change the version of just one of them later.
+Could not find gem 'rake (~> 10.0)' in any of the gem sources listed in your Gemfile or available on this machine.
+zepho-mac-pro:image_zoomer zepho$ bundle check
+Your Gemfile lists the gem image_zoomer (>= 0) more than once.
+You should probably keep only one of them.
+While it's not a problem now, it could cause errors if you change the version of just one of them later.
+Bundler can't satisfy your Gemfile's dependencies.
+Install missing gems with `bundle install`.
+
+Add:
+gem 'image_zoomer', '0.1.0', path: '/Users/zepho/temp/image_zoomer'
+
+to the Rails app not the gem.
+
+Create app/assets/javascripts in the root of the gem. Copy image_zoomer.js to this directory.
+
+Create engine.rb in lib/image_zoomer directory.
+
+module ImageZoomer
+  class Engine < Rails::Engine
+  end
+end
+
+
+Add
+
+//= require image_zoomer
+
+to application.js in the tester Rails app.
+
+
+//= require jquery
+//= require jquery_ujs
+//= require turbolinks
+//= require_tree .
+//= require image_zoomer
+
+Restart the server. Reload the page.
+
+Sprockets::FileNotFound in Site#index
+Showing /Users/zepho/temp/image_zoomer_app/app/views/layouts/application.html.erb where line #8 raised:
+
+couldn't find file 'image_zoomer' with type 'application/javascript'
+Extracted source (around line #17):
+15 //= require turbolinks
+16 //= require_tree .
+17 //= require image_zoomer
+
+Add:
+
+require "image_zoomer/engine"
+
+to lib/image_zoomer.rb.
+
+Restart the server and refresh the browser. View page source and click on the image_zoomer.js file to make sure that it displays the javascript source code for the image_zoomer.
+             
+In the gem, create image_zoomer_main.js and add:
+
+//= require_tree .
+
+This will include all the javascript files in the app/assets/javascripts folder. In the test rails app, replace 
+
+require image_zoomer with
+
+//= require image_zoomer_main
+
+Restart the server and refresh the browser. View the page source. The image_zoomer_main.js is in the source but it is not including the image_zoomer.js file. The file is empty.
+
+Change site/index.html.erb
+
+<%= image_tag("test.jpg"); %>
+
+Copy a big image to app/assets/images/test.jpg
+
+Refresh the browser. You will see an image.
+
+
+Create a file image_zoomer_initializer.js under app/assets/javascripts in our gem with:
+
+$(function() {
+  $(".image_zoomer").each(function() {
+    $(this).image_zoomer();
+  });
+});
+
+Change site/index.html.erb:
+
+<%= image_tag("test.jpg", :class => "image_zoomer"); %>
+
+
+Hack, add: 
+
+//= require image_zoomer_initializer.js
+
+to application.js in test Rails app. Restart the server and refresh the browser. Create zoom_image_helper.rb in lib/image_zoomer in the gem.
+
+module ImageZoomer
+  def zoom_image_tag(*args, &amp;block)
+    options = insert_zoom_class(args.extract_options!)
+    args << options
+    image_tag(*args, &amp;block)
+  end
+
+  def insert_zoom_class(options)
+    class_name = "image_zoomer"
+    if options.key?(:class)
+      options[:class] += " #{class_name}"
+    elsif options.key?('class')
+      options['class'] += " #{class_name}"
+    else
+      options[:class] = class_name
+    end
+    options
+  end
+end
+
+Change the site/index.html.erb
+
+<%= zoom_image_tag("test.jpg"); %>
+
+Restart the server and refresh the browser.
+
+undefined method `zoom_image_tag' for #<#<Class:0x007f>
+
+
+Change the lib/image_zoomer.rb in the gem.
+
+
+require "image_zoomer/version"
+require "image_zoomer/engine"
+require "image_zoomer/zoom_image_helper"
+
+module ImageZoomer
+  # Your code goes here...
+end
+
+module ActionView
+  module Helpers
+    module AssetTagHelper
+      include ImageZoomer
+    end
+  end
+end
+
+
+Restart your web server and refresh the page. It will work. Let's cleanup. Change lib/image_zoomer.rb:
+
+require "image_zoomer/version"
+require "image_zoomer/engine"
+require "image_zoomer/zoom_image_helper"
+
+module ImageZoomer
+  # Your code goes here...
+end
+
+Create a file railtie.rb in the lib/image_zoomer/ directory with:
+
+class Railtie < Rails::Railtie
+  initializer "image_zoomer.initialize_zoom_image_helper" do |app|
+    ActiveSupport.on_load(:action_view) do
+      include ImageZoomer
+    end
+  end
+end
+
+Require railtie.rb in lib/image_zoomer.rb with the following code:
+
+require "image_zoomer/railtie"
+
+Restart your web server and refresh the page.
+
+Create a class to hold our configuration in a file called lib/image_zoomer/configuration.rb in your gem and add:
+
+module ImageZoomer
+  class Configuration
+    attr_accessor :width, :height, :zoom_level
+
+    def initialize
+      @width = 90
+      @height = 90
+      @zoom_level = 1.5
+    end
+  end
+end
+
+Require configuration.rb in lib/image_zoomer.rb:
+
+
+require "image_zoomer/configuration"
+
+
+Add following code to our Railtie class:
+
+initializer "image_zoomer.configuration" do |app|
+  app.config.image_zoomer = ImageZoomer::Configuration.new
+end
+
+
+
+class Railtie < Rails::Railtie
+  initializer "image_zoomer.initialize_zoom_image_helper" do |app|
+    ActiveSupport.on_load(:action_view) do
+      include ImageZoomer
+    end
+  end
+  
+  initializer "image_zoomer.configuration" do |app|
+    app.config.image_zoomer = ImageZoomer::Configuration.new
+  end
+end
+
+
+
+
+$ bundle console
+Resolving dependencies...
+There was an error while trying to load the gem 'image_zoomer'.
+NameError: uninitialized constant Rails
+
+Resolution: require rails in the railtie.
+
+require 'rails'
+
+module ImageZoomer
+  class Engine < Rails::Engine
+  end
+end
+
+
+$ bundle console
+Resolving dependencies...
+ > ImageZoomer::Configuration
+ => ImageZoomer::Configuration 
+ 
+$ rails c
+Rails.application.config.image_Loading development environment (Rails 5.0.0.beta3)
+ > Rails.application.config.image_zoomer
+ => #<ImageZoomer::Configuration:0x007fb1cf79a378 @width=90, @height=90, @zoom_level=1.5> 
+ > 
+ 
+Create a new file called image_zoomer_options.js.erb in app/assets/javascripts under the gem with:
+  
+var __ImageZoomer = {
+  options: {
+    width: "<%= Rails.application.config.image_zoomer.width %>",
+    height: "<%= Rails.application.config.image_zoomer.height %>",
+    zoom_level: "<%= Rails.application.config.image_zoomer.zoom_level %>"
+  }
+}
+
+
+Replace existing code in image_zoomer_initializer.js in the gem with:
+
+$(function() {
+  if (typeof __ImageZoomer == "undefined") {
+    __ImageZoomer = {options: {}};
+  }
+  $(".image_zoomer").each(function() {
+    $(this).image_zoomer(__ImageZoomer.options);
+  });
+});
+
+
+Restart the server and refresh the browser. It will work. Add:
+
+    # Override default options with the provided ones in block
+    def set_options(&block)
+      block.yield(self)
+    end
+
+to lib/image_zoomer/configuration.rb
+
+In the Rails app, create config/initializer/image_zoomer.rb with:
+
+Rails.application.config.image_zoomer.set_options do |options|
+  options.width = 50
+  options.height = 50
+end
+
+Restart the web server, refresh the browser, and observe different width and height than before. There is no change in the size. This problem is due to the caching by Sprockets. Let's fix it.
+
+Open lib/image_zoomer/railtie.rb and change the image_zoomer.configuration block like so:
+
+
+  initializer "image_zoomer.configuration" do |app|
+    app.config.image_zoomer = ImageZoomer::Configuration.new
+    # Clear the cache
+    FileUtils.rm_rf("#{Rails.application.root}/tmp/cache/assets") if Rails.env.development?
+  end
+
+
+
+
+
+
+
+
+
+
+
+
