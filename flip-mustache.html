@@ -2,7 +2,7 @@
 <html lang="en-US">
 <head>
 	<meta charset="UTF-8">
-	<title>Mindset Mastery</title>
+	<title> {{page_title}}</title>
 	<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
 	<script src="https://cdn.rawgit.com/nnattawat/flip/v1.0.20/dist/jquery.flip.min.js"></script>
 	<script>
@@ -17,14 +17,14 @@
 </head>
 
 <body>
-  <h1> Mindset Mastery</h1>
+  <h1> {{page_title}} </h1>
   <div class="aqua pull-left">
   	<div id="flip-this" class="flip-horizontal"> 
       <div class="front"> 
-      	<h3>High Performance / Low Stress</h3>
+      	<h3>{{quadrant_one_front}}</h3>
       </div> 
       <div class="back">
-      	<h3>Absorb the feelings of success. </h3>
+      	<h3>{{quadrant_one_back}} </h3>
       </div> 
   	</div>    	
   </div>
@@ -32,10 +32,10 @@
   <div class="blue pull-right" >
   	<div id="flip-this" class="flip-horizontal"> 
       <div class="front"> 
-        <h3>High Performance / High Stress</h3>
+        <h3>{{quadrant_two_front}}</h3>
       </div> 
       <div class="back">
-        <h3>Expect the belief in yourself will be tested. Self-doubt and dark moments are temporary.</h3>
+        <h3>{{quadrant_two_back}}</h3>
       </div> 
   	</div>
   </div>
@@ -43,10 +43,10 @@
   <div class="green pull-left bottom">
     <div id="flip-this" class="flip-horizontal"> 
   	  <div class="front"> 
-  	    <h3>Low Performance / Low Stress</h3>
+  	    <h3>{{quadrant_three_front}}</h3>
   	  </div> 
   	  <div class="back">
-  	    <h3>Invest in your success. Read, practice, train. Attend seminars and conferences.</h3>
+  	    <h3>{{quadrant_three_back}}</h3>
 	  </div> 
   	</div> 
   </div>
@@ -54,10 +54,10 @@
   <div class="tan pull-right bottom">
   	<div id="flip-this" class="flip-horizontal"> 
       <div class="front"> 
-        <h3>Low Performance / High Stress</h3>
+        <h3>{{quadrant_four_front}}</h3>
       </div> 
       <div class="back">
-        <h3>Develop unshakeable belief in yourself. Use positive thoughts and imagery.</h3>
+        <h3>{{quadrant_four_back}}</h3>
       </div> 
   	</div>
   </div>

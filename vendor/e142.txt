@@ -1,0 +1,43 @@
+Localhost Proxy 
+
+
+Download https://ngrok.com/download , extract and run:
+
+ngrok http 3000
+
+This invoice has already been paid. For more information, please contact the merchant.
+
+
+IPN Simulator
+
+Copy ngrok forwarding URL.
+
+Started POST "/" for 173.0.81.33 at 2016-04-26 16:51:16 -0700
+Cannot render console from 173.0.81.33! Allowed networks: 127.0.0.1, ::1, 127.0.0.0/127.255.255.255
+  
+ActionController::RoutingError (No route matches [POST] "/"):
+  
+
+http://railscasts.com/episodes/142-paypal-notifications?view=comments
+
+
+curl -d "txn_id=1MP40490HN736513M&invoice=1234&payment_status=Completed" http://localhost:3000/payment_notifications
+
+payment_notifications_controller.rb 
+
+
+ActiveRecord::RecordInvalid (Validation failed: Cart must exist):
+  
+app/controllers/payment_notifications_controller.rb:5:in `create'
+  Rendered /Users/bparanj/.rvm/gems/ruby-2.3.0@rails5/gems/actionpack-5.0.0.beta3/lib/action_dispatch/middleware/templates/rescues/_source.html.erb (2.7ms)
+  Rendered /Users/bparanj/.rvm/gems/ruby-2.3.0@rails5/gems/actionpack-5.0.0.beta3/lib/action_dispatch/middleware/templates/rescues/_trace.html.erb (1.4ms)
+  Rendered /Users/bparanj/.rvm/gems/ruby-2.3.0@rails5
+
+
+class PaymentNotification < ApplicationRecord
+  belongs_to :cart, inverse_of: :payment_notifications
+
+Does not work.
+
+Copy the txn_id from paypal payment confirmation page, invoice value should be the same as the cart id.
+

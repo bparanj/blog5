@@ -1,0 +1,48 @@
+
+
+Rails 5 Extras
+
+ rails c
+ 
+```
+> Product.find_by(price: 3)
+  Product Load (0.2ms)  SELECT  "products".* FROM "products" WHERE "products"."price" = ? LIMIT ?  [["price", 3], ["LIMIT", 1]]
+ => nil
+> Product.find_by!(price: 3)
+  Product Load (0.1ms)  SELECT  "products".* FROM "products" WHERE "products"."price" = ? LIMIT ?  [["price", 3], ["LIMIT", 1]]
+ActiveRecord::RecordNotFound: Couldn't find Product
+```
+
+rails c
+
+
+```
+> Product.find_last_by(price: 4.99)
+NoMethodError: undefined method `find_last_by' for Product (call 'Product.connection' to establish a connection):Class
+Did you mean?  find_by
+```
+
+```
+> Product.all(:joins => :category, :conditions => { :categories => { :name => 'Clothing' } })
+ArgumentError: wrong number of arguments (given 1, expected 0)
+```
+
+```
+ Product.joins(:category).where(categories: { :name => 'Clothing' }) 
+  Product Load (0.2ms)  SELECT "products".* FROM "products" INNER JOIN "categories" ON "categories"."id" = "products"."category_id" WHERE "categories"."name" = ?  [["name", "Clothing"]]
+ => #<ActiveRecord::Relation [#<Product id: 20, name: "Zymosis\n", price: #<BigDecimal:7fa1dbd82e88,'0.2999E2',18(36)>, category_id: 4, description: "Lorem ipsum dolor sit amet, consectetur adipisicin...", created_at: "2016-04-26 18:13:05", updated_at: "2016-04-26 18:13:05">, #<Product id: 21, name: "Zymosimeter\n", price: #<BigDecimal:7fa1dbd81c18,'0.2999E2',18(36)>, category_id: 4, description: "Lorem ipsum dolor sit amet, consectetur adipisicin...", created_at: "2016-04-26 18:13:05", updated_at: "2016-04-26 18:13:05">]>
+``` 
+
+Rails 5 Refactor of Helper.
+
+```
+def admin_area
+  if admin?
+    content_tag(:div, class: "admin") do
+      yield
+    end
+  end
+end
+```
+
+http://railscasts.com/episodes/140-rails-2-2-extras?view=comments
