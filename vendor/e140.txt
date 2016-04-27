@@ -2,19 +2,23 @@
 
 Rails 5 Extras
 
- rails c
+In this article, we will discuss how to get the railscast episode 140 to work with Rails 5. You can use `find_by` with a given value for a table column.
  
 ```
 > Product.find_by(price: 3)
   Product Load (0.2ms)  SELECT  "products".* FROM "products" WHERE "products"."price" = ? LIMIT ?  [["price", 3], ["LIMIT", 1]]
  => nil
+```
+
+This returns nil when a record is not found. The bang equivalent throws an exception.
+
+``` 
 > Product.find_by!(price: 3)
   Product Load (0.1ms)  SELECT  "products".* FROM "products" WHERE "products"."price" = ? LIMIT ?  [["price", 3], ["LIMIT", 1]]
 ActiveRecord::RecordNotFound: Couldn't find Product
 ```
 
-rails c
-
+Rails 5 does not have `find_last_by` method.
 
 ```
 > Product.find_last_by(price: 4.99)
@@ -22,10 +26,7 @@ NoMethodError: undefined method `find_last_by' for Product (call 'Product.connec
 Did you mean?  find_by
 ```
 
-```
-> Product.all(:joins => :category, :conditions => { :categories => { :name => 'Clothing' } })
-ArgumentError: wrong number of arguments (given 1, expected 0)
-```
+You can join products table with categories and specify the value for a given column that you are querying like this:
 
 ```
  Product.joins(:category).where(categories: { :name => 'Clothing' }) 
@@ -33,9 +34,16 @@ ArgumentError: wrong number of arguments (given 1, expected 0)
  => #<ActiveRecord::Relation [#<Product id: 20, name: "Zymosis\n", price: #<BigDecimal:7fa1dbd82e88,'0.2999E2',18(36)>, category_id: 4, description: "Lorem ipsum dolor sit amet, consectetur adipisicin...", created_at: "2016-04-26 18:13:05", updated_at: "2016-04-26 18:13:05">, #<Product id: 21, name: "Zymosimeter\n", price: #<BigDecimal:7fa1dbd81c18,'0.2999E2',18(36)>, category_id: 4, description: "Lorem ipsum dolor sit amet, consectetur adipisicin...", created_at: "2016-04-26 18:13:05", updated_at: "2016-04-26 18:13:05">]>
 ``` 
 
-Rails 5 Refactor of Helper.
+Rails 5 will give an error if you use the old way of querying.
 
 ```
+> Product.all(:joins => :category, :conditions => { :categories => { :name => 'Clothing' } })
+ArgumentError: wrong number of arguments (given 1, expected 0)
+```
+
+Rails 5 Refactor of Helper.
+
+```ruby
 def admin_area
   if admin?
     content_tag(:div, class: "admin") do
@@ -44,5 +52,12 @@ def admin_area
   end
 end
 ```
+
+You can test this in the rails console by calling `admin_area` on helper. You can hardcode admin? method to return true to test the helper.
+
+## Summary
+
+In this article, you learned how to use some of the Rails 5 ActiveRecord API and `content_tag` helper.
+
 
 http://railscasts.com/episodes/140-rails-2-2-extras?view=comments

@@ -1,3 +1,5 @@
+Provide only the Source Code. No article required.
+
 Localhost Proxy 
 
 
@@ -7,7 +9,6 @@ ngrok http 3000
 
 This invoice has already been paid. For more information, please contact the merchant.
 
-
 IPN Simulator
 
 Copy ngrok forwarding URL.
@@ -16,10 +17,6 @@ Started POST "/" for 173.0.81.33 at 2016-04-26 16:51:16 -0700
 Cannot render console from 173.0.81.33! Allowed networks: 127.0.0.1, ::1, 127.0.0.0/127.255.255.255
   
 ActionController::RoutingError (No route matches [POST] "/"):
-  
-
-http://railscasts.com/episodes/142-paypal-notifications?view=comments
-
 
 curl -d "txn_id=1MP40490HN736513M&invoice=1234&payment_status=Completed" http://localhost:3000/payment_notifications
 
@@ -41,3 +38,5 @@ Does not work.
 
 Copy the txn_id from paypal payment confirmation page, invoice value should be the same as the cart id.
 
+
+http://railscasts.com/episodes/142-paypal-notifications?view=comments
