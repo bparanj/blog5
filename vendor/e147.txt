@@ -2,6 +2,8 @@ http://railscasts.com/episodes/147-sortable-lists-revised?view=comments
 
 Sortable Lists in Rails 5
 
+In this article, you will learn how to get the railscast episode 147 on sortable lists to work with Rails 5.
+
 Add:
 
 ```
@@ -10,26 +12,28 @@ Add:
 
 to application.js.
 
-content_tag_for was available in Rails 3 and 4. It has been removed from Rails 5.
+The `content_tag_for` was available in Rails 3 and 4. It has been removed from Rails 5. You can install `record_tag_helper` to use that tag in Rails 5.
 
 ```ruby
 gem 'record_tag_helper', '~> 1.0'
 ```
 
-bundle
-
+Run bundle. Reload the faq page. You will get the error:
 
 ```
 couldn't find file 'jquery-ui' with type 'application/javascript'
 ```
 
+Add jquery-ui-rails gem to the Gemfile.
+
 ```ruby
 gem 'jquery-ui-rails'
 ```
 
-bundle
+Run bundle. This still will not work. I installed `jquery-turbolinks` gem to workaround turbolinks conflict with drag and drop functionality. 
 
+- Remove turbolinks gem. 
+- Remove the turbolins related code in application layout. 
+- Remove the turbo links require statement in application.js.
 
-No luck with `jquery-turbolinks` gem to workaround turbolinks conflict with drag and drop functionality. Remove turbolinks gem. Remove the turbolins related code in application layout. Remove the turbo links require statement in application.js.
-
-[Sortable Lists in Rails 5 without Turbolinks](https://github.com/bparanj/faq.app 'Sortable Lists in Rails 5')
+Now the drag and drop will work. You can download the code from [Sortable Lists in Rails 5 without Turbolinks](https://github.com/bparanj/faq.app 'Sortable Lists in Rails 5'). You don't need acts_as_list gem to fix the problem where a new faq has null value for the position. When a new faq is created, add a `after_create` action that populates the position attribute to the existing highest value + 1.
