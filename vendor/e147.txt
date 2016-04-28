@@ -1,4 +1,4 @@
-http://railscasts.com/episodes/147-sortable-lists-revised?view=comments
+D
 
 Sortable Lists in Rails 5
 
@@ -37,3 +37,5 @@ Run bundle. This still will not work. I installed `jquery-turbolinks` gem to wor
 - Remove the turbo links require statement in application.js.
 
 Now the drag and drop will work. You can download the code from [Sortable Lists in Rails 5 without Turbolinks](https://github.com/bparanj/faq.app 'Sortable Lists in Rails 5'). You don't need acts_as_list gem to fix the problem where a new faq has null value for the position. When a new faq is created, add a `after_create` action that populates the position attribute to the existing highest value + 1.
+
+http://railscasts.com/episodes/147-sortable-lists-revised?view=comments
