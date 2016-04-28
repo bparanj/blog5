@@ -1,0 +1,12 @@
+
+
+cart show page turn off authenticity_token.
+
+<%= form_tag "https://www.sandbox.paypal.com/cgi-bin/webscr", authenticity_token: false do %>
+
+
+Error Detected
+
+We were unable to decrypt the certificate id.
+
+

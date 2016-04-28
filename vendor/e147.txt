@@ -1,0 +1,35 @@
+http://railscasts.com/episodes/147-sortable-lists-revised?view=comments
+
+Sortable Lists in Rails 5
+
+Add:
+
+```
+//= require jquery-ui
+```
+
+to application.js.
+
+content_tag_for was available in Rails 3 and 4. It has been removed from Rails 5.
+
+```ruby
+gem 'record_tag_helper', '~> 1.0'
+```
+
+bundle
+
+
+```
+couldn't find file 'jquery-ui' with type 'application/javascript'
+```
+
+```ruby
+gem 'jquery-ui-rails'
+```
+
+bundle
+
+
+No luck with `jquery-turbolinks` gem to workaround turbolinks conflict with drag and drop functionality. Remove turbolinks gem. Remove the turbolins related code in application layout. Remove the turbo links require statement in application.js.
+
+[Sortable Lists in Rails 5 without Turbolinks](https://github.com/bparanj/faq.app 'Sortable Lists in Rails 5')

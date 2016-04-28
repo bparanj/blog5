@@ -1,0 +1,6 @@
+http://railscasts.com/episodes/144-active-merchant-basics?view=comments
+
+
+gem 'activemerchant'
+
+
