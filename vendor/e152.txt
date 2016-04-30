@@ -1,0 +1,139 @@
+ rails c
+Running via Spring preloader in process 49496
+Loading development environment (Rails 5.0.0.beta4)
+> Product.count
+   (0.4ms)  SELECT COUNT(*) FROM "products"
+ => 30
+> Category.count
+   (0.4ms)  SELECT COUNT(*) FROM "categories"
+ => 5
+> Product.find_in_batches(batch_size: 10) do |batch|
+      puts "Products.batch: #{batch.size}"
+    end
+  Product Load (1.0ms)  SELECT  "products".* FROM "products" ORDER BY "products"."id" ASC LIMIT ?  [["LIMIT", 10]]
+Products.batch: 10
+  Product Load (0.2ms)  SELECT  "products".* FROM "products" WHERE ("products"."id" > 10) ORDER BY "products"."id" ASC LIMIT ?  [["LIMIT", 10]]
+Products.batch: 10
+  Product Load (0.3ms)  SELECT  "products".* FROM "products" WHERE ("products"."id" > 20) ORDER BY "products"."id" ASC LIMIT ?  [["LIMIT", 10]]
+Products.batch: 10
+  Product Load (0.1ms)  SELECT  "products".* FROM "products" WHERE ("products"."id" > 30) ORDER BY "products"."id" ASC LIMIT ?  [["LIMIT", 10]]
+ => nil
+> Product.find_in_batches(batch_size: 10) do |batch|
+      ^C
+> Product.each(batch_size: 10) do |product|
+      puts product.name
+    end
+NoMethodError: undefined method `each' for #<Class:0x007fcbf4414728>
+
+	from /Users/bparanj/.rvm/gems/ruby-2.3.1@rails5/gems/spring-1.7.1/lib/spring/application.r
+> Product.find_each(batch_size: 10) do |product|
+      puts product.name
+    end
+  Product Load (0.5ms)  SELECT  "products".* FROM "products" ORDER BY "products"."id" ASC LIMIT ?  [["LIMIT", 10]]
+Pupilize
+Phototherapy
+Unenjoyingly
+Anagyrine
+Twigful
+Gibbosity
+Prewar
+Currentness
+Damenization
+Propagability
+  Product Load (0.4ms)  SELECT  "products".* FROM "products" WHERE ("products"."id" > 10) ORDER BY "products"."id" ASC LIMIT ?  [["LIMIT", 10]]
+Omnitonic
+Autohemic
+Unvaleted
+Interfault
+Menyie
+Bosthoon
+Chainon
+Birefractive
+Taylor
+Prodigalize
+  Product Load (0.1ms)  SELECT  "products".* FROM "products" WHERE ("products"."id" > 20) ORDER BY "products"."id" ASC LIMIT ?  [["LIMIT", 10]]
+Lucban
+Stealage
+Chorus
+Videndum
+Blighting
+Ubuntu Phone
+Ubuntu Tablet
+Snow Ball
+Pillow
+Hummus
+  Product Load (0.3ms)  SELECT  "products".* FROM "products" WHERE ("products"."id" > 30) ORDER BY "products"."id" ASC LIMIT ?  [["LIMIT", 10]]
+ => nil
+> 
+
+
+default_scope -> { where(price: 4.99) } 
+
+> reload!
+Reloading...
+ => true
+> Product.count
+   (0.9ms)  SELECT COUNT(*) FROM "products" WHERE "products"."price" = ?  [["price", 4.99]]
+ => 4
+
+default_scope { order('price ASC') } 
+
+> reload!
+Reloading...
+ => true
+> Product.count
+   (0.3ms)  SELECT COUNT(*) FROM "products"
+ => 30
+ 
+> Product.find_by(price: 4.99).name
+  Product Load (2.3ms)  SELECT  "products".* FROM "products" WHERE "products"."price" = ? ORDER BY price ASC LIMIT ?  [["price", 4.99], ["LIMIT", 1]]
+ => "Pupilize\n"
+> Product.find_by(price: 4.95).name
+  Product Load (2.1ms)  SELECT  "products".* FROM "products" WHERE "products"."price" = ? ORDER BY price ASC LIMIT ?  [["price", 4.95], ["LIMIT", 1]]
+NoMethodError: undefined method `name' for nil:NilClass
+	from (irb
+> Product.find_by(price: 4.95).try(:name)
+  Product Load (0.2ms)  SELECT  "products".* FROM "products" WHERE "products"."price" = ? ORDER BY price ASC LIMIT ?  [["price", 4.95], ["LIMIT", 1]]
+ => nil
+ 
+Before
+
+products/index.html.erb:
+
+<% for product in @products %>
+  <div class="product">
+    <h3>
+      <%= link_to h(product.name), product %>
+      <%= number_to_currency(product.price) %>
+    </h3>
+    Category: <%=h product.category.name %>
+    <%= form_for product.cart_items.build do |f| %>
+      <%= f.hidden_field :product_id %>
+      <%= f.submit "Add to Cart" %>
+    <% end %>
+  </div>
+<% end %>
+
+
+After
+
+products/index.html.erb:
+
+<%= render @products %>
+
+_product.html.erb:
+
+<div class="product">
+<h3>
+  <%= link_to h(product.name), product %>
+  <%= number_to_currency(product.price) %>
+</h3>
+Category: <%=h product.category.name %>
+<%= form_for product.cart_items.build do |f| %>
+  <%= f.hidden_field :product_id %>
+  <%= f.submit "Add to Cart" %>
+<% end %>
+</div>
+
+
+http://railscasts.com/episodes/152-rails-2-3-extras?view=asciicast
