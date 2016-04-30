@@ -1,15 +1,36 @@
- rails c
-Running via Spring preloader in process 49496
-Loading development environment (Rails 5.0.0.beta4)
+Rails 5 ActiveRecord and Partials
+
+In this article, we will see how to get railscast episode 152 to work with Rails 5. 
+
+## Find in Batches
+
+We have 30 products in the database.
+
+```
 > Product.count
    (0.4ms)  SELECT COUNT(*) FROM "products"
  => 30
+```
+
+We have 5 categories in the database.
+
+``` 
 > Category.count
    (0.4ms)  SELECT COUNT(*) FROM "categories"
  => 5
+```
+
+We can find products in batches of 10 by using `find_in_batches`.
+
+``` 
 > Product.find_in_batches(batch_size: 10) do |batch|
       puts "Products.batch: #{batch.size}"
     end
+```
+
+This generates query that retrieves the 30 products in batches of 10.
+
+```
   Product Load (1.0ms)  SELECT  "products".* FROM "products" ORDER BY "products"."id" ASC LIMIT ?  [["LIMIT", 10]]
 Products.batch: 10
   Product Load (0.2ms)  SELECT  "products".* FROM "products" WHERE ("products"."id" > 10) ORDER BY "products"."id" ASC LIMIT ?  [["LIMIT", 10]]
@@ -17,19 +38,34 @@ Products.batch: 10
   Product Load (0.3ms)  SELECT  "products".* FROM "products" WHERE ("products"."id" > 20) ORDER BY "products"."id" ASC LIMIT ?  [["LIMIT", 10]]
 Products.batch: 10
   Product Load (0.1ms)  SELECT  "products".* FROM "products" WHERE ("products"."id" > 30) ORDER BY "products"."id" ASC LIMIT ?  [["LIMIT", 10]]
- => nil
-> Product.find_in_batches(batch_size: 10) do |batch|
-      ^C
+```
+
+The fourth query did not return any result, so the loop terminates. We cannot use `each` method to retrieve products in batches.
+
+```
 > Product.each(batch_size: 10) do |product|
       puts product.name
     end
-NoMethodError: undefined method `each' for #<Class:0x007fcbf4414728>
+```
 
-	from /Users/bparanj/.rvm/gems/ruby-2.3.1@rails5/gems/spring-1.7.1/lib/spring/application.r
+You will get the error.
+
+```	
+NoMethodError: undefined method `each' for #<Class:0x007fcb>
+```
+
+In Rails 5, you can use `find_each` instead to retrieve products in batches.
+
+```
 > Product.find_each(batch_size: 10) do |product|
       puts product.name
     end
-  Product Load (0.5ms)  SELECT  "products".* FROM "products" ORDER BY "products"."id" ASC LIMIT ?  [["LIMIT", 10]]
+```
+
+This prints the product names in batches of ten.
+
+```	
+Product Load (0.5ms)  SELECT  "products".* FROM "products" ORDER BY "products"."id" ASC LIMIT ?  [["LIMIT", 10]]
 Pupilize
 Phototherapy
 Unenjoyingly
@@ -63,43 +99,94 @@ Snow Ball
 Pillow
 Hummus
   Product Load (0.3ms)  SELECT  "products".* FROM "products" WHERE ("products"."id" > 30) ORDER BY "products"."id" ASC LIMIT ?  [["LIMIT", 10]]
- => nil
-> 
+```
 
+# Default Scope
 
+You can define a `default_scope` for product model.
+
+```
 default_scope -> { where(price: 4.99) } 
+```
 
+Run reload to pick up the product model changes in the rails console.
+
+```
 > reload!
 Reloading...
  => true
+```
+
+If we count the products:
+
+``` 
 > Product.count
    (0.9ms)  SELECT COUNT(*) FROM "products" WHERE "products"."price" = ?  [["price", 4.99]]
  => 4
+```
 
+We get only 4, because the `default_scope` only retrieves products with price 4.99. We can use the order in the `default_scope`.
+
+```
 default_scope { order('price ASC') } 
+```
 
+Notice that in this case, the literal proc constructor -> is not used. Ugly ActiveRecord API is pushing the complexity onto the web developers. Reload the changes.
+
+```
 > reload!
 Reloading...
  => true
+```
+
+If we now count the products:
+
+``` 
 > Product.count
    (0.3ms)  SELECT COUNT(*) FROM "products"
  => 30
- 
+```
+
+We get total number of products in the database. 
+
+## Try
+
+We can retrieve a product that has a given price and print its name.
+
+``` 
 > Product.find_by(price: 4.99).name
   Product Load (2.3ms)  SELECT  "products".* FROM "products" WHERE "products"."price" = ? ORDER BY price ASC LIMIT ?  [["price", 4.99], ["LIMIT", 1]]
  => "Pupilize\n"
+```
+
+If you query for product that does not have the given price:
+
+``` 
 > Product.find_by(price: 4.95).name
   Product Load (2.1ms)  SELECT  "products".* FROM "products" WHERE "products"."price" = ? ORDER BY price ASC LIMIT ?  [["price", 4.95], ["LIMIT", 1]]
+```
+
+You will get the error:
+
+```
 NoMethodError: undefined method `name' for nil:NilClass
-	from (irb
+```
+
+We can use try method. 
+
+```
 > Product.find_by(price: 4.95).try(:name)
   Product Load (0.2ms)  SELECT  "products".* FROM "products" WHERE "products"."price" = ? ORDER BY price ASC LIMIT ?  [["price", 4.95], ["LIMIT", 1]]
  => nil
+```
+
+This returns nil instead of throwing an exception.
+
+## Removing Iteration in the Views
  
-Before
+In Rails 1.x, if you had a loop in products/index.html.erb:
 
-products/index.html.erb:
-
+```
 <% for product in @products %>
   <div class="product">
     <h3>
@@ -113,16 +200,17 @@ products/index.html.erb:
     <% end %>
   </div>
 <% end %>
+```
 
+to display all products. Since 2.x, you can eliminate the loop. Create a products/index.html.erb:
 
-After
-
-products/index.html.erb:
-
+```
 <%= render @products %>
+```
 
-_product.html.erb:
+The render takes a collection. Create a product partial `_product.html.erb` to display the product show page:
 
+```
 <div class="product">
 <h3>
   <%= link_to h(product.name), product %>
@@ -134,6 +222,10 @@ Category: <%=h product.category.name %>
   <%= f.submit "Add to Cart" %>
 <% end %>
 </div>
+```
 
+## Summary
+
+In this article, we saw how to get railscast episode 152 example to work with Rails 5.
 
 http://railscasts.com/episodes/152-rails-2-3-extras?view=asciicast
