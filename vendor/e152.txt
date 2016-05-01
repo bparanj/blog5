@@ -1,3 +1,4 @@
+D
 Rails 5 ActiveRecord and Partials
 
 In this article, we will see how to get railscast episode 152 to work with Rails 5. 
