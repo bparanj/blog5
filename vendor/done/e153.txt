@@ -1,0 +1,299 @@
+
+D
+
+
+Generate the `order` and `line_item` models.
+
+```
+rails g model order order_number
+rails g model line_item name unit_price:decimal quantity:integer order:references
+```
+
+
+In seeds.rb:
+
+```ruby
+order = Order.create!(order_number: "24601")
+order.line_items.create!(name: "Settlers of Catan", unit_price: 29.95, quantity: 1)
+order.line_items.create!(name: "Technodrome", unit_price: 24.99, quantity: 2)
+order.line_items.create!(name: "RailsCasts Pro Subscription", unit_price: 9.00, quantity: 1)
+order.line_items.create!(name: "Flux Capacitor", unit_price: 1955.00, quantity: 1)
+order.line_items.create!(name: "TextMate 2", unit_price: 75.00, quantity: 3)
+```
+
+Generate the orders controller.
+
+```ruby
+class OrdersController < ApplicationController
+  def index
+    @orders = Order.all
+  end
+
+  def show
+    @order = Order.find(params[:id])
+  end
+end
+```
+
+Here is the order model.
+
+```ruby
+class Order < ApplicationRecord
+  has_many :line_items
+
+  def total_price
+    # convert to array so it doesn't try to do sum on database directly
+    line_items.to_a.sum(&:full_price)
+  end
+end
+```
+
+Here is the LineItem model.
+
+```ruby
+class LineItem < ApplicationRecord
+  belongs_to :order
+  
+  def full_price
+    unit_price * quantity
+  end
+  
+end
+```
+
+Create the tables, populate the database and start the rails server.
+
+```
+rails db:migrate
+rails db:seed
+rails s
+```
+
+Here is the routes.rb.
+
+```ruby
+Rails.application.routes.draw do
+  root 'orders#index'
+  
+  resources :orders
+end
+```
+
+Here is the orders/index.html.erb.
+
+```rhtml
+<h1>Orders</h1>
+<ul>
+<% @orders.each do |order| %>
+  <li><%= link_to "Order \##{order.order_number}", order %></li>
+<% end %>
+</ul>
+```
+
+This will display the link to all orders in our database. Let's add prawn gem to Gemfile.
+
+```ruby
+gem 'prawn'
+```
+
+Run bundle. The Prawn version used in this article is 2.1.1. The `/actionpack/lib/action_dispatch/http/mime_types.rb` has already registered PDF as one of the MIME types. So we don't have to do anything. Change the show action in the orders controller:
+
+```ruby
+def show
+  @order = Order.find(params[:id])
+  respond_to do |format|
+    pdf = Prawn::Document.new
+    pdf.text 'Hello World'
+    
+    send_data pdf.render
+  end
+end
+```
+
+You will get the error:
+
+```
+ActionController::UnknownFormat
+```
+
+Install the responders gem by adding it to the Gemfile and running bundle install.
+
+```ruby
+gem 'responders'
+```
+
+The show actions will look like this:
+
+```ruby
+def show
+  @order = Order.find(params[:id])
+  respond_to do |format|
+    format.html
+    format.pdf do
+      pdf = Prawn::Document.new
+      pdf.text 'Hello World'
+    
+      send_data pdf.render        
+    end
+  end
+end
+```
+
+Browse to `http://localhost:3000/orders/1`. The `http://localhost:3000/orders/1.pdf` will download a PDF file with 'Hello World'. Change the `send_data` method to provide the file name and inline display of the pdf.
+
+```ruby
+send_data pdf.render, 
+          filename: "order_#{@order.order_number}",
+          type: 'application/pdf',
+          disposition: 'inline'
+```
+
+It will now display the PDF file in the browser. You have to restart the server to make it display on the browser. Add a link to pdf document to the end of order/show.html.erb:
+
+```rhtml
+<p>
+  <%= link_to "Printable Receipt (PDF)", order_path(@order, format: 'pdf') %>
+</p>
+```
+
+Create `order_pdf.rb` in app/pdfs directory.
+
+```ruby
+class OrderPdf < Prawn::Document
+  def initialize
+    super
+    text 'Order goes here'
+  end
+end
+```
+
+Change the action to use this class for generating pdf.
+
+```ruby
+format.pdf do
+  pdf = OrderPdf.new
+  send_data pdf.render, 
+            filename: "order_#{@order.order_number}",
+            type: 'application/pdf',
+            disposition: 'inline'
+end
+```
+
+Restart the server to see 'Order goes here'. Change the OrderPdf to display the order number.
+
+```ruby
+class OrderPdf < Prawn::Document
+  def initialize(order)
+    super(top_margin: 70)
+    @order = order
+    text "Order \##{@order.order_number}"
+  end
+end
+```
+
+Pass the order object in the action.
+
+```ruby
+format.pdf do
+  pdf = OrderPdf.new(@order)
+  send_data pdf.render, 
+            filename: "order_#{@order.order_number}",
+            type: 'application/pdf',
+            disposition: 'inline'
+end
+```
+
+Restart the server to see the order number in the pdf.
+
+```ruby
+class OrderPdf < Prawn::Document
+  def initialize(order)
+    super(top_margin: 70)
+    @order = order
+    order_number
+  end
+  
+  def order_number
+    text "Order \##{@order.order_number}", size: 30, style: :bold
+  end
+end
+```
+
+Restart the server to see the order number in bold. Change the `line_items` method to use the table.
+
+```ruby
+def line_items
+  move_down 20
+  table line_item_rows do
+    row(0).font_style = :bold
+    columns(1..3).align = :right
+    self.row_colors = ['DDDDDD', 'FFFFFF']
+    self.header = true
+  end
+end
+```
+
+We now get alternate row colors.  The table method has been removed from the prawn gem and you will get the error:
+
+```
+undefined method `table' for #<OrderPdf:0x007fdd0>
+```
+
+if you try to render table. Add the `prawn-table` gem to Gemfile and run bundle.
+
+```
+gem 'prawn-table'
+```
+
+Here is the final version of the pdf formatter.
+
+```ruby
+class OrderPdf < Prawn::Document
+  def initialize(order, view)
+    super(top_margin: 70)
+    @order = order
+    @view = view
+    order_number
+    line_items
+    total_price
+  end
+  
+  def order_number
+    text "Order \##{@order.order_number}", size: 30, style: :bold
+  end
+  
+  def line_items
+    move_down 20
+    table line_item_rows do
+      row(0).font_style = :bold
+      columns(1..3).align = :right
+      self.row_colors = ['DDDDDD', 'FFFFFF']
+      self.header = true
+    end
+  end
+  
+  def line_item_rows
+    [["Product", "Qty", "Unit Price", "Full Price"]] +
+    @order.line_items.map do |item|
+      [item.name, item.quantity, price(item.unit_price), price(item.full_price)]
+    end
+  end
+  
+  def total_price
+    move_down 15
+    text "Total Price: #{price(@order.total_price)}", size: 16, style: :bold
+  end
+  
+  private
+  
+  def price(n)
+    @view.number_to_currency(n)
+  end
+end
+```
+
+Restart the server. Now you can see the table. The final code shows how to display the total price and all the prices formatted using number_to_currency helper. The source code for this article can be downloaded from [pra.on](https://github.com/bparanj/pra.on 'Prawn in Rails 5')
+
+
+
+http://railscasts.com/episodes/153-pdfs-with-prawn-revised?view=comments

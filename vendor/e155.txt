@@ -1,0 +1,219 @@
+D
+Factories in Rails 5
+
+Create a user model.
+
+```
+rails g model user username email password_digest admin:boolean
+```
+
+This creates the following migration file.
+
+```ruby
+class CreateUsers < ActiveRecord::Migration[5.0]
+  def change
+    create_table :users do |t|
+      t.string :username
+      t.string :email
+      t.string :password_digest
+      t.boolean :admin
+
+      t.timestamps
+    end
+  end
+end
+```
+
+Create an article model.
+
+```
+rails g model article name content:text user:references
+```
+
+This generates the following migration file.
+
+```ruby
+class CreateArticles < ActiveRecord::Migration[5.0]
+  def change
+    create_table :articles do |t|
+      t.string :name
+      t.text :content
+      t.references :user, foreign_key: true
+
+      t.timestamps
+    end
+  end
+end
+```
+
+This generates the index automatically when you run the migration. You can see it in the schema.rb:
+
+```run
+ActiveRecord::Schema.define(version: 20160501200819) do
+
+  create_table "articles", force: :cascade do |t|
+    t.string   "name"
+    t.text     "content"
+    t.integer  "user_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_articles_on_user_id"
+  end
+
+  create_table "users", force: :cascade do |t|
+    t.string   "username"
+    t.string   "email"
+    t.string   "password_digest"
+    t.boolean  "admin"
+    t.datetime "created_at",      null: false
+    t.datetime "updated_at",      null: false
+  end
+
+end
+```
+
+Add the rspec-rails gem to the Gemfile.
+
+```
+group :development, :test do
+  gem 'rspec-rails'
+end
+
+```
+
+Run bundle. Run the rspec:install generator.
+
+```
+rails generate rspec:install
+```
+
+This generates rspec configuration files. Create `user_spec.rb` in spec/models folder.
+
+```ruby
+require 'rails_helper'
+
+describe User do
+  it "authenticates with matching username and password" do
+    user = create(:user, username: "batman", password: "secret")
+    User.authenticate("batman", "secret").should eq(user)
+  end
+
+  it "does not authenticate with incorrect password" do
+    create(:user, username: "batman", password: "secret")
+    User.authenticate("batman", "incorrect").should be_nil
+  end
+
+  it "can manage articles he owns" do
+    article = build(:article)
+    user = article.user
+    user.can_manage_article?(article).should be_true
+    user.can_manage_article?(Article.new).should be_false
+  end
+
+  it "can manage any articles as admin" do
+    build(:admin).can_manage_article?(Article.new).should be_true
+    build(:user).can_manage_article?(Article.new).should be_false
+  end
+end
+```
+  
+Run the migration for test environment. 
+
+```
+bin/rails db:migrate RAILS_ENV=test
+```
+
+Add factory_girl_rails gem to the Gemfile.
+
+```ruby
+group :test do
+  gem 'factory_girl_rails'
+end
+```
+
+in test group. Run bundle. Create `spec/support/factory_girl.rb`:
+
+```ruby
+RSpec.configure do |config|
+  config.include FactoryGirl::Syntax::Methods
+end
+
+Add require statement in spec_helper.rb:
+
+```ruby
+require 'support/factory_girl'
+```
+
+Add bcrypt gem to Gemfile.
+
+```
+gem 'bcrypt'
+```
+
+Run bundle. In factories.rb in spec folder:
+
+```ruby
+FactoryGirl.define do
+  factory :user do
+    sequence(:username) { |n| "foo#{n}" }
+    password "foobar"
+    email { "#{username}@example.com" }
+    admin false
+    
+    factory :admin do
+      admin true
+    end
+  end
+  
+  factory :article do
+    name "Foo"
+    user
+  end
+end
+```
+  
+Run rspec. You will get the error:
+
+```
+The provided regular expression is using multiline anchors (^ or $), which may present a security risk. Did you mean to use \A and \z, or forgot to add the :multiline => true option? (ArgumentError)
+```
+
+Replace ^ and $ with \A and \z in user model.
+
+```ruby
+validates_format_of :username, with: /\A[-\w\._@]+\z/i, allow_blank: true, message: "should only contain letters, numbers, or .-_@"
+validates_format_of :email, with: /\A[-a-z0-9_+\.]+\@([-a-z0-9]+\.)+[a-z0-9]{2,4}\z/i
+```
+
+You will now get a deprecation warning.
+
+DEPRECATION WARNING: use_transactional_fixtures= is deprecated and will be removed from Rails 5.1 (use use_transactional_tests= instead) (called from <top (required)> at /Users/zepho/temp/fact.ory/spec/models/user_spec.rb:3)
+	
+Change rails_helper.rb:
+
+```ruby
+config.use_transactional_fixtures= true 
+```
+
+to
+
+```ruby
+config.use_transactional_tests = true
+```
+
+You will now get the error:
+
+```
+undefined method `use_transactional_tests=' for #<RSpec::Core::Configuration:0x007fddbba40650> (NoMethodError)
+Did you mean?  use_transactional_fixtures=
+```
+
+Probably fixed in rspec 3.5.0.pre.
+
+## Summary 
+
+In this article, you learned how to use `factory_girl` 4.7, RSpec 3.1.x with Rails 5.
+  
+
+
+  

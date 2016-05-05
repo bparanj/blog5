@@ -1,4 +1,4 @@
-
+Problem with Paypal. This code is not working.
 
 cart show page turn off authenticity_token.
 

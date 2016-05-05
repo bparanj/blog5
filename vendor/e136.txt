@@ -1,5 +1,7 @@
 
+http://railscasts.com/episodes/136-jquery-ajax-revised
 
+First attempt. Could not get it working. Try again.
 
 rails g model task name complete:boolean
 
