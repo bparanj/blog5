@@ -1,0 +1,11 @@
+D
+
+gem install feedjira
+
+url = "http://feedjira.com/blog/feed.xml"
+feed = Feedjira::Feed.fetch_and_parse url
+feed.title
+entry = feed.entries.first
+entry.title
+entry.url
+

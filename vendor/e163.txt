@@ -1,0 +1,22 @@
+Signup, login, logout using has_secure_password in Rails 5
+
+Add bcrypt gem to Gemfile.
+
+```ruby
+gem 'bcrypt', '~> 3.1.7'
+```
+
+Run bundle. The `password_digest` attribute must be in user model. Let's create the user model.
+
+```
+rails g model user name password_digest email
+```
+
+```
+rails db:migrate
+```
+
+You can download the code for this article from [Signup, login, logout using has_secure_password in Rails 5](https://github.com/bparanj/fb5 'Signup, login, logout using has_secure_password in Rails 5') using hash 261c7167150de6e350fb305f54036da545536c41.
+
+
+

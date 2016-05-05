@@ -1,0 +1,72 @@
+
+
+Create a new background job.
+
+```
+rails g job newsletter
+```
+
+The generated job looks like this:
+
+```ruby 
+class NewsletterJob < ApplicationJob
+  queue_as :default
+
+  def perform(*args)
+    
+  end
+end
+```
+
+We can implement the perform method:
+
+```ruby
+puts "I am busy mailing newsletter."
+```
+
+Let's invoke the background job in rails console.
+
+```ruby 
+NewsletterJob.perform_later('some mailing text')
+ Enqueued NewsletterJob (Job ID: 98d0efc9-e763-4638-96de-e9adbc53e266) to Async(default) with arguments: "some mailing text"
+ Performing NewsletterJob from Async(default) with arguments: "some mailing text"
+  => #<NewsletterJob:0x007f84ea59f580 @arguments=["some mailing text"], @job_id="98d0efc9-e763-4638-96de-e9adbc53e266", @queue_name="default", @priority=nil, @provider_job_id="81e91bdf-a84f-4642-b55e-fa18a5125a7b">
+ > I am busy mailing newsletter.
+ Performed NewsletterJob from Async(default) in 6.93ms
+``` 
+
+We can use almost any background job processing library. Let's use sidekiq. Add the gem to Gemfile.
+
+```ruby 
+gem 'sidekiq'
+```
+
+Run bundle. In application.rb, specify the `queue_adapter`:
+
+```ruby
+config.active_job.queue_adapter = :sidekiq
+```
+
+Generate a welcome mailer.
+
+``` 
+rails g mailer welcome
+```
+
+We can now use sidekiq to process sending welcome email.
+
+```ruby 
+WelcomeMailer.welcome_email('Bugs').deliver_later
+ Enqueued ActionMailer::DeliveryJob (Job ID: b6d0484b-4509-46b8-b12b-eed5bf5ed738) to Sidekiq(mailers) with arguments: "WelcomeMailer", "welcome_email", "deliver_now", "Bugs"
+  => #<ActionMailer::DeliveryJob:0x007fc0b2ad8d90 @arguments=["WelcomeMailer", "welcome_email", "deliver_now", "Bugs"], @job_id="b6d0484b-4509-46b8-b12b-eed5bf5ed738", @queue_name="mailers", @priority=nil, @provider_job_id="6233205f5ae19963a12ee5e5">
+```
+ 
+The argument to `welcome_email` must be serializable. Pass in integer, strings etc, otherwise you get the error:
+
+```
+ActiveJob::SerializationError: Unsupported argument type: User
+```
+
+## Summary
+
+In this article, you learned how to use ActiveJob in Rails 5 to process jobs in the background using sidekiq.

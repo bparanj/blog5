@@ -1,0 +1,7 @@
+rails new cms
+cd cms
+gem 'ancestry'
+bundle
+rails g scaffold page name content:text ancestry:string:index
+rake db:migrate
+

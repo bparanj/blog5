@@ -1,0 +1,32 @@
+rails g model article name author content:text 
+rails g model comment author url content:text article:references
+rails g model tag name
+rails g model tagging
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+rails g migration CreateJoinTable tags taggings
+class CreateJoinTable < ActiveRecord::Migration[5.0]
+  def change
+    create_join_table :tags, :taggings do |t|
+      t.index [:tag_id, :tagging_id]
+      # t.index [:tagging_id, :tag_id]
+    end
+  end
+end

@@ -1,0 +1,165 @@
+Authentication using Authlogic 3.4.6 with Rails 4.2.6
+
+In this article, we will see how to get railscast episode 160 to work with Rails 4.2.6 and Authlogic 3.4.6. Add authlogic gem to Gemfile.
+
+```ruby
+gem 'authlogic'
+```
+
+Run bundle. Generate user model.
+
+```
+rails g model user
+```
+
+Change the users migration.
+
+```ruby
+class CreateUsers < ActiveRecord::Migration
+  def change
+    create_table :users do |t|
+      t.string :username
+      t.string :email
+      t.string :crypted_password
+      t.string :password_salt
+      t.string :persistence_token
+           
+      t.timestamps null: false
+    end
+  end
+end
+```
+
+Run the migration.
+
+```
+rake db:migrate
+```
+
+Add authlogic declaration acts_as_authentic to user model.
+
+```ruby
+class User < ActiveRecord::Base
+  acts_as_authentic
+end
+```
+
+Generate the users controller with new and edit actions.
+
+```
+rails g controller users new edit
+```
+
+Declare users resource in routes.rb.
+
+```ruby
+resources :users
+```
+
+Add the register link application/layout file:
+
+```rhtml
+<div id="user_nav">
+  <%= link_to "Register", new_user_path %>
+</div>
+```
+
+Add CSS to position navigation bar in application.scss:
+
+```css
+div#user_nav { float: right; font-size: 0.9em; }
+```
+
+Add the following to users/new.html.erb and users/edit.html.erb:
+
+```rhtml
+<%= render 'form' %>
+```
+
+The users `_form` partial is:
+
+```rhtml
+<%= form_for @user do |f| %>
+  <p>
+    <%= f.label :username %><br />
+    <%= f.text_field :username %>
+  </p>
+  <p>
+    <%= f.label :email %><br />
+    <%= f.text_field :email %>
+  </p>
+  <p>
+    <%= f.label :password %><br />
+    <%= f.password_field :password %>
+  </p>
+  <p>
+    <%= f.label :password_confirmation %><br />
+    <%= f.password_field :password_confirmation %>
+  </p>
+  <p><%= f.submit "Submit" %></p>
+<% end %>
+```
+
+Create user_session.rb in models directory.
+
+```ruby
+class UserSession < Authlogic::Session::Base
+end
+```
+
+Create the user_sessions controller.
+
+```
+rails g controller user_sessions new
+```
+
+Implement the user_sessions controller new, create and destroy actions.
+
+```ruby
+class UserSessionsController < ApplicationController
+  def new
+    @user_session = UserSession.new
+  end
+  
+  def create
+    session_params = params.require(:user_session).permit!
+    @user_session = UserSession.new(session_params)
+    if @user_session.save
+      redirect_to root_url, notice: 'Successfully logged in.'
+    else
+      render :new
+    end
+  end
+  
+  def destroy
+    @user_session = UserSession.find
+    @user_session.destroy
+    
+    redirect_to root_url, notice: 'Successfully logged in.'
+  end
+end
+```
+
+The user_sessions/new.html.erb is:
+
+```rhtml
+<%= form_for @user_session do |form| %>
+<div class="formList">
+  <p>
+    <%= form.label :username, "Username" %>
+    <%= form.text_field :username %>
+  </p>
+  <p>
+    <%= form.label :password, "Password" %>
+    <%= form.password_field :password %>
+  </p>
+  <p>
+    <%= form.submit "Submit" %>
+  </p>
+</div>
+<% end %>
+```
+
+You will now be able to signup, login and logout. You can download the source code for this article from [al4](https://github.com/bparanj/al4.git 'Authlogic 3.4.6 with Rails 4.2.6').
+
+http://railscasts.com/episodes/160-authlogic?view=asciicast
