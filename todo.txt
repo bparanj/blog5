@@ -1,15 +1,14 @@
 
-1. ADD Digg to linkbuilding list
+
 
 MyLogger = ActiveSupport::BufferedLogger.new(Rails.root.join('log/my_tagged.log'))
 MyTaggedLogger.tagged("PAY") { MyTaggedLogger.info "Hello I am working!" }
 
 1. Check if there is an article on tagged logging.
-2. Unsubscribe from Wistia.
-3. Upload the updated OOD in Ruby book.
-4. Example for using meta-programming to OCP. Paypal mapping object that maps paypal specific fields to application fields.
-5. One click db backup from Admin dashboard.
-6. Create a new gitbook for CP Ops Manual.
+2. Upload the updated OOD in Ruby book.
+3. Example for using meta-programming to OCP. Paypal mapping object that maps paypal specific fields to application fields.
+4. One click db backup from Admin dashboard.
+5. Create a new gitbook for CP Ops Manual.
 
 Elastic Transcoding 
 https://github.com/fsschmitt/aws-elastic-transcoder-test

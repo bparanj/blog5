@@ -1,3 +1,4 @@
+D
 ActiveRecord Query Inteface in Rails 5
 
 We can count the number of products.
