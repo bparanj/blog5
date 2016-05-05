@@ -1,3 +1,4 @@
+D
 Authentication using Authlogic 3.4.6 with Rails 4.2.6
 
 In this article, we will see how to get railscast episode 160 to work with Rails 4.2.6 and Authlogic 3.4.6. Add authlogic gem to Gemfile.
