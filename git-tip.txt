@@ -1,0 +1,40 @@
+D
+How to Quickly Revert Changes in Git 
+
+Sometimes you experiment with a new feature and you decide not to use a certain library or an approach. You need to revert back to the previous working version. I was working with flip.js jQuery plugin and decided not to use it. The git status shows the files that were modified.
+
+```
+~/projects/lafon $git status
+On branch master
+Your branch is up-to-date with 'origin/master'.
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	modified:   app/assets/javascripts/application.js
+	modified:   app/assets/stylesheets/application.scss
+	modified:   app/controllers/welcome_controller.rb
+	modified:   config/routes.rb
+```
+
+You can list only the modified files like this:
+
+```
+~/projects/lafon $git ls-files -m
+app/assets/javascripts/application.js
+app/assets/stylesheets/application.scss
+app/controllers/welcome_controller.rb
+config/routes.rb
+
+no changes added to commit (use "git add" and/or "git commit -a")
+```
+
+You can now combine xargs with this output to revert your changes.
+
+```
+~/projects/lafon $git ls-files -m | xargs git checkout
+~/projects/lafon $git status
+On branch master
+Your branch is up-to-date with 'origin/master'.
+nothing to commit, working directory clean
+```
