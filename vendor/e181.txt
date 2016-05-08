@@ -1,0 +1,66 @@
+
+
+
+Comment belongs to user.
+
+```ruby
+c = Comment.joins(:user)
+  Comment Load (0.1ms)  SELECT "comments".* FROM "comments" INNER JOIN "users" ON "users"."id" = "comments"."user_id"
+ => #<ActiveRecord::Relation [#<Comment id: 1, content: "You can do it.", user_id: 1, created_at: "2016-05-06 23:43:22", updated_at: "2016-05-06 23:43:22">, #<Comment id: 2, content: "It's all coffeescript.", user_id: 2, created_at: "2016-05-06 23:43:36", updated_at: "2016-05-06 23:43:36">]>
+```
+
+
+
+```ruby
+c = Comment.joins(:user).where(users: { admin: true })
+  Comment Load (0.3ms)  SELECT "comments".* FROM "comments" INNER JOIN "users" ON "users"."id" = "comments"."user_id" WHERE "users"."admin" = ?  [["admin", true]]
+ => #<ActiveRecord::Relation [#<Comment id: 2, content: "It's all coffeescript.", user_id: 2, created_at: "2016-05-06 23:43:36", updated_at: "2016-05-06 23:43:36">]>
+``` 
+
+```ruby
+c.first.user
+  User Load (0.1ms)  SELECT  "users".* FROM "users" WHERE "users"."id" = ? LIMIT ?  [["id", 2], ["LIMIT", 1]]
+ => #<User id: 2, name: "Daffy Duck", admin: true, created_at: "2016-05-06 23:13:03", updated_at: "2016-05-06 23:14:03"> 
+```
+
+```ruby
+User.last
+  User Load (0.2ms)  SELECT  "users".* FROM "users" ORDER BY "users"."id" DESC LIMIT ?  [["LIMIT", 1]]
+ => #<User id: 2, name: "Daffy Duck", admin: true, created_at: "2016-05-06 23:13:03", updated_at: "2016-05-06 23:14:03">
+```
+
+```ruby
+c = Comment.includes(:user).where(users: { admin: true })
+  SQL (0.2ms)  SELECT "comments"."id" AS t0_r0, "comments"."content" AS t0_r1, "comments"."user_id" AS t0_r2, "comments"."created_at" AS t0_r3, "comments"."updated_at" AS t0_r4, "users"."id" AS t1_r0, "users"."name" AS t1_r1, "users"."admin" AS t1_r2, "users"."created_at" AS t1_r3, "users"."updated_at" AS t1_r4 FROM "comments" LEFT OUTER JOIN "users" ON "users"."id" = "comments"."user_id" WHERE "users"."admin" = ?  [["admin", true]]
+ => #<ActiveRecord::Relation [#<Comment id: 2, content: "It's all coffeescript.", user_id: 2, created_at: "2016-05-06 23:43:36", updated_at: "2016-05-06 23:43:36">]>
+``` 
+
+```ruby
+c.first.user
+ => #<User id: 2, name: "Daffy Duck", admin: true, created_at: "2016-05-06 23:13:03", updated_at: "2016-05-06 23:14:03">
+```
+
+@comments = Comment.order('created_at desc')
+	
+```ruby
+@comments = Comment.includes(:user).where(users: { :admin => true }).order("comments.created_at desc")
+  SQL (0.2ms)  SELECT "comments"."id" AS t0_r0, "comments"."content" AS t0_r1, "comments"."user_id" AS t0_r2, "comments"."created_at" AS t0_r3, "comments"."updated_at" AS t0_r4, "users"."id" AS t1_r0, "users"."name" AS t1_r1, "users"."admin" AS t1_r2, "users"."created_at" AS t1_r3, "users"."updated_at" AS t1_r4 FROM "comments" LEFT OUTER JOIN "users" ON "users"."id" = "comments"."user_id" WHERE "users"."admin" = ? ORDER BY comments.created_at desc  [["admin", true]]
+ => #<ActiveRecord::Relation [#<Comment id: 2, content: "It's all coffeescript.", user_id: 2, created_at: "2016-05-06 23:43:36", updated_at: "2016-05-06 23:43:36">]>
+```
+
+```ruby
+@comments = Comment.joins(:user).where(users: { :admin => true }).order("comments.created_at desc")
+  Comment Load (0.4ms)  SELECT "comments".* FROM "comments" INNER JOIN "users" ON "users"."id" = "comments"."user_id" WHERE "users"."admin" = ? ORDER BY comments.created_at desc  [["admin", true]]
+ => #<ActiveRecord::Relation [#<Comment id: 2, content: "It's all coffeescript.", user_id: 2, created_at: "2016-05-06 23:43:36", updated_at: "2016-05-06 23:43:36">]>
+```  	
+
+In Rails 4.1 `scoped` method was deprecated.
+
+What is the Rails 5 equivalent of doing:
+User.all(:joins => :comments, :select => "users.*, count(comments.id) as comments_count", :group => "users.id")
+
+sqlite> SELECT users.*, COUNT(*) AS widget_count FROM "users" INNER JOIN "comments" ON "comments"."user_id" = "users"."id" GROUP BY users.id;
+1|Bugs Bunny|f|2016-05-06 23:12:06.824485|2016-05-06 23:13:55.790018|2
+2|Daffy Duck|t|2016-05-06 23:13:03.247495|2016-05-06 23:14:03.673591|1
+4|Pluto Dog|f|2016-05-07 00:49:43.324107|2016-05-07 00:49:43.324107|1
+
