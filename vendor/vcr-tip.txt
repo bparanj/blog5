@@ -1,3 +1,4 @@
+D
 Preserving Exact Body Bytes in VCR
 
 1. If you look at the VCR cassettes, you can see the response in JSON or Base64 encoded response. 
@@ -7,3 +8,7 @@ Preserving Exact Body Bytes in VCR
 Why does VCR do this for some requests?
 
 https://relishapp.com/vcr/vcr/v/2-4-0/docs/configuration/preserve-exact-body-bytes
+
+What is the use of knowing this fact?
+
+If you are having difficulty in making a test pass. You can change the string to a known input by encoding the known output for a given input in the VCR fixture file. This will make the test pass.

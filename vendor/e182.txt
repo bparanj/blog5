@@ -1,3 +1,4 @@
+D
 Cropping Images using jcrop jquery plugin in Rails 5
 
 Add the rmagick and carrierwave gems to the Gemfile.

@@ -1,3 +1,4 @@
+D
 Fragment Caching in Rails 5
 
 In development.rb, turn on caching in development environment:
