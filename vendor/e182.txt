@@ -1,95 +1,151 @@
+Cropping Images using jcrop jquery plugin in Rails 5
 
+Add the rmagick and carrierwave gems to the Gemfile.
+
+```ruby
 gem 'rmagick'
 gem 'carrierwave'
+```
 
+On Mac, you can install the pre-requisite imagemagick using brew.
+
+```
 brew install imagemagick
+```
 
+Generate an uploader using carrierwave generator.
+
+```
 rails generate uploader Avatar
+```
 
+Generate a model that has name and avatar string fields.
+
+```
+rails g model user name avatar.
+```
+
+Setup the carrierwave uploader in the user model.
+
+```ruby
 class User < ApplicationRecord
   mount_uploader :avatar, AvatarUploader
-  
 end
+```
 
+Generate a users controller with the standard restful actions.
+
+```
+rails g controller users
+```
+
+Run the migration.
+
+```
 rails db:migrate
+```
 
+Define the resource in routes.rb.
+
+```ruby
+Rails.application.routes.draw do
+  resources :users
+  root to: 'users#index'
+end
+```
+
+Start the server.
+
+```
 rails s
+```
 
-Create an user with an image.
+Create an user with an image. You will get the error:
 
+```
 Version thumb doesn't exist!
+```
 
 Add:
 
+```ruby
 version :thumb do
   resize_to_fill(100, 100)
 end
+```
 
-to avatar_uploader.rb
+to uploaders/avatar_uploader.rb. Try again, you will get the error:
 
+```
 undefined method `resize_to_fill' for Class
-
+```
 
 Uncomment:
 
-  include CarrierWave::RMagick
+```ruby
+include CarrierWave::RMagick
+```
   
-in avatar_uploader.rb.
+in avatar_uploader.rb. Add the large version of the image and crop methods to the avatar_uploader.rb.
 
-  version :large do
+```ruby
+version :large do
+  resize_to_limit(600, 600)
+end
+
+def crop
+  if model.crop_x.present?
     resize_to_limit(600, 600)
-  end
-
-  def crop
-    if model.crop_x.present?
-      resize_to_limit(600, 600)
-      manipulate! do |img|
-        x = model.crop_x.to_i
-        y = model.crop_y.to_i
-        w = model.crop_w.to_i
-        h = model.crop_h.to_i
-        img.crop!(x, y, w, h)
-      end
+    manipulate! do |img|
+      x = model.crop_x.to_i
+      y = model.crop_y.to_i
+      w = model.crop_w.to_i
+      h = model.crop_h.to_i
+      img.crop!(x, y, w, h)
     end
   end
+end
+```
 
-in avatar_uploader.rb.
+Change the update create action in the users controller to handle the cropping functionality.
 
-  def update
-    @user = User.find(params[:id])
-    if @user.update_attributes(allowed_params)
-      if params[:user][:avatar].present?
-        render :crop
-      else
-        redirect_to @user, notice: "Successfully updated user."
-      end
+```ruby
+def update
+  @user = User.find(params[:id])
+  if @user.update_attributes(allowed_params)
+    if params[:user][:avatar].present?
+      render :crop
     else
-      render :new
+      redirect_to @user, notice: "Successfully updated user."
     end
+  else
+    render :new
   end
+end
 
-  def create
-    @user = User.new(allowed_params)
-    if @user.save
-      if params[:user][:avatar].present?
-        render :crop
-      else
-        redirect_to @user, notice: "Successfully created user."
-      end
+def create
+  @user = User.new(allowed_params)
+  if @user.save
+    if params[:user][:avatar].present?
+      render :crop
     else
-      render :new
+      redirect_to @user, notice: "Successfully created user."
     end
+  else
+    render :new
   end
+end
+```
 
+Add crop.html.erb to app/views/users folder.
+
+```
 <h1>Crop Avatar</h1>
-
 <%= image_tag @user.avatar_url(:large), id: "cropbox" %>
-
 <h4>Preview</h4>
 <div style="width:100px; height:100px; overflow:hidden">
   <%= image_tag @user.avatar.url(:large), :id => "preview" %>
 </div>
-
 <%= form_for @user do |f| %>
   <% %w[x y w h].each do |attribute| %>
     <%= f.hidden_field "crop_#{attribute}" %>
@@ -98,28 +154,34 @@ in avatar_uploader.rb.
     <%= f.submit "Crop" %>
   </div>
 <% end %>
+```
 
-User
+If you try now, you will get an error. Change the user model:
 
+```ruby
   attr_accessor :crop_x, :crop_y, :crop_w, :crop_h
   after_update :crop_avatar
   
   def crop_avatar
     avatar.recreate_versions! if crop_x.present?
   end
+```
 
-Copy jquery.Jcrop.css to vendor/assets/stylesheets
-jquery.Jcrop.js to vendor/assets/javascripts
+Download the jcrop jquery plugin from the jcrop website. Copy jquery.Jcrop.css to vendor/assets/stylesheets and jquery.Jcrop.js to vendor/assets/javascripts directory. In application.js.
 
+```javascript
 //= require jquery.Jcrop
+```
 
-in application.js
+In application.css:
 
- *= require jquery.Jcrop
- 
-in application.css
+```
+*= require jquery.Jcrop
+```
 
+Add the cropping functionality to users.coffee.
 
+```javascript
 jQuery ->
   new AvatarCropper()
 
@@ -144,14 +206,20 @@ class AvatarCropper
   		height: Math.round(100/coords.h * $('#cropbox').height()) + 'px'
   		marginLeft: '-' + Math.round(100/coords.w * coords.x) + 'px'
   		marginTop: '-' + Math.round(100/coords.h * coords.y) + 'px'
+```
 
-users.coffee
+It will work now. However, the thumb nail will display the area that was not cropped. To fix it, add `process :crop` to `version :thumb` method in avatar_uploader.rb.
 
-  version :thumb do
-    process :crop
-    resize_to_fill(100, 100)
-  end
+```ruby
+version :thumb do
+  process :crop
+  resize_to_fill(100, 100)
+end
+```
 
-Otherwise, the cropped image will not show the correct area in the thumb version.
+You can download the source code for this article from `https://github.com/bparanj/cropper`.
 
+## Summary
+
+In this article, you learned how to add image cropping functionality to a Rails 5 app using jcrop jquery plugin.
 
