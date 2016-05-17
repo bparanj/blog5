@@ -1,0 +1,14 @@
+bundle 
+rails db:migrate
+rails db:seed
+
+
+config.action_dispatch.rescue_responses["ProductsController::Forbidden"] = :forbidden
+
+display blank page when exception occurs. (not forbidden page as in Rails 3.x)
+
+  get '404', to: redirect('/')
+  
+  in routes.rb to redirect user when 404 occurs to home page.
+  
+  

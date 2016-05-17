@@ -1,0 +1,120 @@
+Implementing Search Feature using Searchkick, Twitter Bootstrap 4 and Rails 5
+
+
+## Install Elasticsearch
+
+On Mac:
+
+```
+brew install elasticsearch
+elasticsearch: Java 1.7+ is required to install this formula.
+You can install with Homebrew Cask:
+  brew install Caskroom/cask/java
+  You can download from:
+    http://www.oracle.com/technetwork/java/javase/downloads/index.html
+  Error: An unsatisfied requirement failed this build.
+```
+
+Java is a pre-requisite. You can install it by:
+
+```
+$ brew install Caskroom/cask/java
+==> Tapping caskroom/cask
+Cloning into '/usr/local/Library/Taps/caskroom/homebrew-cask'...
+```
+
+## Validate ElasticSearch Installation
+
+```
+curl -XGET 'localhost:9200' 
+{
+  "status" : 200,
+  "name" : "Yukio",
+  "cluster_name" : "elasticsearch_bparanj",
+  "version" : {
+    "number" : "1.7.3",
+    "build_hash" : "05d4530971ef0ea46d0f4fa6ee64dbc8df659682",
+    "build_timestamp" : "2015-10-15T09:14:17Z",
+    "build_snapshot" : false,
+    "lucene_version" : "4.10.4"
+  },
+  "tagline" : "You Know, for Search"
+}
+```
+
+
+## Start the ElasticSearch Server
+
+```
+$elasticsearch
+```
+
+Add the searchkick method to the movie model.
+
+```ruby
+class Movie < ApplicationRecord
+  searchkick
+end
+```
+
+Reindex the movie model.
+
+```
+rake searchkick:reindex CLASS=Movie
+```
+
+Add the search action to the movies controller.
+
+```ruby
+def search
+  @movies = if params[:term].present?
+    Movie.search(params[:term])
+  else
+    Movie.all
+  end
+end
+```
+
+Add the search form to the header partial.
+
+```rhtml
+  <%= form_tag(search_movies_path, method: :get, class: "form-inline pull-xs-right", role: 'search') do %>
+    <%= text_field_tag :term, params[:term], class: 'form-control' %>
+	<%= submit_tag 'Search', name: nil, class: "btn btn-success-outline" %>
+  <% end %>
+```
+
+Create search.html.erb.
+
+```
+<div class="row">
+  <%= render @movies %>
+</div>
+```
+
+Create a movie partial.
+
+```rhtml
+<div class="col-sm-6 col-md-5">
+  <div class="thumbnail">
+    <%= link_to (image_tag movie.poster.url(:medium), class: 'image'), movie %>
+  </div>
+  <hr/>
+</div>
+```
+
+Reload the browser. If you get an error:
+
+```
+undefined local variable or method `searchkick' for #<Class:0x007f2cc8>
+```
+
+Restart the server. You can now search any movie, the cool thing is that even if you make a spelling mistake, searchkick is smart enough to find the movie.
+
+## Summary
+
+In this article, you learned how to implement search functionality using searchkick, Twitter Bootstrap 4 and Rails 5.
+
+
+
+The latest demo of Twitter Bootstrap 4 and Rails 5 now has search feature implemented using searchkick.
