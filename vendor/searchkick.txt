@@ -1,3 +1,4 @@
+D
 Implementing Search Feature using Searchkick, Twitter Bootstrap 4 and Rails 5
 
 

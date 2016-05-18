@@ -1,3 +1,4 @@
+D
 ActiveModelSerializer Basics in Rails 5
 
 Create a new Rails API only app.

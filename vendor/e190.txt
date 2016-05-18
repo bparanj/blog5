@@ -1,3 +1,5 @@
+Published on rubyplus.net
+
 rails g model category name
 rails g model product name price:decimal category:references description:text custom_url
 
