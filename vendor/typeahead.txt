@@ -1,3 +1,4 @@
+D
 Autocomplete using Typeahead and Searchkick in Rails 5
 
 ## Setup SearchKick
