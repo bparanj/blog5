@@ -1,0 +1,140 @@
+Visits
+
+When someone visits your website, create a visit record with useful information.
+
+traffic source - referrer, referring domain, landing page, search keyword
+location - country, region, and city
+technology - browser, OS, and device type
+utm parameters - source, medium, term, content, campaign
+
+Events
+
+Each event has a name and properties. The name is string and properties is a hash.
+
+Manual tracking of events:
+
+Tracker.track "Read article", title: "Twitter Bootstrap 4 Basics"
+Tracker.track "Newsletter Signup", name: "Tips and Coupons"
+
+Automatic Tracking
+
+class ApplicationController < ActionController::Base
+  after_action :track
+
+  protected
+
+  def track
+    Tracker.track "Processed #{controller_name}##{action_name}", request.filtered_parameters
+  end
+end
+
+
+class ArticlesController < ApplicationController
+  # Skip admin actions, new, create, update and edit
+  skip_after_action :track, only: [:new, :create, :edit, :update]
+  
+  or
+  
+  # Skip all actions except index and show
+  skip_after_action :track, except: [:index, :show]
+
+end
+
+When a user visits your website for the first time, the Javascript library generates a unique visit and visitor id.
+
+It sends the event to the server.
+
+A visit cookie is set for 4 hours, and a visitor cookie is set for 2 years.
+
+
+    create_table :ahoy_visits do |t|
+	  # cookies
+      t.string :visit_token
+      t.string :visitor_token
+	  
+	  # user
+      t.integer :user_id
+      t.string :user_type
+      t.string :ip
+      t.text :user_agent
+
+      # traffic source
+      t.text :referrer
+      t.string :referring_domain
+      t.string :campaign
+      # t.string :social_network
+      # t.string :search_engine
+      # t.string :search_keyword
+      t.text :landing_page
+
+      # technology
+      t.string :browser
+      t.string :os
+      t.string :device_type
+
+      # location
+      t.string :country
+      t.string :region
+      t.string :city
+
+      t.timestamp :created_at
+    end
+
+    add_index :ahoy_visits, [:visit_token], unique: true
+    add_index :ahoy_visits, [:user_id, :user_type]
+	
+    class Visit < ActiveRecord::Base
+      belongs_to :user, polymorphic: true
+    end
+	
+ See which campaigns generate the most revenue effortlessly.
+ 
+ Order.joins(:visit).group("utm_campaign").sum(:revenue)
+ 
+ serialize :properties, JSON
+ 
+landing_page: window.location.href,
+screen_width: window.screen.width,
+screen_height: window.screen.height
+
+When a visitor places an order, the `visit_id` column is automatically set.
+
+To see the visits for a given user, create an association:
+ 
+class User < ActiveRecord::Base
+  has_many :visits
+end
+
+user = User.first
+user.visits
+
+Create Funnels
+
+viewed_store_ids = Ahoy::Event.where(name: "Viewed store").uniq.pluck(:user_id)
+added_item_ids = Ahoy::Event.where(user_id: viewed_store_ids, name: "Added item to cart").uniq.pluck(:user_id)
+viewed_checkout_ids = Ahoy::Event.where(user_id: added_item_ids, name: "Viewed checkout").uniq.pluck(:user_id)
+
+Let’s associate orders with visits.
+
+First, generate a migration and add a `visit_id` column.
+
+class AddVisitIdToOrders < ActiveRecord::Migration
+  def change
+    add_column :orders, :visit_id, :uuid
+  end
+end
+
+Then, add `visitable` to the model.
+ 
+class Order < ActiveRecord::Base
+ 
+When a visitor places an order, the `visit_id` column is automatically set.
+
+ class AddVisitIdToOrders < ActiveRecord::Migration
+   def change
+     add_column :orders, :visit_id, :uuid
+   end
+ end
+ ```
+ 
++**Note**: Use the `uuid` column type if the `id` column on `visits` is a `uuid`.
