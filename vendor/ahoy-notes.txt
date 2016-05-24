@@ -2,10 +2,10 @@ Visits
 
 When someone visits your website, create a visit record with useful information.
 
-traffic source - referrer, referring domain, landing page, search keyword
-location - country, region, and city
-technology - browser, OS, and device type
-utm parameters - source, medium, term, content, campaign
+Traffic source - referrer, referring domain, landing page, search keyword
+Location - country, region, and city
+Technology - browser, OS, and device type
+Campaign parameters - source, medium, term, content, campaign
 
 Events
 
@@ -40,11 +40,10 @@ class ArticlesController < ApplicationController
 
 end
 
-When a user visits your website for the first time, the Javascript library generates a unique visit and visitor id.
 
-It sends the event to the server.
+Ahoy Specific Notes
 
-A visit cookie is set for 4 hours, and a visitor cookie is set for 2 years.
+When a user visits your website for the first time, the Javascript library generates a unique visit and visitor id. It sends the event to the server. A visit cookie is set for 4 hours, and a visitor cookie is set for 2 years.
 
 
     create_table :ahoy_visits do |t|
@@ -77,7 +76,7 @@ A visit cookie is set for 4 hours, and a visitor cookie is set for 2 years.
       t.string :region
       t.string :city
 
-      t.timestamp :created_at
+      t.timestamps
     end
 
     add_index :ahoy_visits, [:visit_token], unique: true
@@ -129,12 +128,5 @@ Then, add `visitable` to the model.
 class Order < ActiveRecord::Base
  
 When a visitor places an order, the `visit_id` column is automatically set.
-
- class AddVisitIdToOrders < ActiveRecord::Migration
-   def change
-     add_column :orders, :visit_id, :uuid
-   end
- end
- ```
  
 +**Note**: Use the `uuid` column type if the `id` column on `visits` is a `uuid`.
