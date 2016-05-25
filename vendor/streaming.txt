@@ -1,0 +1,125 @@
+
+Include ActionController::Live in the controller that will stream data to the client.
+
+```ruby
+class WelcomeController < ApplicationController
+  include ActionController::Live
+    
+  def ticker
+    5.times do
+      response.stream.write "hi <br/>"
+      sleep 2
+    end
+    response.stream.close
+  end
+end
+```
+
+The ticker action will stream hi 5 times to the client. Define the routes.
+
+```ruby
+get 'welcome/ticker'
+```
+  
+Browse to `http://localhost:3001/welcome/ticker`, you will see:
+
+```json
+hi
+hi
+hi
+hi
+hi
+```
+
+Create a ticker folder in lib directory with sse.rb:
+
+```ruby
+  def ticker
+    response.headers['Content-Type'] = 'text/event-stream'
+    sse = Ticker::SSE.new(response.stream)
+    begin
+      loop do
+        sse.write({ time: Time.now })
+        sleep 2
+      end
+    rescue IOError
+      logger.info 'Client disconnects causes IOError on write'
+    ensure
+      sse.close
+    end
+  end
+```
+
+Browse to `localhost:3001/welcome/ticker`, you will see
+
+```json
+data: {"time":"2016-05-26 15:47:50 -0700"}
+data: {"time":"2016-05-26 15:47:52 -0700"}
+data: {"time":"2016-05-26 15:47:54 -0700"}
+data: {"time":"2016-05-26 15:47:56 -0700"}
+data: {"time":"2016-05-26 15:47:58 -0700"}
+```
+
+Let's now simulate a stock ticker. Change the sse.rb.
+
+```ruby
+require 'json'
+
+module  Ticker
+  class SSE
+    def initialize(io)
+      @io = io
+    end 
+    
+    def write(object, options = {})
+      options.each do |k,v|
+        @io.write("#{k}: #{v}\n")
+      end
+      @io.write("data: #{JSON.dump(object)}\n\n")
+    end
+    
+    def close
+      @io.close
+    end
+  end
+end
+```
+
+Change the ticker action to stream the stock value for a stock symbol SRV.
+
+```ruby
+def ticker
+  response.headers['Content-Type'] = 'text/event-stream'
+  sse = Ticker::SSE.new(response.stream)
+  begin
+    loop do
+      quotes = [410, 411, 415, 413, 414, 420]
+      sse.write({ SRV:  quotes.sample})
+      sleep 2
+    end
+  rescue IOError
+    logger.info 'Client disconnects causes IOError on write'
+  ensure
+    sse.close
+  end
+end
+```
+
+If you browse to `localhost:3001/welcome/ticker`, you will see:
+
+```json
+data: {"SRV":414}
+data: {"SRV":414}
+data: {"SRV":415}
+data: {"SRV":414}
+data: {"SRV":413}
+data: {"SRV":410}
+```
+
+## Summary
+
+In this article, you learned how to stream data to the client using ActionController::Live in Rails 5.
+
+References
+
+[Live Streaming](http://tenderlovemaking.com/2012/07/30/is-it-live.html 'Live Streaming')
