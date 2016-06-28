@@ -1,6 +1,9 @@
 
 
 
+
+
+
 MyLogger = ActiveSupport::BufferedLogger.new(Rails.root.join('log/my_tagged.log'))
 MyTaggedLogger.tagged("PAY") { MyTaggedLogger.info "Hello I am working!" }
 
