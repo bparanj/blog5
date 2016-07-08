@@ -353,7 +353,7 @@ In the log, error is:
 Unpermitted parameters: password, password_confirmation
 ```
 
-To fix this, in users_controller.rb add allowed_params method:
+To fix this, in `users_controller.rb` add `allowed_params` method:
 
 ```ruby
 def allowed_params
